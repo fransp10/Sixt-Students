@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/24/outline";
 function AdminChosenStudentPageStats() {
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-4">
       <span className="text-xl">This month</span>
       <div className="grid grid-cols-5 gap-4">
         <AdminChosenStudentPageStatsCard
@@ -25,7 +25,7 @@ function AdminChosenStudentPageStats() {
         />
         <AdminChosenStudentPageStatsCard
           icon={CurrencyEuroIcon}
-          statName={"Earnings"}
+          statName={"Earnings "}
           statValue={"€756"}
           lastMonthValue={"€122"}
         />

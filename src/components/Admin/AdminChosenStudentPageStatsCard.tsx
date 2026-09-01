@@ -13,7 +13,7 @@ function AdminChosenStudentPageStatsCard({
   lastMonthValue,
 }: AdminChosenStudentPageStatsCardProps) {
   return (
-    <div className="flex flex-col items-center bg-studentCard gap-4 px-4 py-8 justify-center rounded-lg border border-borderDividers">
+    <div className="flex flex-col items-center bg-studentCard gap-4 px-4 py-8 justify-center rounded-lg border border-borderDividers ">
       <Icon className="size-14 bg-darkBackground rounded-full p-3 text-secondaryText" />
       <span className="text-lg ">{statName}</span>
       <span className="text-4xl text-primary">{statValue}</span>

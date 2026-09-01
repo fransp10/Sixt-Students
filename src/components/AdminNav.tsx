@@ -53,9 +53,19 @@ const navItems = [
 
 function AdminNav() {
   return (
-    <div className="w-96 h-screen  flex flex-col items-center p-2 pb-8 border-borderDividers border-2">
+    <div
+      className="hidden
+        h-screen
+        w-64
+        shrink-0
+        flex-col
+        border-r border-borderDividers
+        bg-pageBackground
+        p-4
+        lg:flex"
+    >
       <img src={sixtStudentsLogo} width={244} height={122} />
-      <nav className=" h-max w-full  bg-pageBackground p-2 ">
+      <nav className=" mt-6 w-full flex-1   ">
         <ul className="flex flex-col text-primaryText font-semibold">
           {navItems.map((item) => (
             <AdminNavItem
