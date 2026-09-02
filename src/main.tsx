@@ -12,7 +12,6 @@ import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import AuthProvider from "./context/AuthProvider.tsx";
 import AdminDashboardPage from "./pages/Admin/AdminDashboardPage.tsx";
 import SchedulePage from "./pages/Admin/AdminSchedulePage.tsx";
-import ShiftsPage from "./pages/ShiftsPage.tsx";
 import StudentsPage from "./pages/Admin/AdminStudentsPage.tsx";
 import EarningsPage from "./pages/EarningsPage.tsx";
 import ReportsPage from "./pages/ReportsPage.tsx";
@@ -97,10 +96,7 @@ const router = createBrowserRouter([
         path: "students/:studentId",
         element: <AdminChosenStudentPage />,
       },
-      {
-        path: "shifts",
-        element: <ShiftsPage />,
-      },
+
       {
         path: "earnings",
         element: <EarningsPage />,

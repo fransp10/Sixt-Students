@@ -1,6 +1,5 @@
 import {
   BanknotesIcon,
-  CalendarDateRangeIcon,
   CalendarIcon,
   ChartBarIcon,
   Cog6ToothIcon,
@@ -27,12 +26,6 @@ const navItems = [
     label: "Students",
     to: "/admin/students",
     icon: UsersIcon,
-  },
-
-  {
-    label: "Shifts",
-    to: "/admin/shifts",
-    icon: CalendarDateRangeIcon,
   },
   {
     label: "Earnings",

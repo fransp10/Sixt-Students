@@ -1,5 +1,11 @@
+import ShiftHistoryPage from "../../components/Admin/ShiftHistoryPage";
+
 function AdminChosenStudentShiftsPage() {
-  return <div></div>;
+  return (
+    <div className="p-4">
+      <ShiftHistoryPage />
+    </div>
+  );
 }
 
 export default AdminChosenStudentShiftsPage;
