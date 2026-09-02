@@ -1,7 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 import Login from "./pages/Login.tsx";
 import NotFoundPage from "./pages/NotFoundPage.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
@@ -63,8 +67,11 @@ const router = createBrowserRouter([
             element: <AdminChosenStudentPage />,
             children: [
               {
-                path: "overview",
                 index: true,
+                element: <Navigate to="overview" replace />,
+              },
+              {
+                path: "overview",
                 element: <OverviewPage />,
               },
               {
