@@ -9,7 +9,7 @@ import {
 function AdminChosenStudentPageStats() {
   return (
     <div className="flex flex-col gap-4">
-      <span className="text-xl">This month</span>
+      {/* <span className="text-xl">This month</span> */}
       <div className="grid grid-cols-5 gap-4">
         <AdminChosenStudentPageStatsCard
           icon={CalendarIcon}

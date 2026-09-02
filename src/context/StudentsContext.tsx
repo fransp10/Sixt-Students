@@ -1,11 +1,8 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
-import type { Student } from "../types/students";
 
 type StudentsContextType = {
-  selectedStudent: Student | null;
   isSearchOpen: boolean;
 
-  selectStudent: (student: Student) => void;
   openStudentSearch: () => void;
   closeStudentSearch: () => void;
 };
@@ -13,13 +10,7 @@ type StudentsContextType = {
 const StudentsContext = createContext<StudentsContextType | null>(null);
 
 export function StudentsProvider({ children }: { children: ReactNode }) {
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  function selectStudent(student: Student) {
-    setSelectedStudent(student);
-    setIsSearchOpen(false);
-  }
 
   function openStudentSearch() {
     setIsSearchOpen(true);
@@ -32,9 +23,7 @@ export function StudentsProvider({ children }: { children: ReactNode }) {
   return (
     <StudentsContext.Provider
       value={{
-        selectedStudent,
         isSearchOpen,
-        selectStudent,
         openStudentSearch,
         closeStudentSearch,
       }}

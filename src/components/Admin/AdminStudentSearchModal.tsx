@@ -21,8 +21,14 @@ function AdminStudentSearchModal() {
   }, [closeStudentSearch]);
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center  backdrop-blur-md bg-black/50">
-      <div className="flex h-full w-full flex-col overflow-hidden bg-cardBG md:h-[70vh] md:max-h-162.5 md:w-125 md:rounded-xl md:border md:border-borderDividers">
+    <div
+      onClick={closeStudentSearch}
+      className="fixed inset-0 z-50 flex items-center justify-center  backdrop-blur-md bg-black/50"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="flex h-full w-full flex-col overflow-hidden bg-cardBG md:h-[70vh] md:max-h-162.5 md:w-125 md:rounded-xl md:border md:border-borderDividers relative"
+      >
         <form className="bg-cardBG p-4 flex flex-row shrink-0 relative ">
           <button className="right-0 top-1/2 -translate-y-1/2 -translate-x-full absolute size-6 text-secondaryText cursor-pointer ">
             <MagnifyingGlassIcon />

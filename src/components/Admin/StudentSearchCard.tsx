@@ -2,16 +2,22 @@ import { ArrowRightIcon } from "@heroicons/react/16/solid";
 import InitialsIcon from "../InitialsIcon";
 import type { Student } from "../../types/students";
 import { useStudentsCtx } from "../../context/StudentsContext";
+import { useNavigate } from "react-router-dom";
 
 type StudentSearchCardProps = {
   student: Student;
 };
 
 function StudentSearchCard({ student }: StudentSearchCardProps) {
-  const { selectStudent } = useStudentsCtx();
+  const { closeStudentSearch } = useStudentsCtx();
+  const navigate = useNavigate();
+  function handleStudentClick(student: Student) {
+    navigate(`/admin/students/${student.id}`);
+    closeStudentSearch();
+  }
   return (
     <button
-      onClick={() => selectStudent(student)}
+      onClick={() => handleStudentClick(student)}
       className="flex flex-row  gap-1  border border-borderDividers cursor-pointer hover:bg-headersCalendar items-center  px-4 pl-6"
     >
       <InitialsIcon name="Student Name" size={42} />

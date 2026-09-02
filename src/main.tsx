@@ -14,6 +14,12 @@ import EarningsPage from "./pages/EarningsPage.tsx";
 import ReportsPage from "./pages/ReportsPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
 import AdminLayout from "./layouts/AdminLayout.tsx";
+import AdminChosenStudentPage from "./components/Admin/AdminChosenStudentPage.tsx";
+import AdminStudentNoStudentSelected from "./components/Admin/AdminStudentNoStudentSelected.tsx";
+import AdminChosenStudentShiftsPage from "./pages/Admin/AdminChosenStudentShiftsPage.tsx";
+import AdminChosenStudentManagePage from "./pages/Admin/AdminChosenStudentManagePage.tsx";
+import AdminChosenStudentEarningsPage from "./pages/Admin/AdminChosenStudentEarningsPage.tsx";
+import OverviewPage from "./pages/OverviewPage.tsx";
 
 // const router = createBrowserRouter([
 //   {
@@ -50,6 +56,39 @@ const router = createBrowserRouter([
       {
         path: "students",
         element: <StudentsPage />,
+        children: [
+          { index: true, element: <AdminStudentNoStudentSelected /> },
+          {
+            path: ":studentId",
+            element: <AdminChosenStudentPage />,
+            children: [
+              {
+                path: "overview",
+                index: true,
+                element: <OverviewPage />,
+              },
+              {
+                path: "shifts",
+                index: true,
+                element: <AdminChosenStudentShiftsPage />,
+              },
+              {
+                path: "Manage",
+                index: true,
+                element: <AdminChosenStudentManagePage />,
+              },
+              {
+                path: "Earnings",
+                index: true,
+                element: <AdminChosenStudentEarningsPage />,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: "students/:studentId",
+        element: <AdminChosenStudentPage />,
       },
       {
         path: "shifts",
