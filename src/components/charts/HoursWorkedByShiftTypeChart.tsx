@@ -30,7 +30,7 @@ function HoursWorkedByShiftTypeChart() {
           Total hours worked in each shift type
         </p>
       </div>
-      <div className="flex flex-col flex-1 items-center gap-8 sm:flex-row sm:justify-center">
+      <div className="flex flex-col flex-1 items-center gap-4 xl:gap-12  sm:flex-row sm:justify-center">
         {/* Donut */}
         <div className=" relative h-52 w-52 xl:size-72  shrink-0">
           <ResponsiveContainer width="100%" height="100%">
@@ -58,21 +58,23 @@ function HoursWorkedByShiftTypeChart() {
         </div>
 
         {/* Custom legend */}
-        <div className="flex md:flex-col gap-4">
+        <div className="flex md:flex-col text-xs gap-4">
           {data.map((item) => {
             const percentage = Math.round((item.value / totalHours) * 100);
 
             return (
-              <div key={item.name} className="flex items-start gap-3">
+              <div key={item.name} className="flex items-start gap-1 sm:gap-2">
                 <div
-                  className="mt-1.5 size-3 rounded-full"
+                  className="mt-1.5 size-2 sm:size-3 rounded-full"
                   style={{ backgroundColor: item.fill }}
                 />
 
                 <div>
-                  <p className="font-medium text-primaryText">{item.name}</p>
+                  <p className="text-sm sm:text-medium lg:text-lg text-primaryText">
+                    {item.name}
+                  </p>
 
-                  <p className="text-sm text-secondaryText">
+                  <p className="text-xs sm:text-sm lg:text-base text-secondaryText">
                     {item.value}h ({percentage}%)
                   </p>
                 </div>

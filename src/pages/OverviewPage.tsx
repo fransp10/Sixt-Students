@@ -3,7 +3,7 @@ import AdminChosenStudentPageStats from "../components/Admin/AdminChosenStudentP
 
 function OverviewPage() {
   return (
-    <div className="flex flex-col gap-8 p-8">
+    <div className="flex flex-col gap-2 px-8 md:px-12 ">
       <AdminChosenStudentPageStats />
       <AdminChosenStudentPageCharts />
     </div>
