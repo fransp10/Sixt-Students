@@ -4,7 +4,7 @@ import type { Category } from "../../types/category";
 const categories: Category[] = ["Overview", "Shifts", "Manage", "Earnings"];
 function CategoryMenu() {
   return (
-    <div className="flex flex-row gap-2 px-3 sm:gap-4 sm:px-6 py-4 border-b border-borderDividers">
+    <div className="flex flex-row  px-3 sm:gap-4 sm:px-6 py-4 border-b border-borderDividers">
       {categories.map((category) => (
         <NavLink
           to={category.toLowerCase()}

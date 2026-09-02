@@ -8,8 +8,8 @@ import {
 function AdminChosenStudentPageStats() {
   return (
     <div
-      className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-0 sm:gap-4
-     py-4 "
+      className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-0 sm:gap-2
+     py-2 "
     >
       <AdminChosenStudentPageStatsCard
         icon={CalendarIcon}
@@ -22,18 +22,21 @@ function AdminChosenStudentPageStats() {
         statName={"Hours worked"}
         statValue={"84"}
         previousValue={2}
+        suffix={"h"}
       />
       <AdminChosenStudentPageStatsCard
         icon={CurrencyEuroIcon}
         statName={"Earnings"}
         statValue={"756"}
         previousValue={"122"}
+        prefix={"€"}
       />
       <AdminChosenStudentPageStatsCard
         icon={ClipboardDocumentCheckIcon}
         statName={"Acceptance rate"}
         statValue={78}
         previousValue={2}
+        suffix={"%"}
       />
     </div>
   );

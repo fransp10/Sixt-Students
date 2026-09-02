@@ -41,7 +41,7 @@ function CustomTooltip({ active, payload, label }: any) {
 
 function HoursWorkedOverTimeChart() {
   return (
-    <div className="md:col-span-2 flex h-108 flex-col rounded-lg border border-borderDividers bg-cardBG p-4">
+    <div className="md:col-span-2 flex h-72 flex-col rounded-lg border border-borderDividers bg-cardBG p-4">
       {/* Header */}
       <div className="mb-3">
         <h2 className="font-semibold text-primaryText">
@@ -69,13 +69,13 @@ function HoursWorkedOverTimeChart() {
 
             <XAxis
               dataKey="month"
-              tick={{ fill: "#6b7075" }}
+              tick={{ fill: "#6b7075", fontSize: 12 }}
               tickLine={false}
               axisLine={false}
             />
 
             <YAxis
-              tick={{ fill: "#6b7075" }}
+              tick={{ fill: "#6b7075", fontSize: 12 }}
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => `${value}h`}
@@ -90,14 +90,14 @@ function HoursWorkedOverTimeChart() {
               type="monotone"
               dataKey="hours"
               stroke="#ff5f00"
-              strokeWidth={3}
+              strokeWidth={2}
               dot={{
-                r: 4,
+                r: 3,
                 fill: "#ff5f00",
                 strokeWidth: 0,
               }}
               activeDot={{
-                r: 6,
+                r: 5,
                 fill: "#ff5f00",
                 stroke: "#e5e7ea",
                 strokeWidth: 2,

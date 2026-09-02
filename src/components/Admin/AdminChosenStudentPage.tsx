@@ -11,7 +11,7 @@ function AdminChosenStudentPage() {
   );
 
   return (
-    <div className=" flex-1 border-borderDividers border flex flex-col gap-4  text-primaryText rounded-lg">
+    <div className=" flex-1 border-borderDividers border flex flex-col text-primaryText rounded-lg">
       <AdminChosenStudentPageHeader selectedStudent={selectedStudent} />
       <CategoryMenu />
       <Outlet />

@@ -5,26 +5,40 @@ type AdminChosenStudentPageStatsCardProps = {
   statName: string;
   statValue: string | number;
   previousValue: string | number;
+  prefix?: string;
+  suffix?: string;
 };
 function AdminChosenStudentPageStatsCard({
   icon: Icon,
   statName,
   statValue,
   previousValue,
+  prefix,
+  suffix,
 }: AdminChosenStudentPageStatsCardProps) {
   const difference = Number(statValue) - Number(previousValue);
+
   return (
-    <div className="flex flex-row items-center bg-studentCard gap-4 p-8 sm:p-4 md:pl-4 pl-8  rounded-lg border  border-borderDividers shrink-0 ">
-      <Icon className="size-14 shrink-0  bg-darkBackground rounded-full p-3 text-secondaryText" />
-      <div className="flex flex-col gap-1 ">
-        <span className="text-lg ">{statName}</span>
-        <span className="text-4xl text-primary">{statValue}</span>
-        <span className="text-nowrap text-md text-success">
-          {difference} vs last month
-        </span>
+    <div className="flex min-w-0 items-center gap-3 rounded-lg border border-borderDividers bg-studentCard p-4">
+      <Icon className="size-10 shrink-0 rounded-full bg-darkBackground p-2 text-secondaryText" />
+
+      <div className="min-w-0">
+        <p className="text-sm text-primaryText">{statName}</p>
+
+        <p className="mt-1 text-2xl font-medium text-primary">{`${prefix ? prefix : ""}${statValue}${suffix ? suffix : ""}`}</p>
+
+        <p
+          className={`mt-1 whitespace-nowrap text-xs ${
+            difference >= 0 ? "text-success" : "text-danger"
+          }`}
+        >
+          {difference > 0 && "+"}
+          {prefix ? prefix : ""}
+          {difference}
+          {suffix ? suffix : ""} vs last month
+        </p>
       </div>
     </div>
   );
 }
-
 export default AdminChosenStudentPageStatsCard;

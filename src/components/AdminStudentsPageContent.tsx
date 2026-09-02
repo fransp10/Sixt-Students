@@ -7,7 +7,7 @@ import PageHeading from "./PageHeading";
 function AdminStudentsPageContent() {
   const { isSearchOpen } = useStudentsCtx();
   return (
-    <div className=" flex flex-col gap-6 h-full  ">
+    <div className=" flex flex-col gap-4 h-full  ">
       <PageHeading
         heading="Students"
         subheading=" Search and review student activity and performance"

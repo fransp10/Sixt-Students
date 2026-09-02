@@ -20,7 +20,7 @@ function CustomTooltip({ active, payload }: any) {
 function HoursWorkedByShiftTypeChart() {
   const totalHours = data.reduce((sum, item) => sum + item.value, 0);
   return (
-    <div className="flex flex-col h-120 w-full p-4 rounded-xl border border-borderDividers bg-cardBG">
+    <div className="flex flex-col h-82 w-full p-4 rounded-xl border border-borderDividers bg-cardBG">
       <div className="mb-6 shrink-0">
         <h2 className="text-lg font-semibold text-primaryText">
           Hours worked by shift type
@@ -32,7 +32,7 @@ function HoursWorkedByShiftTypeChart() {
       </div>
       <div className="flex flex-col flex-1 items-center gap-4 xl:gap-12  sm:flex-row sm:justify-center">
         {/* Donut */}
-        <div className=" relative h-52 w-52 xl:size-72  shrink-0">
+        <div className="relative size-48 shrink-0 lg:size-52">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie

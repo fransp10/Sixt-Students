@@ -38,7 +38,7 @@ function CustomTooltip({ active, payload, label }: any) {
 
 function BarChartHoursByWeekday() {
   return (
-    <div className="flex h-120 flex-col rounded-xl border border-borderDividers bg-cardBG p-4">
+    <div className="flex h-82 flex-col rounded-xl border border-borderDividers bg-cardBG p-4">
       {/* Chart heading */}
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-primaryText">

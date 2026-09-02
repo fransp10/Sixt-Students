@@ -54,9 +54,10 @@ const navItems = [
 function AdminNav() {
   return (
     <div
-      className="hidden
+      className="
+      hidden
         h-screen
-        w-64
+        w-60
         shrink-0
         flex-col
         border-r border-borderDividers
