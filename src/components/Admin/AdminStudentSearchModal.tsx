@@ -1,11 +1,16 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid";
 import AdminStudentSearchResults from "./AdminStudentSearchResults";
 import { createPortal } from "react-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useStudentsCtx } from "../../context/StudentsContext";
 
 function AdminStudentSearchModal() {
   const { closeStudentSearch } = useStudentsCtx();
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    searchRef.current?.focus();
+  });
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -34,6 +39,7 @@ function AdminStudentSearchModal() {
             <MagnifyingGlassIcon />
           </button>
           <input
+            ref={searchRef}
             className="focus:outline-none focus:border focus:border-primary rounded-lg w-full p-4 border border-borderDividers  text-primaryText"
             placeholder="Search students..."
           />
