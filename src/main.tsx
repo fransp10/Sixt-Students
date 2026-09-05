@@ -21,8 +21,8 @@ import AdminChosenStudentPage from "./components/Admin/AdminChosenStudentPage.ts
 import AdminStudentNoStudentSelected from "./components/Admin/AdminStudentNoStudentSelected.tsx";
 import AdminChosenStudentShiftsPage from "./pages/Admin/AdminChosenStudentShiftsPage.tsx";
 import AdminChosenStudentManagePage from "./pages/Admin/AdminChosenStudentManagePage.tsx";
-import AdminChosenStudentEarningsPage from "./pages/Admin/AdminChosenStudentEarningsPage.tsx";
 import OverviewPage from "./pages/OverviewPage.tsx";
+import AdminChosenStudentContractsPage from "./components/Admin/AdminChosenStudentContractsPage.tsx";
 
 // const router = createBrowserRouter([
 //   {
@@ -79,14 +79,14 @@ const router = createBrowserRouter([
                 element: <AdminChosenStudentShiftsPage />,
               },
               {
-                path: "Manage",
+                path: "manage",
                 index: true,
                 element: <AdminChosenStudentManagePage />,
               },
               {
-                path: "Earnings",
+                path: "contracts",
                 index: true,
-                element: <AdminChosenStudentEarningsPage />,
+                element: <AdminChosenStudentContractsPage />,
               },
             ],
           },
