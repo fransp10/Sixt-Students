@@ -1,8 +1,7 @@
 import { Outlet } from "react-router-dom";
-import { useStudentsCtx } from "../context/StudentsContext";
-
-import AdminStudentSearchModal from "./Admin/AdminStudentSearchModal";
-import PageHeading from "./PageHeading";
+import AdminStudentSearchModal from "./AdminStudentSearchModal";
+import PageHeading from "../PageHeading";
+import { useStudentsCtx } from "../../context/StudentsContext";
 
 function AdminStudentsPageContent() {
   const { isSearchOpen } = useStudentsCtx();

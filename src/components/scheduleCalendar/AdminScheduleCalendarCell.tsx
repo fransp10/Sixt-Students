@@ -1,6 +1,6 @@
 import { getInitials } from "../../helpers/helpers";
 
-function ScheduleCalendarCell({
+function AdminScheduleCalendarCell({
   shift,
   onClick,
 }: {
@@ -56,4 +56,4 @@ function ScheduleCalendarCell({
   );
 }
 
-export default ScheduleCalendarCell;
+export default AdminScheduleCalendarCell;

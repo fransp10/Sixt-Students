@@ -20,6 +20,7 @@ function SchedulePage() {
       />
       <main>
         <SchedulePageCalendar
+          calendarType="admin"
           onSwitchDate={onSwitchDate}
           selectedDate={selectedDate}
         />

@@ -1,7 +1,7 @@
+import AdminStudentsPageContent from "../../components/Admin/AdminStudentsPageContent";
 import { StudentsProvider } from "../../context/StudentsContext";
-import AdminStudentsPageContent from "../../components/AdminStudentsPageContent";
 
-function StudentsPage() {
+function AdminStudentsPage() {
   return (
     <StudentsProvider>
       <AdminStudentsPageContent />
@@ -9,4 +9,4 @@ function StudentsPage() {
   );
 }
 
-export default StudentsPage;
+export default AdminStudentsPage;

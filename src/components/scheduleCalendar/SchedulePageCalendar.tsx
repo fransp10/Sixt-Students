@@ -1,7 +1,6 @@
 import { useState } from "react";
 import CalendarHeaderColumn from "./CalendarHeaderColumn";
 import CalendarHeaderRow from "./CalendarHeaderRow";
-import ScheduleCalendarCell from "./ScheduleCalendarCell";
 import ScheduleCalendarModal from "./ScheduleCalendarModal";
 import {
   eachDayOfInterval,
@@ -12,6 +11,9 @@ import {
 } from "date-fns";
 import { format } from "date-fns";
 import DatePickerComponent from "./DatePickerComponent";
+import AdminScheduleCalendarCell from "./AdminScheduleCalendarCell";
+import StudentsShceduleCalendarCell from "../student/StudentsScheduleCalendarCell";
+import StudentScheduleCalendarModal from "../student/StudentScheduleCalendarModal";
 
 export type Shift = {
   id: number;
@@ -75,11 +77,13 @@ const shifts: Shift[] = [
 type SchedulePageCalendarProps = {
   selectedDate: Date;
   onSwitchDate: (newDate: Date) => void;
+  calendarType: "admin" | "student";
 };
 
 function SchedulePageCalendar({
   selectedDate,
   onSwitchDate,
+  calendarType,
 }: SchedulePageCalendarProps) {
   const [selectedShift, setSelectedShift] = useState<selectedShiftType | null>(
     null,
@@ -126,26 +130,52 @@ function SchedulePageCalendar({
                 isSameDay(new Date(s.date), day) &&
                 s.type === shiftType.name.toLowerCase(),
             );
-            return (
-              <ScheduleCalendarCell
-                onClick={() =>
-                  setSelectedShift({
-                    date: format(day, "yyyy-MM-dd"),
-                    shiftType: shiftType.name,
-                    shift,
-                  })
-                }
-                key={`${format(day, "yyyy-MM-dd")}-${shiftType.name}`}
-                date={format(day, "yyyy-MM-dd")}
-                shiftType={shiftType.name}
-                shift={shift}
-              />
-            );
+            if (calendarType === "student") {
+              return (
+                <StudentsShceduleCalendarCell
+                  onClick={() =>
+                    setSelectedShift({
+                      date: format(day, "yyyy-MM-dd"),
+                      shiftType: shiftType.name,
+                      shift,
+                    })
+                  }
+                  key={`${format(day, "yyyy-MM-dd")}-${shiftType.name}`}
+                  date={format(day, "yyyy-MM-dd")}
+                  shiftType={shiftType.name}
+                  shift={shift}
+                />
+              );
+            }
+            if (calendarType === "admin") {
+              return (
+                <AdminScheduleCalendarCell
+                  onClick={() =>
+                    setSelectedShift({
+                      date: format(day, "yyyy-MM-dd"),
+                      shiftType: shiftType.name,
+                      shift,
+                    })
+                  }
+                  key={`${format(day, "yyyy-MM-dd")}-${shiftType.name}`}
+                  date={format(day, "yyyy-MM-dd")}
+                  shiftType={shiftType.name}
+                  shift={shift}
+                />
+              );
+            }
           })}
         </>
       ))}
-      {selectedShift !== null && (
+      {selectedShift !== null && calendarType === "admin" && (
         <ScheduleCalendarModal
+          onClose={() => setSelectedShift(null)}
+          shift={selectedShift}
+        />
+      )}
+
+      {selectedShift !== null && calendarType === "student" && (
+        <StudentScheduleCalendarModal
           onClose={() => setSelectedShift(null)}
           shift={selectedShift}
         />
