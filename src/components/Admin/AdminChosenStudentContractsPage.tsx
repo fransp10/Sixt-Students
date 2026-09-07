@@ -9,6 +9,7 @@ import { useState } from "react";
 import { eachMonthOfInterval } from "date-fns";
 import { format } from "date-fns";
 import ContractTableRow from "./ContractTableRow";
+import ContractsTable from "./ContractsTable";
 
 function AdminChosenStudentContractsPage() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -77,42 +78,7 @@ function AdminChosenStudentContractsPage() {
         </div>
       </div>
       {/* TABLE */}
-      <div className="overflow-hidden rounded-lg border border-borderDividers">
-        <table className="w-full table-fixed">
-          <thead>
-            <tr className="bg-cardLighterBG h-12 border-b border-borderDividers text-left">
-              <th className="w-[18%] px-4 text-xs font-medium text-secondaryText">
-                Month
-              </th>
-              <th className="w-[18%] px-4 text-xs font-medium text-secondaryText">
-                Status
-              </th>
-
-              <th className="w-[28%] px-4 text-xs font-medium text-secondaryText">
-                File
-              </th>
-              <th className="w-[18%] px-4 text-xs font-medium text-secondaryText">
-                Uploaded
-              </th>
-              <th className="w-[18%] px-4 text-xs font-medium text-secondaryText">
-                Actions
-              </th>
-            </tr>
-          </thead>
-
-          {}
-          <tbody>
-            {tableRowMonths.map((month) => (
-              <ContractTableRow
-                status="pending"
-                student={student}
-                key={month}
-                month={month}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <ContractsTable student={student} tableRowMonths={tableRowMonths} />
     </div>
   );
 }
