@@ -1,4 +1,3 @@
-import AdminChosenStudentPageCharts from "../../components/Admin/AdminChosenStudentPageCharts";
 import BarChartEarningsByMonth from "../../components/charts/BarChartEarningsByMonth";
 import BarChartHoursByWeekday from "../../components/charts/BarChartHoursByWeekday";
 import HoursWorkedByShiftTypeChart from "../../components/charts/HoursWorkedByShiftTypeChart";
