@@ -1,5 +1,5 @@
 import type { ComponentType, SVGProps } from "react";
-import LastMonthStat from "./LastMonthStat";
+import LastMonthStat from "../../pages/Students/LastMonthStat";
 
 type StatsCardProps = {
   prefix?: string;

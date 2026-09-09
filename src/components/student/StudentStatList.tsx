@@ -4,8 +4,8 @@ import {
   ClockIcon,
   PlusCircleIcon,
 } from "@heroicons/react/24/outline";
-import StatsCard from "../../pages/Students/StatsCard";
-import NextShiftCard from "../../pages/Students/NextShiftCard";
+import StatsCard from "./StatsCard";
+import NextShiftCard from "./NextShiftCard";
 
 function StudentStatList() {
   return (

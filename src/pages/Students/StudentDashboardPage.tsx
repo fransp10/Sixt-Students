@@ -4,7 +4,7 @@ import HoursWorkedByShiftTypeChart from "../../components/charts/HoursWorkedBySh
 import StudentStatList from "../../components/student/StudentStatList";
 import TotalEarningsCard from "../../components/student/TotalEarningsCard";
 import { fakeStudents } from "../../helpers/helpers";
-import FavoriteShiftTypeCard from "./FavoriteShiftTypeCard";
+import FavoriteShiftTypeCard from "../../components/student/FavoriteShiftTypeCard";
 
 function StudentDashboardPage() {
   const currentStudent = fakeStudents[0];

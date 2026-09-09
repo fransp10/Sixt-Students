@@ -109,7 +109,7 @@ function UploadContractModal({ onClose, month }: UploadContractModalProps) {
         </div>
         {selectedFile && (
           <div className="mt-4 flex items-center justify-between rounded-lg border border-borderDividers p-4 gap-4">
-            <div>
+            <div className="w-full">
               <div className="flex flex-row gap-2">
                 <div className="flex items-center size-10 bg-borderDividers rounded-lg p-2">
                   <DocumentIcon className="size-6 text-secondaryText" />
@@ -130,7 +130,7 @@ function UploadContractModal({ onClose, month }: UploadContractModalProps) {
                   <XMarkIcon className="size-5" />
                 </button>
               </div>
-              <div className="mt-4 flex justify-end ">
+              <div className="mt-4 flex justify-end  ">
                 <button className="bg-primary rounded-xl hover:bg-primary/80 cursor-pointer w-full p-2">
                   Upload
                 </button>
