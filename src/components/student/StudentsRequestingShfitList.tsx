@@ -22,9 +22,6 @@ function StudentsRequestingShfitList({
         {shift.shift?.students.map((student) => (
           <StudentsInTheShiftListItem key={student.id} student={student} />
         ))}
-        {shift.shift?.students.map((student) => (
-          <StudentsInTheShiftListItem key={student.id} student={student} />
-        ))}
       </ul>
     </div>
   );

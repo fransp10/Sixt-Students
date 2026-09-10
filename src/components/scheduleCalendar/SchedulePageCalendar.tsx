@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import CalendarHeaderColumn from "./CalendarHeaderColumn";
 import CalendarHeaderRow from "./CalendarHeaderRow";
 import ScheduleCalendarModal from "./ScheduleCalendarModal";
@@ -14,7 +14,6 @@ import DatePickerComponent from "./DatePickerComponent";
 import AdminScheduleCalendarCell from "./AdminScheduleCalendarCell";
 import StudentsShceduleCalendarCell from "../student/StudentsScheduleCalendarCell";
 import StudentScheduleCalendarModal from "../student/StudentScheduleCalendarModal";
-
 export type Shift = {
   id: number;
   date: string;
@@ -55,7 +54,7 @@ const shiftTypes: shiftTypeType[] = [
 const shifts: Shift[] = [
   {
     id: 1,
-    date: "2026-08-17",
+    date: "2026-09-9",
     type: "morning",
     students: [
       { id: 1, name: "Luka Marić" },
@@ -95,7 +94,7 @@ function SchedulePageCalendar({
   const currentDate = new Date();
 
   return (
-    <div className="grid grid-cols-[140px_repeat(7,1fr)] text-primaryText  rounded-2xl grid-rows-4">
+    <div className="grid grid-cols-8 text-primaryText  rounded-2xl grid-rows-4">
       <DatePickerComponent
         onSwitchDate={onSwitchDate}
         selectedDate={selectedDate}
@@ -119,7 +118,7 @@ function SchedulePageCalendar({
 
       {/* ROWS */}
       {shiftTypes.map((shiftType) => (
-        <>
+        <Fragment key={shiftType.name}>
           {/* ROW HEADER */}
           <CalendarHeaderRow shiftType={shiftType} />
 
@@ -165,7 +164,7 @@ function SchedulePageCalendar({
               );
             }
           })}
-        </>
+        </Fragment>
       ))}
       {selectedShift !== null && calendarType === "admin" && (
         <ScheduleCalendarModal
