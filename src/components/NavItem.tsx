@@ -1,14 +1,7 @@
-import type { ComponentType, SVGProps } from "react";
 import { NavLink } from "react-router-dom";
+import type { NavItemType } from "../types/navItem";
 
-type AdminNavItemProps = {
-  icon: ComponentType<SVGProps<SVGSVGElement>>;
-  label: string;
-  to: string;
-  end?: boolean;
-};
-
-function AdminNavItem({ icon: Icon, label, to, end }: AdminNavItemProps) {
+function NavItem({ icon: Icon, label, to, end }: NavItemType) {
   return (
     <li>
       <NavLink
@@ -29,4 +22,4 @@ function AdminNavItem({ icon: Icon, label, to, end }: AdminNavItemProps) {
   );
 }
 
-export default AdminNavItem;
+export default NavItem;

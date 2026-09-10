@@ -20,7 +20,7 @@ function CustomTooltip({ active, payload }: any) {
 function HoursWorkedByShiftTypeChart() {
   const totalHours = data.reduce((sum, item) => sum + item.value, 0);
   return (
-    <div className="flex flex-col h-82 w-full p-4 rounded-xl border border-borderDividers bg-cardBG">
+    <div className="flex  flex-col h-82  p-4 rounded-xl border border-borderDividers bg-cardBG">
       <div className="mb-6 shrink-0">
         <h2 className="text-lg font-semibold text-primaryText">
           Hours worked by shift type

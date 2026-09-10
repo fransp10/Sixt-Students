@@ -16,13 +16,19 @@ import StudentsPage from "./pages/Admin/AdminStudentsPage.tsx";
 import EarningsPage from "./pages/EarningsPage.tsx";
 import ReportsPage from "./pages/ReportsPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
-import AdminLayout from "./layouts/AdminLayout.tsx";
 import AdminChosenStudentPage from "./components/Admin/AdminChosenStudentPage.tsx";
 import AdminStudentNoStudentSelected from "./components/Admin/AdminStudentNoStudentSelected.tsx";
 import AdminChosenStudentShiftsPage from "./pages/Admin/AdminChosenStudentShiftsPage.tsx";
 import AdminChosenStudentManagePage from "./pages/Admin/AdminChosenStudentManagePage.tsx";
 import OverviewPage from "./pages/OverviewPage.tsx";
 import AdminChosenStudentContractsPage from "./components/Admin/AdminChosenStudentContractsPage.tsx";
+import AppLayout from "./layouts/AppLayout.tsx";
+import { adminNavItems, studentNavItems } from "./config/navigation.ts";
+import AppNav from "./components/AppNav.tsx";
+import StudentDashboardPage from "./pages/Students/StudentDashboardPage.tsx";
+import StudentSchedulePage from "./pages/Students/StudentSchedulePage.tsx";
+import StudentContractsPage from "./pages/Students/StudentContractsPage.tsx";
+import StudentSettingsPage from "./pages/Students/StudentSettingsPage,.tsx";
 
 // const router = createBrowserRouter([
 //   {
@@ -46,7 +52,7 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     errorElement: <NotFoundPage />,
-    element: <AdminLayout />,
+    element: <AppLayout navItems={adminNavItems} />,
     children: [
       {
         index: true,
@@ -108,6 +114,37 @@ const router = createBrowserRouter([
       {
         path: "settings",
         element: <SettingsPage />,
+      },
+    ],
+  },
+  {
+    path: "/student",
+    element: <AppLayout navItems={studentNavItems} />,
+    errorElement: <NotFoundPage />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/student/dashboard" replace />,
+      },
+      {
+        path: "dashboard",
+        element: <StudentDashboardPage />,
+      },
+      {
+        path: "schedule",
+        element: <StudentSchedulePage />,
+      },
+      {
+        path: "contracts",
+        element: <StudentContractsPage />,
+      },
+      {
+        path: "earnings",
+        element: <EarningsPage />,
+      },
+      {
+        path: "settings",
+        element: <StudentSettingsPage />,
       },
     ],
   },

@@ -1,50 +1,13 @@
-import {
-  BanknotesIcon,
-  CalendarIcon,
-  ChartBarIcon,
-  Cog6ToothIcon,
-  HomeIcon,
-  UsersIcon,
-} from "@heroicons/react/24/outline";
 import sixtStudentsLogo from "../assets/sixtStudentsLogo.png";
-import AdminNavItem from "./AdminNavItem";
+import type { NavItemType } from "../types/navItem";
 import LogoutButton from "./LogoutButton";
+import NavItem from "./NavItem";
 
-const navItems = [
-  {
-    label: "Dashboard",
-    to: "/admin",
-    icon: HomeIcon,
-    end: true,
-  },
-  {
-    label: "Schedule",
-    to: "/admin/schedule",
-    icon: CalendarIcon,
-  },
-  {
-    label: "Students",
-    to: "/admin/students",
-    icon: UsersIcon,
-  },
-  {
-    label: "Earnings",
-    to: "/admin/earnings",
-    icon: BanknotesIcon,
-  },
-  {
-    label: "Reports",
-    to: "/admin/reports",
-    icon: ChartBarIcon,
-  },
-  {
-    label: "Settings",
-    to: "/admin/settings",
-    icon: Cog6ToothIcon,
-  },
-];
+type AppNav = {
+  navItems: NavItemType[];
+};
 
-function AdminNav() {
+function AppNav({ navItems }: AppNav) {
   return (
     <div
       className="
@@ -62,7 +25,7 @@ function AdminNav() {
       <nav className=" mt-6 w-full flex-1   ">
         <ul className="flex flex-col text-primaryText font-semibold">
           {navItems.map((item) => (
-            <AdminNavItem
+            <NavItem
               key={item.to}
               icon={item.icon}
               label={item.label}
@@ -77,4 +40,4 @@ function AdminNav() {
   );
 }
 
-export default AdminNav;
+export default AppNav;

@@ -1,12 +1,11 @@
 import { useState } from "react";
 import SchedulePageCalendar from "../../components/scheduleCalendar/SchedulePageCalendar";
-import { startOfWeek } from "date-fns";
 import PageHeading from "../../components/PageHeading";
+import MobileCalendar from "../../components/scheduleCalendar/MobileCalendar";
+import { eachDayOfInterval, endOfWeek, startOfWeek } from "date-fns";
 
 function SchedulePage() {
-  const [selectedDate, setSelectedDate] = useState(
-    startOfWeek(new Date(), { weekStartsOn: 1 }),
-  );
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   function onSwitchDate(newDate: Date) {
     setSelectedDate(newDate);
@@ -19,10 +18,20 @@ function SchedulePage() {
         subheading="View and manage all scheduled shifts"
       />
       <main>
-        <SchedulePageCalendar
-          onSwitchDate={onSwitchDate}
-          selectedDate={selectedDate}
-        />
+        <div className="hidden lg:block ">
+          <SchedulePageCalendar
+            calendarType="admin"
+            onSwitchDate={onSwitchDate}
+            selectedDate={selectedDate}
+          />
+        </div>
+        <div className="lg:hidden">
+          <MobileCalendar
+            calendarType="admin"
+            onSwitchDate={onSwitchDate}
+            selectedDate={selectedDate}
+          />
+        </div>
       </main>
     </div>
   );

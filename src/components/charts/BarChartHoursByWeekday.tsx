@@ -38,7 +38,7 @@ function CustomTooltip({ active, payload, label }: any) {
 
 function BarChartHoursByWeekday() {
   return (
-    <div className="flex h-82 flex-col rounded-xl border border-borderDividers bg-cardBG p-4">
+    <div className="flex  h-82 flex-col rounded-xl border border-borderDividers bg-cardBG p-4">
       {/* Chart heading */}
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-primaryText">
@@ -60,6 +60,7 @@ function BarChartHoursByWeekday() {
               tick={{ fill: "#6b7075" }}
               axisLine={false}
               tickLine={false}
+              padding={{ left: 20, right: 20 }}
             />
 
             <YAxis
@@ -70,15 +71,7 @@ function BarChartHoursByWeekday() {
 
             <Tooltip cursor={false} content={<CustomTooltip />} />
 
-            <Bar dataKey="hours" fill="#ff5f00" radius={[6, 6, 0, 0]}>
-              <LabelList
-                dataKey="hours"
-                position="top"
-                fill="#e5e7ea"
-                fontSize={14}
-                formatter={(value) => `${value}h`}
-              />
-            </Bar>
+            <Bar dataKey="hours" fill="#ff5f00" radius={[6, 6, 0, 0]}></Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
