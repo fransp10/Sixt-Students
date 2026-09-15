@@ -10,7 +10,8 @@
     "start": "node src/server.js",
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "debug": "tsx --inspect watch src/server.ts"
   },
   "dependencies": {
     "argon2": "^0.45.1",

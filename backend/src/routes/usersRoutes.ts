@@ -3,6 +3,7 @@ import {
   activateUser,
   createUser,
   deactivateUser,
+  getShiftAssignmentsByUserId,
   getUserById,
   getUsers,
   updateUser,
@@ -20,5 +21,7 @@ userRouter.patch("/:userId", updateUser);
 userRouter.patch("/:userId/deactivate", deactivateUser);
 
 userRouter.patch("/:userId/activate", activateUser);
+
+userRouter.get("/:userId/shift-assignments", getShiftAssignmentsByUserId);
 
 export default userRouter;

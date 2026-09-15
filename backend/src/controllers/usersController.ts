@@ -19,7 +19,8 @@ export async function getUserById(
 ): Promise<void> {
   const { userId } = req.params;
 
-  const user: UserWithoutPasswordType | null = await Users.getUserById(userId);
+  const user: UserWithoutPasswordType | undefined =
+    await Users.getUserById(userId);
 
   if (!user) {
     throw new AppError("User not found", 404);
@@ -90,4 +91,25 @@ export async function activateUser(
   }
 
   res.status(200).json({ message: "User activated successfully" });
+}
+
+export async function getShiftAssignmentsByUserId(
+  req: Request<
+    { userId: string },
+    unknown,
+    unknown,
+    { startDate?: string; endDate?: string }
+  >,
+  res: Response,
+): Promise<void> {
+  const { userId } = req.params;
+  const { startDate, endDate } = req.query;
+
+  const shiftAssignments = await UserServices.getShiftAssignmentsByUserId(
+    userId,
+    startDate,
+    endDate,
+  );
+
+  res.status(200).json(shiftAssignments);
 }

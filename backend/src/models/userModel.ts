@@ -55,7 +55,7 @@ export async function createUser({
 
 export async function getUserById(
   userId: string,
-): Promise<UserWithoutPasswordType | null> {
+): Promise<UserWithoutPasswordType | undefined> {
   const result = await pool.query(
     "SELECT id,username,email,phone,user_role,default_hourly_rate,is_active FROM USERS WHERE id=$1",
     [userId],
@@ -113,4 +113,29 @@ export async function activateUser(
   );
 
   return result.rows[0];
+}
+
+export async function getShiftAssignmentsByUserId(
+  userId: string,
+  startDate?: string,
+  endDate?: string,
+): Promise<any[]> {
+  let query = `SELECT s.id AS assigned_shift_id, sa.* 
+      FROM shift_assignments sa
+      JOIN shifts s ON  sa.shift_id = s.id
+      WHERE sa.user_id = $1`;
+
+  const values = [userId];
+
+  if (startDate) {
+    values.push(startDate);
+    query += ` AND s.date >= $${values.length}`;
+  }
+  if (endDate) {
+    values.push(endDate);
+    query += ` AND s.date <= $${values.length}`;
+  }
+
+  const shiftAssignments: QueryResult<any> = await pool.query(query, values);
+  return shiftAssignments.rows;
 }
