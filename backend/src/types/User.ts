@@ -24,3 +24,9 @@ export type CreateUserModelType = {
 };
 
 export type CreateUserReqBodyType = Omit<CreateUserModelType, "password_hash">;
+export type UserWithHashedPasswordType = Omit<
+  UserWithPasswordType,
+  "password"
+> & {
+  password_hash: string;
+};

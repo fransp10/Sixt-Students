@@ -62,22 +62,22 @@ export async function getRequestsForShift(
 }
 
 export async function createShiftRequest(
-  req: Request<{ shiftId: string }, unknown, { userId: string }>,
+  req: Request<{ shiftId: string }>,
   res: Response,
 ): Promise<void> {
   const { shiftId } = req.params;
-  const { userId } = req.body;
+  const userId = req.user!.id;
 
   const shiftRequest = await shiftsServices.createShiftRequest(shiftId, userId);
   res.status(201).json(shiftRequest);
 }
 
 export async function deleteShiftRequest(
-  req: Request<{ shiftId: string }, unknown, { userId: string }>,
+  req: Request<{ shiftId: string }>,
   res: Response,
 ): Promise<void> {
   const { shiftId } = req.params;
-  const { userId } = req.body;
+  const userId = req.user!.id;
 
   const shiftRequest = await shiftsServices.getShiftRequest(shiftId, userId);
   if (!shiftRequest) {
@@ -103,6 +103,21 @@ export async function getAllAssignmentsForShift(
 }
 
 export async function createAssignmentForShift(
+  req: Request<{ shiftId: string }>,
+  res: Response,
+): Promise<void> {
+  const { shiftId } = req.params;
+  const userId = req.body!.userId;
+
+  const newAssignment = await shiftsServices.createAssignmentForShift(
+    shiftId,
+    userId,
+  );
+
+  res.status(201).json(newAssignment);
+}
+
+export async function createAssignmentForShiftAdmin(
   req: Request<{ shiftId: string }, unknown, { userId: string }>,
   res: Response,
 ): Promise<void> {
@@ -113,11 +128,9 @@ export async function createAssignmentForShift(
     shiftId,
     userId,
   );
-
-  res.status(201).json(newAssignment);
 }
 
-export async function deleteShiftAssignment(
+export async function deleteShiftAssignmentAdmin(
   req: Request<{ shiftId: string }, unknown, { userId: string }>,
   res: Response,
 ): Promise<void> {

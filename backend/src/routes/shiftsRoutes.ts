@@ -1,29 +1,36 @@
 import express from "express";
-import {
-  createAssignmentForShift,
-  createShiftRequest,
-  deleteShiftAssignment,
-  deleteShiftRequest,
-  getAllAssignmentsForShift,
-  getAllShifts,
-  getRequestsForShift,
-  modifyShift,
-} from "../controllers/shiftsController.js";
+import * as shiftController from "../controllers/shiftsController.js";
+import { requireAdmin } from "../middleware/requireAdmin.js";
 
 const shiftsRouter = express.Router();
 
-shiftsRouter.get("/", getAllShifts);
+shiftsRouter.get("/", shiftController.getAllShifts);
+shiftsRouter.patch("/:shiftId", requireAdmin, shiftController.modifyShift);
 
-shiftsRouter.patch("/:shiftId", modifyShift);
-
-shiftsRouter.get("/:shiftId/requests", getRequestsForShift);
-shiftsRouter.post("/:shiftId/requests", createShiftRequest);
-shiftsRouter.delete("/:shiftId/requests", deleteShiftRequest);
+shiftsRouter.get("/:shiftId/requests", shiftController.getRequestsForShift);
+shiftsRouter.post("/:shiftId/requests", shiftController.createShiftRequest);
+shiftsRouter.delete("/:shiftId/requests", shiftController.deleteShiftRequest);
 
 // assignments
 
-shiftsRouter.get("/:shiftId/assignments", getAllAssignmentsForShift);
-shiftsRouter.post("/:shiftId/assignments", createAssignmentForShift);
-shiftsRouter.delete("/:shiftId/assignments", deleteShiftAssignment);
+shiftsRouter.get(
+  "/:shiftId/assignments",
+  shiftController.getAllAssignmentsForShift,
+);
+shiftsRouter.post(
+  "/:shiftId/assignments",
+  requireAdmin,
+  shiftController.createAssignmentForShift,
+);
+shiftsRouter.delete(
+  "/:shiftId/assignments",
+  requireAdmin,
+  shiftController.deleteShiftAssignmentAdmin,
+);
+shiftsRouter.delete(
+  "/:shiftId/assignments",
+  requireAdmin,
+  shiftController.deleteShiftAssignmentAdmin,
+);
 
 export default shiftsRouter;

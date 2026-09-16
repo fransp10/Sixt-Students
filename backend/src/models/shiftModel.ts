@@ -152,6 +152,48 @@ export async function getShiftAssignment(shiftId: string, userId: string) {
   );
   return shiftAssignment.rows[0];
 }
+export async function getShiftAssignmentById(userId: string) {
+  const shiftAssignments = await pool.query(
+    `SELECT sa.id as shift_assignmentId,sa.shift_id, sa.user_id,sa.actual_start_time, sa.actual_end_time, s.date, st.shift_name, s.scheduled_start_time, s.scheduled_end_time, sa.hourly_rate 
+    FROM shift_assignments sa 
+    JOIN shifts s ON s.id = sa.shift_id
+    JOIN shift_types st ON st.id = s.shift_type_id 
+    WHERE sa.user_id = $1
+    ORDER BY s.date, s.scheduled_start_time`,
+    [userId],
+  );
+
+  return shiftAssignments.rows;
+}
+
+export async function getShiftAssignmentsByIdBetweenDates(
+  userId: string,
+  startDate?: string,
+  endDate?: string,
+) {
+  let query = `SELECT sa.id as shift_assignmentId, sa.shift_id, sa.user_id,sa.actual_start_time, sa.actual_end_time, s.date, st.shift_name, s.scheduled_start_time, s.scheduled_end_time, sa.hourly_rate 
+    FROM shift_assignments sa 
+    JOIN shifts s ON s.id = sa.shift_id
+    JOIN shift_types st ON st.id = s.shift_type_id 
+    WHERE sa.user_id = $1`;
+
+  const values = [userId];
+
+  if (startDate) {
+    values.push(startDate);
+    query += ` AND s.date >= $${values.length}`;
+  }
+  if (endDate) {
+    values.push(endDate);
+    query += ` AND s.date <= $${values.length}`;
+  }
+
+  query += ` ORDER BY s.date, s.scheduled_start_time`;
+
+  const shiftAssignments = await pool.query(query, [...values]);
+
+  return shiftAssignments.rows;
+}
 
 export async function deleteShiftAssignment(shiftId: string, userId: string) {
   const deletedShiftAssignment = await pool.query(
@@ -160,4 +202,18 @@ export async function deleteShiftAssignment(shiftId: string, userId: string) {
   );
 
   return deletedShiftAssignment.rows[0];
+}
+
+export async function getShiftRequestsByUserId(userId: string) {
+  const shiftRequests = await pool.query(
+    `SELECT sr.id as shift_requestId, sr.shift_id, sr.user_id, sr.hourly_rate, s.date, st.shift_name, s.scheduled_start_time, s.scheduled_end_time 
+    FROM shift_requests sr 
+    JOIN shifts s ON s.id = sr.shift_id
+    JOIN shift_types st ON st.id = s.shift_type_id 
+    WHERE sr.user_id = $1
+    ORDER BY s.date, s.scheduled_start_time`,
+    [userId],
+  );
+
+  return shiftRequests.rows;
 }
