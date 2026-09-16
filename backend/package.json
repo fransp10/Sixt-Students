@@ -1,0 +1,39 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend API for Sixt Students",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "debug": "tsx --inspect watch src/server.ts"
+  },
+  "dependencies": {
+    "argon2": "^0.45.1",
+    "cookie-parser": "^1.4.7",
+    "date-fns": "^4.4.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "node-cron": "^4.6.0",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.20.2",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.23.1",
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  }
+}

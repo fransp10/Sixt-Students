@@ -1,0 +1,23 @@
+import express from "express";
+import * as userController from "../controllers/usersController.js";
+import { requireAdmin } from "../middleware/requireAdmin.js";
+const userRouter = express.Router();
+
+userRouter.get("/", userController.getUsers);
+
+userRouter.get("/:userId", userController.getUserById);
+
+userRouter.post("/", userController.createUser);
+
+userRouter.patch("/:userId", userController.updateUser);
+
+userRouter.patch("/:userId/deactivate", userController.deactivateUser);
+
+userRouter.patch("/:userId/activate", userController.activateUser);
+
+userRouter.get(
+  "/:userId/shift-assignments",
+  userController.getShiftAssignmentsByUserId,
+);
+
+export default userRouter;
