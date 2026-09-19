@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ff5f00;
+
+  --color-pageBackground: #08090b;
+  --color-surfaceSideBar: #0e1116;
+  --color-cardBG: #14171c;
+  --color-headersCalendar: #14181d;
+  --color-studentCard: #1a1e24;
+  --color-cardLighterBG: #1c2027;
+  --color-darkBackground: #242830;
+  --color-surfaceCards: #2a2e34;
+  --color-borderDividers: #22262d;
+  --color-secondaryText: #6b7075;
+  --color-icons: #6b7075;
+  --color-primaryText: #e5e7ea;
+  --color-success: #4acb6f;
+  --color-warning: #f59e0b;
+  --color-pending: #60a5fa;
+  --color-danger: #ef4444;
+}
+
+/* Styling autocomplete */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: white;
+  -webkit-box-shadow: 0 0 0px 1000px #0a0c0e inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+@layer utilities {
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-strokeBorder) transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--color-strokeBorder);
+    border-radius: 9999px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-secondaryText);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  .custom-scrollbar::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-button:single-button {
+    width: 0;
+    height: 0;
+    background: transparent;
+  }
+}
