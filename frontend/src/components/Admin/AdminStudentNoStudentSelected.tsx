@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { ChartBarSquareIcon } from "@heroicons/react/24/solid";
 import FeatureListItem from "../FeatureListItem";
-import { useStudentsCtx } from "../../context/StudentsContext";
+import { useStudentsCtx } from "../../hooks/auth/useStudentsContext";
 
 function AdminStudentNoStudentSelected() {
   const { openStudentSearch } = useStudentsCtx();

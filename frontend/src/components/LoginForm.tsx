@@ -29,7 +29,6 @@ function LoginForm() {
       return;
     }
 
-    console.log(username, password);
     loginMutation.mutate(
       { username, password },
       {

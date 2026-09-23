@@ -2,7 +2,7 @@ import { MagnifyingGlassIcon } from "@heroicons/react/16/solid";
 import AdminStudentSearchResults from "./AdminStudentSearchResults";
 import { createPortal } from "react-dom";
 import { useEffect, useRef } from "react";
-import { useStudentsCtx } from "../../context/StudentsContext";
+import { useStudentsCtx } from "../../hooks/auth/useStudentsContext";
 
 function AdminStudentSearchModal() {
   const { closeStudentSearch } = useStudentsCtx();

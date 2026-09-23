@@ -1,7 +1,7 @@
 import { PhoneIcon, UserIcon } from "@heroicons/react/24/outline";
 import InitialsIcon from "../InitialsIcon";
-import { useStudentsCtx } from "../../context/StudentsContext";
 import type { Student } from "../../types/students";
+import { useStudentsCtx } from "../../hooks/auth/useStudentsContext";
 
 function AdminChosenStudentPageHeader({
   selectedStudent,
@@ -21,7 +21,7 @@ function AdminChosenStudentPageHeader({
         <div className="flex min-w-0 flex-col gap-2">
           <div className="flex flex-wrap gap-2 sm:gap-4 items-center">
             <span className="text-2xl sm:text-3xl lg:text-4xl">
-              {selectedStudent?.name}
+              {`${selectedStudent?.first_name} " " ${selectedStudent?.last_name}`}
             </span>
             <span className="bg-green-600/50 px-2 py-1 rounded-xl text-green-200 ">
               Active

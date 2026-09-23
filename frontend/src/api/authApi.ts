@@ -17,5 +17,6 @@ export async function logout() {
 
 export async function getCurrentUser(): Promise<UserMeType> {
   const response = await axiosClient.get("/me");
+  console.log(response);
   return response.data.user;
 }

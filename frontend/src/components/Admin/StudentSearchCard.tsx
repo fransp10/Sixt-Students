@@ -1,8 +1,8 @@
 import { ArrowRightIcon } from "@heroicons/react/16/solid";
 import InitialsIcon from "../InitialsIcon";
 import type { Student } from "../../types/students";
-import { useStudentsCtx } from "../../context/StudentsContext";
 import { useNavigate } from "react-router-dom";
+import { useStudentsCtx } from "../../hooks/auth/useStudentsContext";
 
 type StudentSearchCardProps = {
   student: Student;

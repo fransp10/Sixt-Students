@@ -23,7 +23,7 @@ function RequestingStudentsCell({
           <div className="flex items-center gap-1.5 text-pending">
             <ClockIcon className="size-4 shrink-0" />
             <span className="text-xs font-semibold uppercase tracking-wide">
-              Requested
+              You Requested
             </span>
           </div>
           <span className="text-[11px] text-secondaryText">

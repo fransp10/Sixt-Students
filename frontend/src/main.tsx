@@ -7,7 +7,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import Login from "./pages/Login.tsx";
-import NotFoundPage from "./pages/NotFoundPage.tsx";
+import NotFoundPage from "./pages/Error/NotFoundPage.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import AdminDashboardPage from "./pages/Admin/AdminDashboardPage.tsx";
 import SchedulePage from "./pages/Admin/AdminSchedulePage.tsx";
@@ -28,108 +28,116 @@ import StudentSchedulePage from "./pages/Students/StudentSchedulePage.tsx";
 import StudentContractsPage from "./pages/Students/StudentContractsPage.tsx";
 import StudentSettingsPage from "./pages/Students/StudentSettingsPage,.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import RequireRole from "./pages/RequireRole.tsx";
+import Unauthorized from "./pages/Error/Unauthorized.tsx";
+import { AuthContextProvider } from "./context/Providers/AuthContexProvider.tsx";
 
 const router = createBrowserRouter([
   {
     element: <ProtectedRoute />,
     children: [
       {
-        path: "/admin",
-        errorElement: <NotFoundPage />,
-        element: <AppLayout navItems={adminNavItems} />,
+        element: <RequireRole requiredRole="admin" />,
         children: [
           {
-            index: true,
-            element: <AdminDashboardPage />,
-          },
-          {
-            path: "schedule",
-            element: <SchedulePage />,
-          },
-          {
-            path: "students",
-            element: <StudentsPage />,
+            path: "/admin",
+            errorElement: <NotFoundPage />,
+            element: <AppLayout navItems={adminNavItems} />,
             children: [
-              { index: true, element: <AdminStudentNoStudentSelected /> },
               {
-                path: ":studentId",
-                element: <AdminChosenStudentPage />,
+                index: true,
+                element: <AdminDashboardPage />,
+              },
+              {
+                path: "schedule",
+                element: <SchedulePage />,
+              },
+              {
+                path: "students",
+                element: <StudentsPage />,
                 children: [
+                  { index: true, element: <AdminStudentNoStudentSelected /> },
                   {
-                    index: true,
-                    element: <Navigate to="overview" replace />,
-                  },
-                  {
-                    path: "overview",
-                    element: <OverviewPage />,
-                  },
-                  {
-                    path: "shifts",
-                    index: true,
-                    element: <AdminChosenStudentShiftsPage />,
-                  },
-                  {
-                    path: "manage",
-                    index: true,
-                    element: <AdminChosenStudentManagePage />,
-                  },
-                  {
-                    path: "contracts",
-                    index: true,
-                    element: <AdminChosenStudentContractsPage />,
+                    path: ":studentId",
+                    element: <AdminChosenStudentPage />,
+                    children: [
+                      {
+                        index: true,
+                        element: <Navigate to="overview" replace />,
+                      },
+                      {
+                        path: "overview",
+                        element: <OverviewPage />,
+                      },
+                      {
+                        path: "shifts",
+                        index: true,
+                        element: <AdminChosenStudentShiftsPage />,
+                      },
+                      {
+                        path: "manage",
+                        index: true,
+                        element: <AdminChosenStudentManagePage />,
+                      },
+                      {
+                        path: "contracts",
+                        index: true,
+                        element: <AdminChosenStudentContractsPage />,
+                      },
+                    ],
                   },
                 ],
               },
-            ],
-          },
 
-          {
-            path: "earnings",
-            element: <EarningsPage />,
-          },
-          {
-            path: "reports",
-            element: <ReportsPage />,
-          },
-          {
-            path: "settings",
-            element: <SettingsPage />,
+              {
+                path: "earnings",
+                element: <EarningsPage />,
+              },
+              {
+                path: "reports",
+                element: <ReportsPage />,
+              },
+              {
+                path: "settings",
+                element: <SettingsPage />,
+              },
+            ],
           },
         ],
       },
-    ],
-  },
-  {
-    element: <ProtectedRoute />,
-    children: [
       {
-        path: "/student",
-        element: <AppLayout navItems={studentNavItems} />,
-        errorElement: <NotFoundPage />,
+        element: <RequireRole requiredRole="student" />,
         children: [
           {
-            index: true,
-            element: <Navigate to="/student/dashboard" replace />,
-          },
-          {
-            path: "dashboard",
-            element: <StudentDashboardPage />,
-          },
-          {
-            path: "schedule",
-            element: <StudentSchedulePage />,
-          },
-          {
-            path: "contracts",
-            element: <StudentContractsPage />,
-          },
-          {
-            path: "earnings",
-            element: <EarningsPage />,
-          },
-          {
-            path: "settings",
-            element: <StudentSettingsPage />,
+            path: "/student",
+            element: <AppLayout navItems={studentNavItems} />,
+            errorElement: <NotFoundPage />,
+            children: [
+              {
+                index: true,
+                element: <Navigate to="/student/dashboard" replace />,
+              },
+              {
+                path: "dashboard",
+                element: <StudentDashboardPage />,
+              },
+              {
+                path: "schedule",
+                element: <StudentSchedulePage />,
+              },
+              {
+                path: "contracts",
+                element: <StudentContractsPage />,
+              },
+              {
+                path: "earnings",
+                element: <EarningsPage />,
+              },
+              {
+                path: "settings",
+                element: <StudentSettingsPage />,
+              },
+            ],
           },
         ],
       },
@@ -139,6 +147,8 @@ const router = createBrowserRouter([
     path: "/login",
     element: <Login />,
   },
+  { path: "/unauthorized", element: <Unauthorized /> },
+  { path: "*", element: <NotFoundPage /> },
 ]);
 
 const queryClient = new QueryClient();
@@ -146,7 +156,9 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <AuthContextProvider>
+        <RouterProvider router={router} />
+      </AuthContextProvider>
     </QueryClientProvider>
   </StrictMode>,
 );

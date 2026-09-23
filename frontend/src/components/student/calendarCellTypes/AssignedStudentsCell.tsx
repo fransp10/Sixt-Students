@@ -22,7 +22,7 @@ function AssignedStudentsCell({
         <div className="flex items-center gap-1.5 text-success">
           <CheckCircleIcon className="size-4 shrink-0" />
           <span className="text-xs font-semibold uppercase tracking-wide">
-            Assigned
+            You are Assigned
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5">
