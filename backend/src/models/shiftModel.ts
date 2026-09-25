@@ -1,7 +1,11 @@
 import { QueryResult } from "pg";
 import pool from "../pool/db.js";
-import { ModifyShiftFields } from "../types/ModifyShiftFieldsType.js";
-import { Shift } from "../types/Shift.js";
+import { ModifyShiftFields } from "../types/ModifyShiftFields.js";
+import {
+  Shift,
+  ShiftWithStudentsAndRequesters,
+  SingleShiftRowToAggregate,
+} from "../types/Shift.js";
 
 export async function getAllShifts(): Promise<Shift[]> {
   const shifts = await pool.query<Shift>("SELECT * FROM shifts ORDER BY date");
@@ -10,21 +14,123 @@ export async function getAllShifts(): Promise<Shift[]> {
 }
 
 export async function getShiftsBetweenDates(
-  startDate: string,
-  endDate: string,
-): Promise<Shift[]> {
-  const shifts = await pool.query<Shift>(
-    `SELECT 
-    s.id,
-    s.date,
-    st.shift_name AS shift_type,
-    s.scheduled_start_time,
-    s.scheduled_end_time 
-    FROM shifts s INNER JOIN shift_types st ON s.shift_type_id = st.id 
-    WHERE date BETWEEN $1 AND $2 
-    ORDER BY s.date,st.start_time`,
-    [startDate, endDate],
-  );
+  startDate: string | undefined,
+  endDate: string | undefined,
+): Promise<SingleShiftRowToAggregate[]> {
+  let query = `SELECT 
+      s.id AS shift_id,
+      s.date,
+      st.shift_name as shift_type,
+      s.scheduled_start_time,
+      s.scheduled_end_time,
+      u.id AS user_id,
+      u.first_name,
+      u.last_name,
+      sr.id AS shift_request_id,
+      sr.created_at AS request_created_at,
+      sa.id AS shift_assignment_id,
+      sa.actual_start_time,
+      sa.actual_end_time,
+      sa.hourly_rate
+      FROM shifts s
+      JOIN shift_types st
+      ON st.id = s.shift_type_id
+      LEFT JOIN shift_assignments sa
+      ON sa.shift_id = s.id
+      LEFT JOIN users u
+      ON u.id = sa.user_id
+      LEFT JOIN shift_requests sr
+      ON sr.shift_id = s.id AND sr.user_id = u.id`;
+
+  const values = [];
+  if (startDate) {
+    values.push(startDate);
+    query += ` WHERE s.date >= $${values.length}`;
+  }
+
+  if (endDate) {
+    values.push(endDate);
+    query += startDate
+      ? ` AND s.date <= $${values.length}`
+      : ` WHERE s.date <= $${values.length}`;
+  }
+
+  query += ` ORDER BY s.date, st.start_time`;
+
+  const shifts = await pool.query<SingleShiftRowToAggregate>(query, [
+    ...values,
+  ]);
+
+  return shifts.rows;
+}
+
+export async function getAllShiftsWithShiftRequestsBetweenDates(
+  startDate: string | undefined,
+  endDate: string | undefined,
+): Promise<ShiftWithStudentsAndRequesters[]> {
+  let query = `SELECT 
+      s.id AS shift_id,
+      s.date,
+      st.shift_name AS shift_type,
+      s.scheduled_start_time,
+      s.scheduled_end_time,
+      COALESCE(assigned.students, '[]'::json) AS students_assigned,
+      COALESCE(requested.requesters, '[]'::json) AS students_requesting
+      FROM shifts s
+      JOIN shift_types st
+      ON st.id = s.shift_type_id
+      LEFT JOIN LATERAL (
+        SELECT json_agg(
+          json_build_object(
+            'id', u.id,
+            'first_name', u.first_name,
+            'last_name', u.last_name,
+            'username', u.username,
+            'actual_start_time', sa.actual_start_time,
+            'actual_end_time', sa.actual_end_time,
+            'requested_at', sa.requested_at
+          )
+        ) AS students
+      FROM shift_assignments sa
+      JOIN users u ON u.id = sa.user_id
+      WHERE sa.shift_id = s.id) assigned ON true
+      LEFT JOIN LATERAL (
+        SELECT json_agg(
+          json_build_object(
+            'id', u.id,
+            'first_name', u.first_name,
+            'last_name', u.last_name,
+            'requested_at', sr.created_at,
+            'username', u.username
+          )
+        ) AS requesters
+        FROM shift_requests sr
+        JOIN users u ON u.id = sr.user_id
+        WHERE sr.shift_id = s.id
+    AND NOT EXISTS (
+      SELECT 1 FROM shift_assignments sa
+      WHERE sa.shift_id = sr.shift_id AND sa.user_id = sr.user_id
+    )
+) requested ON true`;
+
+  const values = [];
+  if (startDate) {
+    values.push(startDate);
+    query += ` WHERE s.date >= $${values.length}`;
+  }
+
+  if (endDate) {
+    values.push(endDate);
+    query += startDate
+      ? ` AND s.date <= $${values.length}`
+      : ` WHERE s.date <= $${values.length}`;
+  }
+
+  query += ` ORDER BY s.date, st.start_time`;
+
+  const shifts = await pool.query<ShiftWithStudentsAndRequesters>(query, [
+    ...values,
+  ]);
 
   return shifts.rows;
 }
@@ -86,8 +192,8 @@ export async function modifyShift(
 
 export async function getRequestsForShift(shiftId: string) {
   const shiftRequests = await pool.query(
-    `SELECT * FROM shift_requests
-        WHERE shift_id =$1`,
+    `SELECT sr.shift_id as shift_id, sr.user_id as user_id,sr.created_at as request_created_at, u.username, u.id as user_id, u.first_name, u.last_name FROM shift_requests sr
+        INNER JOIN users u ON u.id = sr.user_id WHERE shift_id =$1 `,
     [shiftId],
   );
 
@@ -138,7 +244,13 @@ export async function createAssignmentForShift(
   hourlyRate: number,
 ) {
   const newShiftAssignment = await pool.query(
-    `INSERT INTO shift_assignments (shift_id,user_id,hourly_rate) VALUES ($1,$2,$3) RETURNING *`,
+    `INSERT INTO shift_assignments (shift_id, user_id, hourly_rate,requested_at) 
+    VALUES ($1,$2,$3,
+    COALESCE(
+    (SELECT created_at 
+    FROM shift_requests 
+    WHERE shift_id = $1 AND user_id = $2),
+    NOW())) RETURNING *`,
     [shiftId, userId, hourlyRate],
   );
 

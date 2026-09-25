@@ -16,3 +16,16 @@ export type ShiftWithStudentsAndRequesters = {
   students_assigned: StudentAssigned[];
   students_requesting: StudentRequesting[];
 };
+
+export type ShiftsWorkedHistoryData = {
+  assigned_shift_id: number;
+  date: string; // Format: tiemestampz
+  shift_type: ShiftType;
+  scheduled_start_time: string; // Format: timestampz
+  scheduled_end_time: string; // Format: timestampz
+  actual_start_time: string | null; // Format: timestampz
+  actual_end_time: string | null; // Format: timestampz
+  requested_at: string | null; // Format: timestampz
+  hourly_rate: number;
+  hours_worked: number;
+};

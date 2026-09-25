@@ -10,9 +10,9 @@ function CategoryMenu() {
           to={category.toLowerCase()}
           key={category.toLowerCase()}
           className={({ isActive }) =>
-            `bordr-b px-2 pb-1 ${
+            `px-2 pb-1  ${
               isActive
-                ? "border-primary text-primaryText"
+                ? "border-b-2 border-primary text-primaryText"
                 : "border-cardBG text-secondaryText hover:border-primary hover:text-primaryText"
             }`
           }

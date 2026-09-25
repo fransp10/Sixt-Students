@@ -1,19 +1,18 @@
-type ShiftBadgeProps = {
-  shiftType: "Morning" | "Middle" | "Afternoon";
-};
+import { capitalize } from "../helpers/capitalize";
+import type { ShiftType } from "../types/Shift";
 
-export default function ShiftBadge({ shiftType }: ShiftBadgeProps) {
-  const styles = {
-    Morning: "bg-primary/10 text-primary",
-    Middle: "bg-primary/10 text-primary",
-    Afternoon: "bg-primary/10 text-primary",
+export default function ShiftBadge({ shiftType }: { shiftType: ShiftType }) {
+  const styles: { [key in ShiftType]: string } = {
+    morning: "bg-primary/10 text-primary",
+    middle: "bg-primary/10 text-primary",
+    afternoon: "bg-primary/10 text-primary",
   };
 
   return (
     <span
       className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${styles[shiftType]}`}
     >
-      {shiftType}
+      {capitalize(shiftType)}
     </span>
   );
 }

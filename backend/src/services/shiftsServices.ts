@@ -1,13 +1,21 @@
-import { addDays, format } from "date-fns";
+import { addDays, endOfWeek, format } from "date-fns";
 import * as shiftModel from "../models/shiftModel.js";
-import { ModifyShiftFields } from "../types/ModifyShiftFieldsType.js";
-import { Shift } from "../types/Shift.js";
+import { ModifyShiftFields } from "../types/ModifyShiftFields.js";
+import {
+  AggregatedShiftWithStudents,
+  Shift,
+  ShiftWithStudentsAndRequesters,
+} from "../types/Shift.js";
 import AppError from "../errors/AppError.js";
 import * as userModel from "../models/userModel.js";
-import { ShiftRequestType } from "../types/ShiftRequestType.js";
+import { ShiftRequest } from "../types/ShiftRequest.js";
+
 export async function generateShiftsForDateRange(): Promise<void> {
   const startDateToGenerateShift = format(new Date(), "yyyy-MM-dd");
-  const endDateToGenerateShift = format(addDays(new Date(), 14), "yyyy-MM-dd");
+  const endDateToGenerateShift = format(
+    endOfWeek(addDays(new Date(), 21), { weekStartsOn: 1 }),
+    "yyyy-MM-dd",
+  );
 
   await shiftModel.generateShiftsForDateRange(
     startDateToGenerateShift,
@@ -81,13 +89,33 @@ export async function getRequestsForShift(shiftId: string) {
     throw new AppError(`Shift with ID ${shiftId} not found`, 404);
   }
 
-  return await shiftModel.getRequestsForShift(shiftId);
+  const requests = await shiftModel.getRequestsForShift(shiftId);
+  //  {
+  //         "shift_id": 51708,
+  //         "user_id": 8,
+  //         "request_created_at": "2026-09-17T14:04:15.425Z",
+  //         "username": "admin",
+  //         "first_name": "Fran",
+  //         "last_name": "Sipek"
+  //     }
+  const studentsRequestingShift = {
+    shift_id: shiftId,
+    students: requests.map((request) => ({
+      user_id: request.user_id,
+      username: request.username,
+      first_name: request.first_name,
+      last_name: request.last_name,
+      request_created_at: request.request_created_at,
+    })),
+  };
+
+  return studentsRequestingShift;
 }
 
 export async function getShiftRequest(
   shiftId: string,
   userId: string,
-): Promise<ShiftRequestType> {
+): Promise<ShiftRequest> {
   const user = await userModel.getUserById(userId);
   if (!user) {
     throw new AppError(`User with ID ${userId} not found`, 404);
@@ -150,8 +178,8 @@ export async function createAssignmentForShift(
   if (!shift) {
     throw new AppError(`Shift with ID ${shiftId} not found`, 404);
   }
+  console.log(shift);
   const user = await userModel.getUserById(userId);
-
   if (!user) {
     throw new AppError(`User with ID ${userId} not found`, 404);
   }
@@ -188,4 +216,36 @@ export async function deleteShiftAssignment(shiftId: string, userId: string) {
     );
   }
   return deletedAssignment;
+}
+
+export async function getAllShiftsWithShiftRequestsBetweenDates(
+  startDate: string | undefined,
+  endDate: string | undefined,
+): Promise<ShiftWithStudentsAndRequesters[]> {
+  const shifts = await shiftModel.getAllShiftsWithShiftRequestsBetweenDates(
+    startDate,
+    endDate,
+  );
+
+  // const shiftsMap = new Map<number, AggregatedShiftWithStudents>();
+
+  // for (const row of shifts) {
+  //   if (!shiftsMap.has(row.shift_id)) {
+  //     shiftsMap.set(row.shift_id, {
+  //       id: row.shift_id,
+  //       date: row.date,
+  //       shift_type: row.shift_type,
+  //       scheduled_start_time: row.scheduled_start_time,
+  //       scheduled_end_time: row.scheduled_end_time,
+  //       students: [],
+  //     });
+  //   }
+  //   if (row.user_id) {
+  //     shiftsMap.get(row.shift_id)!.students.push({
+  //       id: row.user_id,
+  //       first_name: row.first_name!,
+  //       last_name: row.last_name!,
+  //     });
+  //   }
+  return shifts;
 }

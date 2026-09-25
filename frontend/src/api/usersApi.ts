@@ -1,6 +1,7 @@
 import { axiosClient } from "./axios";
 import type { UserRoles } from "../types/user";
-import type { UserStats } from "../types/Shift";
+import type { UserStats } from "../types/stats";
+import { format } from "date-fns";
 
 export async function getUsers(role?: UserRoles) {
   if (role) {
@@ -35,4 +36,33 @@ export async function getStatsForShiftsUserHasWorked(
   const response = await axiosClient.get(endpoint);
 
   return response.data;
+}
+
+export async function getUsersShiftsWorked(
+  userId: string,
+  startDate?: string,
+  endDate?: string,
+) {
+  if (!userId) {
+    throw new Error("User ID is required to fetch shift assignments.");
+  }
+
+  let endpoint = `/users/${userId}/shift-assignments?period=past`;
+  if (startDate && endDate) {
+    startDate = format(new Date(startDate), "yyyy-MM-dd");
+    endDate = format(new Date(endDate), "yyyy-MM-dd");
+    endpoint += `&startDate=${startDate}&endDate=${endDate}`;
+  }
+  if (startDate && !endDate) {
+    startDate = format(new Date(startDate), "yyyy-MM-dd");
+    endpoint += `&startDate=${startDate}`;
+  }
+  if (endDate && !startDate) {
+    endDate = format(new Date(endDate), "yyyy-MM-dd");
+    endpoint += `&endDate=${endDate}`;
+  }
+
+  const res = await axiosClient.get(endpoint);
+
+  return res.data;
 }

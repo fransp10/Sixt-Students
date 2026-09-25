@@ -17,7 +17,7 @@ function AdminChosenStudentPage() {
   ) as UserMeType | undefined;
 
   return (
-    <div className=" flex-1 border-borderDividers border flex flex-col text-primaryText rounded-lg">
+    <div className=" flex-1 min-h-0 border-borderDividers border flex flex-col text-primaryText rounded-lg">
       <AdminChosenStudentPageHeader selectedStudent={selectedStudent} />
       <CategoryMenu />
       <Outlet />

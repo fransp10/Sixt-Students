@@ -15,6 +15,8 @@ userRouter.patch("/:userId/deactivate", userController.deactivateUser);
 
 userRouter.patch("/:userId/activate", userController.activateUser);
 
+userRouter.get("/:userId/stats", userController.getStatsForUser);
+
 userRouter.get(
   "/:userId/shift-assignments",
   userController.getShiftAssignmentsByUserId,

@@ -17,7 +17,6 @@ import ReportsPage from "./pages/ReportsPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
 import AdminChosenStudentPage from "./components/Admin/AdminChosenStudentPage.tsx";
 import AdminStudentNoStudentSelected from "./components/Admin/AdminStudentNoStudentSelected.tsx";
-import AdminChosenStudentShiftsPage from "./pages/Admin/AdminChosenStudentShiftsPage.tsx";
 import AdminChosenStudentManagePage from "./pages/Admin/AdminChosenStudentManagePage.tsx";
 import OverviewPage from "./pages/OverviewPage.tsx";
 import AdminChosenStudentContractsPage from "./components/Admin/AdminChosenStudentContractsPage.tsx";
@@ -31,6 +30,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import RequireRole from "./pages/RequireRole.tsx";
 import Unauthorized from "./pages/Error/Unauthorized.tsx";
 import { AuthContextProvider } from "./context/Providers/AuthContexProvider.tsx";
+import ShiftHistoryPage from "./components/Admin/ShiftHistoryPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -72,7 +72,7 @@ const router = createBrowserRouter([
                       {
                         path: "shifts",
                         index: true,
-                        element: <AdminChosenStudentShiftsPage />,
+                        element: <ShiftHistoryPage />,
                       },
                       {
                         path: "manage",

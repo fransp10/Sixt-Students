@@ -8,7 +8,7 @@ type AppLayoutProps = {
 
 function AppLayout({ navItems }: AppLayoutProps) {
   return (
-    <div className="lg:flex min-h-screen overflow-hidden bg-pageBackground scrollbar-thumb-stone-800 scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
+    <div className="lg:flex min-h-screen  overflow-hidden bg-pageBackground scrollbar-thumb-stone-800 scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
       <aside className="hidden h-screen w-64 shrink-0 lg:flex">
         <AppNav navItems={navItems} />
       </aside>

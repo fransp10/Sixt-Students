@@ -3,12 +3,18 @@ import AppError from "../errors/AppError.js";
 import * as Users from "../models/userModel.js";
 import {
   CreateUserReqBodyType,
-  UserWithoutPasswordType,
-  UserWithPasswordType,
+  UserRoles,
+  UserWithoutPassword,
+  UserWithPassword,
 } from "../types/User.js";
 import * as UserServices from "../services/userServices.js";
-export async function getUsers(req: Request, res: Response): Promise<void> {
-  const allUsers: UserWithoutPasswordType[] = await Users.getUsers();
+export async function getUsers(
+  req: Request<{}, unknown, {}, { role?: UserRoles }>,
+  res: Response,
+): Promise<void> {
+  const { role } = req.query;
+
+  const allUsers: UserWithoutPassword[] = await UserServices.getUsers(role);
 
   res.status(200).json(allUsers);
 }
@@ -19,8 +25,7 @@ export async function getUserById(
 ): Promise<void> {
   const { userId } = req.params;
 
-  const user: UserWithoutPasswordType | undefined =
-    await Users.getUserById(userId);
+  const user: UserWithoutPassword | undefined = await Users.getUserById(userId);
 
   if (!user) {
     throw new AppError("User not found", 404);
@@ -31,7 +36,7 @@ export async function getUserById(
 
 export async function createUser(
   req: Request<{}, unknown, CreateUserReqBodyType>,
-  res: Response<UserWithPasswordType>,
+  res: Response<UserWithPassword>,
 ): Promise<void> {
   const { username, user_role, default_hourly_rate } = req.body;
 
@@ -45,19 +50,16 @@ export async function createUser(
     throw new AppError("Missing userRole field", 400);
   }
 
-  const result: UserWithPasswordType = await UserServices.createUser(req.body);
+  const result: UserWithPassword = await UserServices.createUser(req.body);
   res.status(201).json(result);
 }
 
 export async function updateUser(
   req: Request<{ userId: string }>,
-  res: Response<UserWithoutPasswordType>,
+  res: Response<UserWithoutPassword>,
 ): Promise<void> {
   const { userId } = req.params;
-  const result: UserWithoutPasswordType = await Users.updateUser(
-    userId,
-    req.body,
-  );
+  const result: UserWithoutPassword = await Users.updateUser(userId, req.body);
   if (!result) {
     throw new AppError("No valid fields to update", 400);
   }
@@ -69,7 +71,7 @@ export async function deactivateUser(
   res: Response,
 ): Promise<void> {
   const { userId } = req.params;
-  const result: UserWithoutPasswordType = await Users.deactivateUser(userId);
+  const result: UserWithoutPassword = await Users.deactivateUser(userId);
 
   if (!result) {
     throw new AppError("User not found", 404);
@@ -84,7 +86,7 @@ export async function activateUser(
 ): Promise<void> {
   const { userId } = req.params;
 
-  const result: UserWithoutPasswordType = await Users.activateUser(userId);
+  const result: UserWithoutPassword = await Users.activateUser(userId);
 
   if (!result) {
     throw new AppError("User not found", 404);
@@ -98,18 +100,36 @@ export async function getShiftAssignmentsByUserId(
     { userId: string },
     unknown,
     unknown,
-    { startDate?: string; endDate?: string }
+    { startDate?: string; endDate?: string; period?: "upcoming" | "past" }
+  >,
+  res: Response,
+): Promise<void> {
+  const { userId } = req.params;
+  const { startDate, endDate, period } = req.query;
+
+  const shiftAssignments = await UserServices.getShiftAssignmentsByUserId(
+    userId,
+    startDate,
+    endDate,
+    period,
+  );
+
+  res.status(200).json(shiftAssignments);
+}
+
+export async function getStatsForUser(
+  req: Request<
+    { userId: string },
+    unknown,
+    unknown,
+    { startDate: string; endDate: string }
   >,
   res: Response,
 ): Promise<void> {
   const { userId } = req.params;
   const { startDate, endDate } = req.query;
 
-  const shiftAssignments = await UserServices.getShiftAssignmentsByUserId(
-    userId,
-    startDate,
-    endDate,
-  );
+  const user = await UserServices.getStatsForUser(userId, startDate, endDate);
 
-  res.status(200).json(shiftAssignments);
+  res.status(200).json(user);
 }

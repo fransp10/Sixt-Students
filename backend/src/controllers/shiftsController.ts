@@ -2,26 +2,23 @@ import { Request, Response } from "express";
 import * as shiftModel from "../models/shiftModel.js";
 import { Shift } from "../types/Shift.js";
 import AppError from "../errors/AppError.js";
-import { ModifyShiftFields } from "../types/ModifyShiftFieldsType.js";
+import { ModifyShiftFields } from "../types/ModifyShiftFields.js";
 import * as shiftsServices from "../services/shiftsServices.js";
 
-type getAllShiftsQuerryWordsType = { startDate?: string; endDate?: string };
-export async function getAllShifts(
+type getAllShiftsQuerryWordsType = {
+  startDate?: string | undefined;
+  endDate?: string | undefined;
+};
+export async function getAllShiftsWithShiftRequestsBetweenDates(
   req: Request<{}, unknown, {}, getAllShiftsQuerryWordsType>,
   res: Response,
 ): Promise<void> {
   const { startDate, endDate } = req.query;
 
-  if ((startDate && !endDate) || (!startDate && endDate)) {
-    throw new AppError("Both startDate and endDate must be provided", 400);
-  }
-
-  let shifts: Shift[];
-  if (startDate && endDate) {
-    shifts = await shiftModel.getShiftsBetweenDates(startDate, endDate);
-  } else {
-    shifts = await shiftModel.getAllShifts();
-  }
+  const shifts = await shiftsServices.getAllShiftsWithShiftRequestsBetweenDates(
+    startDate,
+    endDate,
+  );
 
   res.status(200).json(shifts);
 }
