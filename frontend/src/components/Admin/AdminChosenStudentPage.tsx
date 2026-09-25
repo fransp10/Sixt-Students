@@ -16,8 +16,6 @@ function AdminChosenStudentPage() {
     (user) => user?.id === Number(userId),
   ) as UserMeType | undefined;
 
-  console.log("Selected Student:", selectedStudent);
-
   return (
     <div className=" flex-1 border-borderDividers border flex flex-col text-primaryText rounded-lg">
       <AdminChosenStudentPageHeader selectedStudent={selectedStudent} />

@@ -1,3 +1,4 @@
+import { useParams } from "react-router-dom";
 import {
   CartesianGrid,
   Line,
@@ -7,22 +8,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useGetStatsForShiftsUserHasWorked } from "../../hooks/useGetStatsForShiftsUserHasWorked";
+import { getYear } from "date-fns";
+import LoadingSpinner from "../LoadingSpinner";
+import NoDataYet from "../NoDataYet";
 
-const data = [
-  { month: "Jan", hours: 120 },
-  { month: "Feb", hours: 150 },
-  { month: "Mar", hours: 100 },
-  { month: "Apr", hours: 180 },
-  { month: "May", hours: 200 },
-  { month: "Jun", hours: 170 },
-  { month: "Jul", hours: 190 },
-  { month: "Aug", hours: 160 },
-  { month: "Sep", hours: 140 },
-  { month: "Oct", hours: 180 },
-  { month: "Nov", hours: 200 },
-  { month: "Dec", hours: 220 },
-];
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) {
     return null;
@@ -40,6 +31,29 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 function HoursWorkedOverTimeChart() {
+  const { userId } = useParams();
+
+  const stats = useGetStatsForShiftsUserHasWorked(userId!);
+
+  if (stats.status === "loading") {
+    return (
+      <div className="md:col-span-2 flex h-72 flex-col items-center justify-center rounded-lg border border-borderDividers bg-cardBG p-4">
+        <LoadingSpinner size={82} />
+      </div>
+    );
+  }
+
+  if (stats.status === "error") {
+    return (
+      <div className="md:col-span-2 flex h-72 flex-col items-center justify-center rounded-lg border border-borderDividers bg-cardBG p-4">
+        <p className="text-primaryText">Error loading data</p>
+      </div>
+    );
+  }
+
+  const currentYear = getYear(new Date());
+  const graphData = stats.data.byMonth[currentYear];
+
   return (
     <div className="md:col-span-2 flex h-72 flex-col rounded-lg border border-borderDividers bg-cardBG p-4">
       {/* Header */}
@@ -53,59 +67,63 @@ function HoursWorkedOverTimeChart() {
         </p>
       </div>
 
-      {/* Chart */}
-      <div className="min-h-0 flex-1">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={data}
-            margin={{
-              top: 10,
-              right: 10,
-              left: -15,
-              bottom: 0,
-            }}
-          >
-            <CartesianGrid vertical={false} stroke="#252a2d" />
-
-            <XAxis
-              dataKey="month"
-              tick={{ fill: "#6b7075", fontSize: 12 }}
-              tickLine={false}
-              axisLine={false}
-            />
-
-            <YAxis
-              tick={{ fill: "#6b7075", fontSize: 12 }}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(value) => `${value}h`}
-            />
-
-            <Tooltip
-              cursor={{ stroke: "#2a2e34" }}
-              content={<CustomTooltip />}
-            />
-
-            <Line
-              type="monotone"
-              dataKey="hours"
-              stroke="#ff5f00"
-              strokeWidth={2}
-              dot={{
-                r: 3,
-                fill: "#ff5f00",
-                strokeWidth: 0,
+      {Object.keys(stats.data.byMonth).length === 0 ? (
+        <NoDataYet />
+      ) : (
+        <div className="min-h-0 flex-1">
+          {/* Chart */}
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={graphData}
+              margin={{
+                top: 10,
+                right: 10,
+                left: -15,
+                bottom: 0,
               }}
-              activeDot={{
-                r: 5,
-                fill: "#ff5f00",
-                stroke: "#e5e7ea",
-                strokeWidth: 2,
-              }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+            >
+              <CartesianGrid vertical={false} stroke="#252a2d" />
+
+              <XAxis
+                dataKey="month"
+                tick={{ fill: "#6b7075", fontSize: 12 }}
+                tickLine={false}
+                axisLine={false}
+              />
+
+              <YAxis
+                tick={{ fill: "#6b7075", fontSize: 12 }}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value) => `${value}h`}
+              />
+
+              <Tooltip
+                cursor={{ stroke: "#2a2e34" }}
+                content={<CustomTooltip />}
+              />
+
+              <Line
+                type="monotone"
+                dataKey="hours"
+                stroke="#ff5f00"
+                strokeWidth={2}
+                dot={{
+                  r: 3,
+                  fill: "#ff5f00",
+                  strokeWidth: 0,
+                }}
+                activeDot={{
+                  r: 5,
+                  fill: "#ff5f00",
+                  stroke: "#e5e7ea",
+                  strokeWidth: 2,
+                }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   );
 }

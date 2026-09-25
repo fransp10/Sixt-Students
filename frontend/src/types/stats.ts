@@ -7,8 +7,15 @@ export type UserStats = {
   acceptance: AcceptanceStats;
   byShiftTypes: StatsByShiftType[];
   byWeekday: StatsByWeekDay[];
+  byMonth: Record<string, MonthStats[]>;
 };
 
+export type MonthStats = {
+  month: string;
+  count: number;
+  hours: number;
+  earnings: number;
+};
 export type StatsByShiftType = {
   shift_name: ShiftType;
   count: number;

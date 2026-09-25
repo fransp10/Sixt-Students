@@ -36,7 +36,6 @@ function ScheduleCalendarCell({
   if (isBefore(shiftEnd, now)) {
     return <ShiftPassedCell onClick={onClick} shift={shift} />;
   }
-
   if (isAfter(now, shiftStart) && isBefore(now, shiftEnd)) {
     return <CurrentlyActiveShiftCell onClick={onClick} shift={shift} />;
   }

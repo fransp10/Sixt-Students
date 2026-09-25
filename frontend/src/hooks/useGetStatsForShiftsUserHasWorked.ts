@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getStatsForShiftsUserHasWorked } from "../api/usersApi";
-import type { UserStats } from "../types/Shift";
+import type { UserStats } from "../types/stats";
 
 type QueryState<T> =
   | { status: "loading" }
@@ -20,5 +20,5 @@ export function useGetStatsForShiftsUserHasWorked(
   if (isLoading) return { status: "loading" };
   if (isError) return { status: "error" };
 
-  return { data: data!, status: "success" };
+  return { data: data, status: "success" };
 }

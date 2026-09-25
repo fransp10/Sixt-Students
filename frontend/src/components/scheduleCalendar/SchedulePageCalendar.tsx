@@ -19,6 +19,7 @@ function SchedulePageCalendar({
 
   const currentDate = new Date();
   const { days, getShift } = useWeekSchedule(selectedDate);
+  console.log(getShift);
   return (
     <div className="w-full text-primaryText  rounded-2xl grid-rows-4">
       <DatePickerComponent
@@ -49,10 +50,9 @@ function SchedulePageCalendar({
 
               {days.map((day) => {
                 const shift = getShift(day, shiftType);
-
                 return (
                   <ScheduleCalendarCell
-                    key={day.toISOString()}
+                    key={shift?.shift_id + day.toISOString()}
                     currentUserId={currentUser?.id}
                     shift={shift}
                     onClick={() => {
