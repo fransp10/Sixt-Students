@@ -1,6 +1,8 @@
-function NoDataYet() {
+function NoDataYet({ className }: { className?: string }) {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-2 text-secondaryText text-lg">
+    <div
+      className={`flex h-full flex-col items-center justify-center gap-2 ${className ? className : "text-lg text-secondaryText"}`}
+    >
       <p>No data available yet</p>
     </div>
   );

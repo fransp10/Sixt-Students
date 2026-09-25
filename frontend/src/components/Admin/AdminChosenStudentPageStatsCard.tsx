@@ -1,4 +1,5 @@
 import type { ComponentType, SVGProps } from "react";
+import NoDataYet from "../NoDataYet";
 
 type AdminChosenStudentPageStatsCardProps = {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
@@ -20,6 +21,8 @@ function AdminChosenStudentPageStatsCard({
     (Number(statValue) - Number(previousValue)).toFixed(0),
   );
 
+  const noData = statValue === 0 && previousValue === 0;
+
   return (
     <div className="flex min-w-0 items-center gap-3 rounded-lg border border-borderDividers bg-studentCard p-4">
       <Icon className="size-10 shrink-0 rounded-full bg-darkBackground p-2 text-secondaryText" />
@@ -27,18 +30,24 @@ function AdminChosenStudentPageStatsCard({
       <div className="min-w-0">
         <p className="text-sm text-primaryText">{statName}</p>
 
-        <p className="mt-1 text-2xl font-medium text-primary">{`${prefix ? prefix : ""}${statValue}${suffix ? suffix : ""}`}</p>
+        {noData ? (
+          <NoDataYet className="text-sm text-secondaryText" />
+        ) : (
+          <>
+            <p className="mt-1 text-2xl font-medium text-primary">{`${prefix ? prefix : ""}${statValue}${suffix ? suffix : ""}`}</p>
 
-        <p
-          className={`mt-1 whitespace-nowrap text-xs ${
-            difference >= 0 ? "text-success" : "text-danger"
-          }`}
-        >
-          {difference > 0 && "+"}
-          {prefix ? prefix : ""}
-          {difference}
-          {suffix ? suffix : ""} vs last month
-        </p>
+            <p
+              className={`mt-1 whitespace-nowrap text-xs ${
+                difference >= 0 ? "text-success" : "text-danger"
+              }`}
+            >
+              {difference > 0 && "+"}
+              {prefix ? prefix : ""}
+              {difference}
+              {suffix ? suffix : ""} vs last month
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
