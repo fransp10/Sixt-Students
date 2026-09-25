@@ -16,8 +16,3 @@ export type ShiftWithStudentsAndRequesters = {
   students_assigned: StudentAssigned[];
   students_requesting: StudentRequesting[];
 };
-
-// export type shiftType = {
-//   name: "morning" | "middle" | "afternoon";
-//   time: string;
-// };

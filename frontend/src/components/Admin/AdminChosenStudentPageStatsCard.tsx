@@ -16,7 +16,9 @@ function AdminChosenStudentPageStatsCard({
   prefix,
   suffix,
 }: AdminChosenStudentPageStatsCardProps) {
-  const difference = Number(statValue) - Number(previousValue);
+  const difference = Number(
+    (Number(statValue) - Number(previousValue)).toFixed(0),
+  );
 
   return (
     <div className="flex min-w-0 items-center gap-3 rounded-lg border border-borderDividers bg-studentCard p-4">

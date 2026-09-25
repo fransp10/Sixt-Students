@@ -4,7 +4,7 @@ import { isSameDay, isSameWeek } from "date-fns";
 import DatePickerComponent from "./DatePickerComponent";
 import { useCurrentUser } from "../../hooks/auth/useCurrentUser";
 import type { ShiftType } from "../../types/Shift";
-import type { SchedulePageCalendarProps } from "../../types/calendartProps";
+import type { SchedulePageCalendarProps } from "../../types/calendarProps";
 import { useWeekSchedule } from "../../hooks/auth/useWeekSchedule";
 import ScheduleCalendarCell from "../student/ScheduleCalendarCell";
 

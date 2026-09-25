@@ -1,12 +1,20 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid";
 import AdminStudentSearchResults from "./AdminStudentSearchResults";
 import { createPortal } from "react-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStudentsCtx } from "../../hooks/auth/useStudentsContext";
+import { useGetAllUsers } from "../../hooks/useGetAllUsers";
 
 function AdminStudentSearchModal() {
   const { closeStudentSearch } = useStudentsCtx();
   const searchRef = useRef<HTMLInputElement>(null);
+  const { data: students, isLoading } = useGetAllUsers("student");
+  const [filterValue, setFilterValue] = useState("");
+  const filteredStudents = students?.filter((student) =>
+    [student?.first_name, student?.last_name]
+      .map((value) => String(value ?? "").toLowerCase())
+      .some((value) => value.includes(filterValue)),
+  );
 
   useEffect(() => {
     searchRef.current?.focus();
@@ -25,6 +33,10 @@ function AdminStudentSearchModal() {
     };
   }, [closeStudentSearch]);
 
+  if (isLoading) {
+    return createPortal(<div>Loading..</div>, document.body);
+  }
+
   return createPortal(
     <div
       onClick={closeStudentSearch}
@@ -39,6 +51,7 @@ function AdminStudentSearchModal() {
             <MagnifyingGlassIcon />
           </button>
           <input
+            onChange={(e) => setFilterValue(e.target.value.toLowerCase())}
             ref={searchRef}
             className="focus:outline-none focus:border focus:border-primary rounded-lg w-full p-4 border border-borderDividers  text-primaryText"
             placeholder="Search students..."
@@ -49,7 +62,10 @@ function AdminStudentSearchModal() {
   scrollbar-thumb-borderDividers
   scrollbar-track-cardBG"
         >
-          <AdminStudentSearchResults />
+          <AdminStudentSearchResults
+            isLoading={isLoading}
+            students={filteredStudents}
+          />
         </div>
       </div>
     </div>,

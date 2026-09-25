@@ -58,7 +58,7 @@ const router = createBrowserRouter([
                 children: [
                   { index: true, element: <AdminStudentNoStudentSelected /> },
                   {
-                    path: ":studentId",
+                    path: ":userId",
                     element: <AdminChosenStudentPage />,
                     children: [
                       {

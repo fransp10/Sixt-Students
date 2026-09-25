@@ -1,25 +1,18 @@
+import { useParams } from "react-router-dom";
 import {
   Bar,
   BarChart,
   CartesianGrid,
   Label,
-  LabelList,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
+import { useGetStatsForShiftsUserHasWorked } from "../../hooks/useGetStatsForShiftsUserHasWorked";
+import LoadingSpinner from "../LoadingSpinner";
 
-const data = [
-  { day: "Mon", hours: 12 },
-  { day: "Tue", hours: 8 },
-  { day: "Wed", hours: 15 },
-  { day: "Thu", hours: 18 },
-  { day: "Fri", hours: 17 },
-  { day: "Sat", hours: 9 },
-  { day: "Sun", hours: 5 },
-];
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) {
     return null;
@@ -37,6 +30,27 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 function BarChartHoursByWeekday() {
+  const { userId } = useParams<{ userId: string }>();
+  const stats = useGetStatsForShiftsUserHasWorked(userId!);
+
+  console.log("Stats for shifts user has worked:", stats);
+  if (stats.status === "error") {
+    return (
+      <div className="flex h-82 items-center justify-center rounded-xl border border-borderDividers bg-cardBG p-4">
+        <p className="text-sm text-secondaryText">Error loading data</p>
+      </div>
+    );
+  }
+
+  if (stats.status === "loading") {
+    return (
+      <div className="flex h-82 items-center justify-center rounded-xl border border-borderDividers bg-cardBG p-4">
+        <LoadingSpinner size={82} />
+      </div>
+    );
+  }
+  console.log("Stats data:", stats.data.byWeekday);
+
   return (
     <div className="flex  h-82 flex-col rounded-xl border border-borderDividers bg-cardBG p-4">
       {/* Chart heading */}
@@ -51,7 +65,7 @@ function BarChartHoursByWeekday() {
       </div>
       <div className="flex-1">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data}>
+          <BarChart data={stats.data.byWeekday}>
             <Label value="Hours Worked" position="top" />
             <CartesianGrid vertical={false} stroke="#1a1e21" />
 
@@ -71,7 +85,13 @@ function BarChartHoursByWeekday() {
 
             <Tooltip cursor={false} content={<CustomTooltip />} />
 
-            <Bar dataKey="hours" fill="#ff5f00" radius={[6, 6, 0, 0]}></Bar>
+            <Bar
+              dataKey="hours"
+              fill="#ff5f00"
+              minPointSize={3}
+              radius={[6, 6, 0, 0]}
+              label={{ position: "top", fill: "#4b4e55", fontSize: 12 }}
+            ></Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>

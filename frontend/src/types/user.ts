@@ -10,6 +10,6 @@ export type UserMeType = {
   date_of_birth: Date;
   first_name: string;
   last_name: string;
-} | null;
+};
 
 export type UserRoles = "admin" | "student";

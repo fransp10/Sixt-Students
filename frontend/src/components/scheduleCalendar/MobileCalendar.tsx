@@ -9,7 +9,7 @@ import {
   subDays,
 } from "date-fns";
 import MobileShiftsCell from "./MobileShiftsCell";
-import type { SchedulePageCalendarProps } from "../../types/calendartProps";
+import type { SchedulePageCalendarProps } from "../../types/calendarProps";
 import { useWeekSchedule } from "../../hooks/auth/useWeekSchedule";
 
 type ShiftType = "morning" | "middle" | "afternoon";

@@ -6,13 +6,13 @@ export type Student = {
   first_name: string;
   last_name: string;
   default_hourly_rate: number;
+  created_at: string;
 };
 
 export type StudentAssigned = StudentRequesting & {
-actual_start_time: string | null;
-actual_end_time: string | null;
+  actual_start_time: string | null;
+  actual_end_time: string | null;
 };
-
 
 export type StudentRequesting = {
   id: number;

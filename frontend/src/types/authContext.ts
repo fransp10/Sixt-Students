@@ -1,6 +1,6 @@
 import type { UserMeType } from "./user";
 
-export type AuthContext = {
+export type AuthContextType = {
   currentUser: UserMeType | null;
-  isLoading : boolean
+  isLoading: boolean;
 };

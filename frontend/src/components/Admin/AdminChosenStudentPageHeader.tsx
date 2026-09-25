@@ -1,15 +1,23 @@
-import { PhoneIcon, UserIcon } from "@heroicons/react/24/outline";
+import { EnvelopeIcon, PhoneIcon, UserIcon } from "@heroicons/react/24/outline";
 import InitialsIcon from "../InitialsIcon";
-import type { Student } from "../../types/students";
 import { useStudentsCtx } from "../../hooks/auth/useStudentsContext";
+import type { UserMeType } from "../../types/user";
+import { format } from "date-fns";
+import { formatPhone } from "../../helpers/formatPhoneNumber";
 
 function AdminChosenStudentPageHeader({
   selectedStudent,
 }: {
-  selectedStudent: Student | undefined;
+  selectedStudent: UserMeType | undefined;
 }) {
   const { openStudentSearch } = useStudentsCtx();
-
+  const fullName = `${selectedStudent?.first_name} ${selectedStudent?.last_name}`;
+  const formattedWorkStartDate = selectedStudent?.created_at
+    ? format(selectedStudent.created_at, "MMMM dd, yyyy")
+    : "N/A";
+  const formattedPhone = selectedStudent?.phone
+    ? formatPhone(selectedStudent.phone)
+    : "N/A";
   return (
     <div className="flex flex-col gap-6  w-full bg-headersCalendar px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between border-b border-borderDividers  ">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -20,27 +28,32 @@ function AdminChosenStudentPageHeader({
         />
         <div className="flex min-w-0 flex-col gap-2">
           <div className="flex flex-wrap gap-2 sm:gap-4 items-center">
-            <span className="text-2xl sm:text-3xl lg:text-4xl">
-              {`${selectedStudent?.first_name} " " ${selectedStudent?.last_name}`}
-            </span>
-            <span className="bg-green-600/50 px-2 py-1 rounded-xl text-green-200 ">
-              Active
+            <span className="text-2xl sm:text-3xl lg:text-4xl">{fullName}</span>
+            <span
+              className={` px-2 py-1 rounded-xl text-green-200 ${
+                selectedStudent?.is_active ? "bg-success/70" : "bg-warning"
+              } `}
+            >
+              {selectedStudent?.is_active ? "Active" : "Inactive"}
             </span>
           </div>
 
-          <span className="break-all text-base sm:text-lg  lg:text-xl text-secondaryText">
-            {selectedStudent?.email}
+          <span className="flex items-center text-base text-secondaryText sm:text-base lg:text-lg">
+            <EnvelopeIcon className="size-4 mr-2 shrink-0" />
+            {selectedStudent?.email ? selectedStudent.email : "email: N/A"}
           </span>
-          <span className="flex items-center text-base text-secondaryText sm:text-lg lg:text-xl">
+          <span className="flex items-center text-base text-secondaryText sm:text-base lg:text-lg">
             <PhoneIcon className="size-4 mr-2 shrink-0" />
-            {selectedStudent?.phone}
+            {formattedPhone}
           </span>
         </div>
       </div>
 
       <div className="flex flex-col gap-1  ">
         <span className="text-secondaryText text-sm">Working since</span>
-        <span className="text-base sm:text-lg px-2 py-1"> Feb 2024</span>
+        <span className="text-base sm:text-lg px-2 py-1">
+          {formattedWorkStartDate}
+        </span>
       </div>
 
       <button
