@@ -6,6 +6,10 @@ export async function authenticateUser(
   username: string,
   password: string,
 ): Promise<string> {
+  if (!username || !password) {
+    throw new AppError("Username and password are required", 400);
+  }
+
   const user = await authModel.getUserByUsername(username);
 
   if (!user) {
