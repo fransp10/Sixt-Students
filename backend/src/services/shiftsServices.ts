@@ -8,7 +8,7 @@ import {
 } from "../types/Shift.js";
 import AppError from "../errors/AppError.js";
 import * as userModel from "../models/userModel.js";
-import { ShiftRequestType } from "../types/ShiftRequestType.js";
+import { ShiftRequest } from "../types/ShiftRequest.js";
 import { isValidTime } from "../helpers/isValidTime.js";
 
 export async function generateShiftsForDateRange(): Promise<void> {

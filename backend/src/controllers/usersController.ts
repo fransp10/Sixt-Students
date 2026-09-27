@@ -25,7 +25,7 @@ export async function getUserById(
 ): Promise<void> {
   const { userId } = req.params;
 
-  const user: UserWithoutPasswordType | null = await Users.getUserById(userId);
+  const user: UserWithoutPassword | null = await Users.getUserById(userId);
 
   if (!user) {
     throw new AppError("User not found", 404);

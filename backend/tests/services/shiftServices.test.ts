@@ -161,7 +161,10 @@ describe("getRequestsForShift", () => {
 
     const result = await getRequestsForShift(mockShiftId);
 
-    expect(result).toEqual(mockRequests);
+    expect(result).toEqual({
+      shift_id: mockShiftId,
+      students: mockRequests.map(({ shift_id: _shiftId, ...student }) => student),
+    });
     expect(ShiftModel.getRequestsForShift).toHaveBeenCalledWith(mockShiftId);
   });
 });
