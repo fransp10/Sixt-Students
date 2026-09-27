@@ -1,11 +1,7 @@
 import { QueryResult } from "pg";
-import pool from "../pool/db.js";
-import { ModifyShiftFields } from "../types/ModifyShiftFields.js";
-import {
-  Shift,
-  ShiftWithStudentsAndRequesters,
-  SingleShiftRowToAggregate,
-} from "../types/Shift.js";
+import pool from "../db/db.js";
+import { ModifyShiftFields } from "../types/ModifyShiftFieldsType.js";
+import { Shift } from "../types/Shift.js";
 
 export async function getAllShifts(): Promise<Shift[]> {
   const shifts = await pool.query<Shift>("SELECT * FROM shifts ORDER BY date");

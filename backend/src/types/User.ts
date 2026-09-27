@@ -13,6 +13,7 @@ export type UserWithPassword = {
   first_name: string;
   last_name: string;
   date_of_birth: Date;
+  must_change_password?: boolean;
 };
 
 export type UserWithoutPassword = Omit<UserWithPassword, "password">;

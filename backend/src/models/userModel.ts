@@ -1,5 +1,5 @@
 import { QueryResult } from "pg";
-import pool from "../pool/db.js";
+import pool from "../db/db.js";
 import {
   CreateUserModel,
   UserRoles,
@@ -79,7 +79,7 @@ export async function createUser({
 
 export async function getUserById(
   userId: string,
-): Promise<UserWithoutPassword | undefined> {
+): Promise<UserWithoutPasswordType | null> {
   const result = await pool.query(
     "SELECT id,username,email,phone,user_role,default_hourly_rate,is_active,date_of_birth,first_name,last_name FROM USERS WHERE id=$1",
     [userId],

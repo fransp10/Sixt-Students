@@ -8,7 +8,8 @@ import {
 } from "../types/Shift.js";
 import AppError from "../errors/AppError.js";
 import * as userModel from "../models/userModel.js";
-import { ShiftRequest } from "../types/ShiftRequest.js";
+import { ShiftRequestType } from "../types/ShiftRequestType.js";
+import { isValidTime } from "../helpers/isValidTime.js";
 
 export async function generateShiftsForDateRange(): Promise<void> {
   const startDateToGenerateShift = format(new Date(), "yyyy-MM-dd");
@@ -29,7 +30,11 @@ export async function modifyShift(
 ): Promise<Shift> {
   const allowedFields = ["scheduled_start_time", "scheduled_end_time"];
 
+  if (!shiftId) {
+    throw new AppError("Shift ID is required", 400);
+  }
   const providedFields = Object.keys(fieldsToUpdate);
+  const providedValues = Object.values(fieldsToUpdate);
 
   if (providedFields.length === 0) {
     throw new AppError("No fields provided for update", 400);
@@ -45,33 +50,20 @@ export async function modifyShift(
       400,
     );
   }
+  if (!providedValues.every(isValidTime)) {
+    throw new AppError("Invalid time format. Please use HH:mm format.", 400);
+  }
 
   const shift = await shiftModel.getShiftById(shiftId);
   if (!shift) {
     throw new AppError(`Shift with ID ${shiftId} not found`, 404);
   }
 
-  const validFieldsToUpdate: ModifyShiftFields = {};
-
-  if (fieldsToUpdate.scheduled_start_time !== undefined) {
-    validFieldsToUpdate.scheduled_start_time =
-      fieldsToUpdate.scheduled_start_time;
-  }
-
-  if (fieldsToUpdate.scheduled_end_time !== undefined) {
-    validFieldsToUpdate.scheduled_end_time = fieldsToUpdate.scheduled_end_time;
-  }
-
-  if (Object.keys(validFieldsToUpdate).length === 0) {
-    throw new AppError("No valid fields provided for update", 400);
-  }
-
   const { scheduled_start_time, scheduled_end_time } = shift;
 
   const finalStartTime =
-    validFieldsToUpdate.scheduled_start_time ?? scheduled_start_time;
-  const finalEndTime =
-    validFieldsToUpdate.scheduled_end_time ?? scheduled_end_time;
+    fieldsToUpdate.scheduled_start_time ?? scheduled_start_time;
+  const finalEndTime = fieldsToUpdate.scheduled_end_time ?? scheduled_end_time;
 
   if (finalStartTime >= finalEndTime) {
     throw new AppError(
@@ -80,10 +72,14 @@ export async function modifyShift(
     );
   }
 
-  return shiftModel.modifyShift(shiftId, validFieldsToUpdate);
+  return shiftModel.modifyShift(shiftId, fieldsToUpdate);
 }
 
 export async function getRequestsForShift(shiftId: string) {
+  if (!shiftId) {
+    throw new AppError("Shift ID is required", 400);
+  }
+
   const shift = await shiftModel.getShiftById(shiftId);
   if (!shift) {
     throw new AppError(`Shift with ID ${shiftId} not found`, 404);
@@ -147,7 +143,7 @@ export async function createShiftRequest(shiftId: string, userId: string) {
   //   Directly call model because we verified the user and shift exist, so no need to call service again
   const shiftRequest = await shiftModel.getShiftRequest(shiftId, userId);
 
-  if (shiftRequest != null || shiftRequest != undefined) {
+  if (shiftRequest != null) {
     throw new AppError(
       `User with ID ${userId} has already requested this shift`,
       400,
