@@ -1,4 +1,4 @@
-import pool from "../pool/db.js";
+import pool from "../db/db.js";
 import { UserWithHashedPasswordType } from "../types/User.js";
 
 export async function getUserByUsername(

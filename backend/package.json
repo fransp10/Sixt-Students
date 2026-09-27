@@ -11,7 +11,9 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "debug": "tsx --inspect watch src/server.ts"
+    "debug": "tsx --inspect watch src/server.ts",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "argon2": "^0.45.1",
@@ -34,6 +36,7 @@
     "eslint": "^10.10.0",
     "globals": "^17.12.0",
     "tsx": "^4.23.13",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2"
   }
 }
