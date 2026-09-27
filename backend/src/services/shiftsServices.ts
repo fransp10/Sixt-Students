@@ -69,6 +69,10 @@ export async function modifyShift(
 }
 
 export async function getRequestsForShift(shiftId: string) {
+  if (!shiftId) {
+    throw new AppError("Shift ID is required", 400);
+  }
+
   const shift = await shiftModel.getShiftById(shiftId);
   if (!shift) {
     throw new AppError(`Shift with ID ${shiftId} not found`, 404);

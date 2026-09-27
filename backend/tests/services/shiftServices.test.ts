@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
 import * as ShiftModel from "../../src/models/shiftModel.js";
-import { modifyShift } from "../../src/services/shiftsServices.js";
+import {
+  getRequestsForShift,
+  modifyShift,
+} from "../../src/services/shiftsServices.js";
 import { Shift } from "../../src/types/Shift.js";
 vi.mock("../../src/models/shiftModel.js");
 
@@ -111,5 +114,50 @@ describe("modifyShift", () => {
       message: "scheduled_start_time must be earlier than scheduled_end_time",
     });
     expect(ShiftModel.modifyShift).not.toHaveBeenCalled();
+  });
+});
+
+describe("getRequestsForShift", () => {
+  const mockShiftId = "123";
+  const mockShift: Shift = {
+    id: Number(mockShiftId),
+    scheduled_start_time: "08:00",
+    scheduled_end_time: "16:00",
+    date: "2023-01-01",
+    shift_type: "morning",
+  };
+  const mockRequests = [
+    {
+      user_id: 1,
+      shift_id: Number(mockShiftId),
+      request_created_at: "2023-01-01T08:00:00Z",
+      username: "user1",
+      first_name: "John",
+      last_name: "Doe",
+    },
+  ];
+
+  it("should throw 400 error when shiftId is not provided", async () => {
+    await expect(getRequestsForShift("")).rejects.toMatchObject({
+      statusCode: 400,
+      message: "Shift ID is required",
+    });
+  });
+
+  it("should throw 404 error when shiftId does not exist", async () => {
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(null);
+    await expect(getRequestsForShift("dada")).rejects.toMatchObject({
+      statusCode: 404,
+      message: "Shift with ID dada not found",
+    });
+  });
+  it("should return the requests for the shift", async () => {
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(mockShift);
+    vi.mocked(ShiftModel.getRequestsForShift).mockResolvedValue(mockRequests);
+
+    const result = await getRequestsForShift(mockShiftId);
+
+    expect(result).toEqual(mockRequests);
+    expect(ShiftModel.getRequestsForShift).toHaveBeenCalledWith(mockShiftId);
   });
 });
