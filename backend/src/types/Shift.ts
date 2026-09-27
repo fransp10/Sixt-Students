@@ -1,4 +1,4 @@
-export type ShiftTypes = "morning" | "afternoon" | "night";
+export type ShiftTypes = "morning" | "middle" | "afternoon";
 export type Shift = {
   id: number;
   date: string;
