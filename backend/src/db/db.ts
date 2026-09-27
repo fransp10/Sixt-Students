@@ -1,5 +1,8 @@
-import pg from "pg";
+import pg, { types } from "pg";
 const { Pool } = pg;
+
+// This makes TIME format from HH:MM:SS to HH:MM
+types.setTypeParser(types.builtins.TIME, (value: string) => value.slice(0, 5));
 
 const pool = new Pool({
   user: process.env.DB_USER,

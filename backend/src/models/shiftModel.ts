@@ -1,5 +1,5 @@
 import { QueryResult } from "pg";
-import pool from "../pool/db.js";
+import pool from "../db/db.js";
 import { ModifyShiftFields } from "../types/ModifyShiftFieldsType.js";
 import { Shift } from "../types/Shift.js";
 

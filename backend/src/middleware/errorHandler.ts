@@ -1,4 +1,11 @@
-export default function ErrorHandler(err, req, res, next) {
+import { NextFunction, Request, Response } from "express";
+
+export default function ErrorHandler(
+  err: Error & { statusCode?: number },
+  _req: Request,
+  res: Response,
+  _next: NextFunction,
+) {
   console.error(err);
 
   const statusCode = err.statusCode || 500;

@@ -10,6 +10,7 @@ export type UserWithPasswordType = {
   default_hourly_rate: number;
   is_active: boolean;
   created_at: Date;
+  must_change_password?: boolean;
 };
 
 export type UserWithoutPasswordType = Omit<UserWithPasswordType, "password">;
