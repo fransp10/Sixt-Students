@@ -4,7 +4,10 @@ import { requireAdmin } from "../middleware/requireAdmin.js";
 
 const shiftsRouter = express.Router();
 
-shiftsRouter.get("/", shiftController.getAllShifts);
+shiftsRouter.get(
+  "/",
+  shiftController.getAllShiftsWithShiftRequestsBetweenDates,
+);
 shiftsRouter.patch("/:shiftId", requireAdmin, shiftController.modifyShift);
 
 shiftsRouter.get("/:shiftId/requests", shiftController.getRequestsForShift);

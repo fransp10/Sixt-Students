@@ -5,7 +5,7 @@ import * as authModel from "../models/authModel.js";
 export async function authenticateUser(
   username: string,
   password: string,
-): Promise<string> {
+): Promise<{ user: any; accessToken: string }> {
   if (!username || !password) {
     throw new AppError("Username and password are required", 400);
   }
@@ -28,5 +28,15 @@ export async function authenticateUser(
     { expiresIn: Number(process.env.ACCESS_TOKEN_EXPIRATION) * 60 },
   );
 
-  return accessToken;
+  const userToReturn = {
+    id: user.id,
+    username: user.username,
+    user_role: user.user_role,
+    is_active: user.is_active,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    date_of_birth: user.date_of_birth,
+  };
+
+  return { user: userToReturn, accessToken };
 }

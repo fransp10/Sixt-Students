@@ -11,6 +11,7 @@ import { authenticate } from "./middleware/authenticate.js";
 import { requireAdmin } from "./middleware/requireAdmin.js";
 import { meRouter } from "./routes/meRoutes.js";
 import { requireStudent } from "./middleware/requireStudent.js";
+import cors from "cors";
 const app = express();
 
 // generate upcoming shifts on server start
@@ -20,7 +21,12 @@ startGenerateShiftsJob();
 
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  }),
+);
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
@@ -29,7 +35,7 @@ app.use("/api/auth", authRouter);
 app.use(authenticate); // Apply the authenticate middleware to all routes below this line
 app.use("/api/users", requireAdmin, userRouter);
 app.use("/api/shifts", shiftsRouter);
-app.use("/api/me", requireStudent, meRouter);
+app.use("/api/me", meRouter);
 // Error handling middleware
 // should be placed after all other routes and middleware
 app.use(ErrorHandler);

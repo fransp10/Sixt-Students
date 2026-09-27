@@ -69,7 +69,18 @@ describe("authenticateUser", () => {
       mockPassword,
     );
 
-    expect(result).toBe(fakeAccessToken);
+    expect(result).toEqual({
+      accessToken: fakeAccessToken,
+      user: {
+        id: mockUser.id,
+        username: mockUser.username,
+        user_role: mockUser.user_role,
+        is_active: mockUser.is_active,
+        first_name: mockUser.first_name,
+        last_name: mockUser.last_name,
+        date_of_birth: mockUser.date_of_birth,
+      },
+    });
     expect(argon2.verify).toHaveBeenCalledWith("hashedpassword", "password");
 
     expect(jwt.sign).toHaveBeenCalledWith({ userId: 1 }, "test-secret", {
