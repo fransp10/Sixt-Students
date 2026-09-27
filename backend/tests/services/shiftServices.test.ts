@@ -1,11 +1,15 @@
 import { describe, it, expect, vi } from "vitest";
 import * as ShiftModel from "../../src/models/shiftModel.js";
+import * as UserModel from "../../src/models/userModel.js";
 import {
+  createAssignmentForShift,
+  createShiftRequest,
   getRequestsForShift,
   modifyShift,
 } from "../../src/services/shiftsServices.js";
 import { Shift } from "../../src/types/Shift.js";
 vi.mock("../../src/models/shiftModel.js");
+vi.mock("../../src/models/userModel.js");
 
 describe("modifyShift", () => {
   const fakeShift: Shift = {
@@ -159,5 +163,186 @@ describe("getRequestsForShift", () => {
 
     expect(result).toEqual(mockRequests);
     expect(ShiftModel.getRequestsForShift).toHaveBeenCalledWith(mockShiftId);
+  });
+});
+
+describe("createShiftRequest", () => {
+  const mockShiftId = "123";
+  const mockUserId = "456";
+  const mockUser = {
+    id: Number(mockUserId),
+    username: "testuser",
+    email: "",
+    phone: "",
+    user_role: "student" as const,
+    default_hourly_rate: 12,
+    date_of_birth: new Date("2000-01-01"),
+    first_name: "Test",
+    last_name: "User",
+    is_active: true,
+    must_change_password: false,
+    created_at: new Date(),
+  };
+  const mockShift: Shift = {
+    id: Number(mockShiftId),
+    scheduled_start_time: "08:00",
+    scheduled_end_time: "16:00",
+    date: "2023-01-01",
+    shift_type: "morning",
+  };
+
+  const mockShiftRequest = {
+    shift_id: Number(mockShiftId),
+    user_id: Number(mockUserId),
+    request_created_at: new Date().toISOString(),
+  };
+
+  it("should throw error 404 when provided with shiftId of non existing shift", async () => {
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(null);
+
+    await expect(createShiftRequest("5", "1")).rejects.toMatchObject({
+      statusCode: 404,
+      message: "Shift with ID 5 not found",
+    });
+    expect(ShiftModel.createShiftRequest).not.toHaveBeenCalled();
+  });
+
+  it("should throw error 404 when provided with userId of non existing user", async () => {
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(mockShift);
+    vi.mocked(UserModel.getUserById).mockResolvedValue(null);
+
+    await expect(createShiftRequest(mockShiftId, "999")).rejects.toMatchObject({
+      statusCode: 404,
+      message: "User with ID 999 not found",
+    });
+    expect(ShiftModel.createShiftRequest).not.toHaveBeenCalled();
+  });
+
+  it("should throw error 400 when user has already requested the shift", async () => {
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(mockShift);
+    vi.mocked(UserModel.getUserById).mockResolvedValue(mockUser);
+
+    vi.mocked(ShiftModel.getShiftRequest).mockResolvedValue(mockShiftRequest);
+
+    await expect(
+      createShiftRequest(mockShiftId, mockUserId),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: `User with ID ${mockUserId} has already requested this shift`,
+    });
+    expect(ShiftModel.createShiftRequest).not.toHaveBeenCalled();
+  });
+
+  it("should call ShiftModel.createShiftRequest with the correct parameters when the user and shift exist and the user has not already requested the shift", async () => {
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(mockShift);
+    vi.mocked(UserModel.getUserById).mockResolvedValue(mockUser);
+    vi.mocked(ShiftModel.getShiftRequest).mockResolvedValue(null);
+
+    await createShiftRequest(mockShiftId, mockUserId);
+
+    expect(ShiftModel.createShiftRequest).toHaveBeenCalledWith(
+      "123",
+      "456",
+      12,
+    );
+  });
+});
+
+describe("createAssignmentForShift", () => {
+  const mockShiftId = "123";
+  const mockUserId = "456";
+  const mockShift: Shift = {
+    id: Number(mockShiftId),
+    scheduled_start_time: "08:00",
+    scheduled_end_time: "16:00",
+    date: "2023-01-01",
+    shift_type: "morning",
+  };
+
+  const mockUser = {
+    id: Number(mockUserId),
+    username: "testuser",
+    email: "",
+    phone: "",
+    user_role: "student" as const,
+    default_hourly_rate: 12,
+    date_of_birth: new Date("2000-01-01"),
+    first_name: "Test",
+    last_name: "User",
+    is_active: true,
+    must_change_password: false,
+    created_at: new Date(),
+  };
+  it("should throw error 404 when provided with shiftId of non existing shift", async () => {
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(null);
+
+    await expect(
+      createAssignmentForShift(mockShiftId, mockUserId),
+    ).rejects.toMatchObject({
+      statusCode: 404,
+      message: `Shift with ID ${mockShiftId} not found`,
+    });
+    expect(ShiftModel.createAssignmentForShift).not.toHaveBeenCalled();
+  });
+  it("should throw error 404 when provided with userId of non existing user", async () => {
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(mockShift);
+    vi.mocked(UserModel.getUserById).mockResolvedValue(null);
+
+    await expect(
+      createAssignmentForShift(mockShiftId, mockUserId),
+    ).rejects.toMatchObject({
+      statusCode: 404,
+      message: `User with ID ${mockUserId} not found`,
+    });
+    expect(ShiftModel.createAssignmentForShift).not.toHaveBeenCalled();
+  });
+
+  it("should call ShiftModel.createAssignmentForShift with the correct parameters when the user and shift exist", async () => {
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(mockShift);
+    vi.mocked(UserModel.getUserById).mockResolvedValue(mockUser);
+
+    vi.mocked(ShiftModel.getShiftAssignment).mockResolvedValue(null);
+
+    await createAssignmentForShift(mockShiftId, mockUserId);
+
+    expect(ShiftModel.createAssignmentForShift).toHaveBeenCalledWith(
+      "123",
+      "456",
+      12,
+    );
+  });
+
+  it("should throw error 400 if provided user is inactive", async () => {
+    const inactiveUser = { ...mockUser, is_active: false };
+
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(mockShift);
+    vi.mocked(UserModel.getUserById).mockResolvedValue(inactiveUser);
+
+    await expect(
+      createAssignmentForShift(mockShiftId, mockUserId),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: `User with ID ${mockUserId} is not active and cannot be assigned to shifts`,
+    });
+    expect(ShiftModel.createAssignmentForShift).not.toHaveBeenCalled();
+  });
+
+  it("should throw error 409 if user is already assigned to the shift", async () => {
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(mockShift);
+    vi.mocked(UserModel.getUserById).mockResolvedValue(mockUser);
+    vi.mocked(ShiftModel.getShiftAssignment).mockResolvedValue({
+      shift_id: Number(mockShiftId),
+      user_id: Number(mockUserId),
+      assignment_created_at: new Date().toISOString(),
+    });
+
+    await expect(
+      createAssignmentForShift(mockShiftId, mockUserId),
+    ).rejects.toMatchObject({
+      statusCode: 409,
+      message: `User with ID ${mockUserId} is already assigned to shift with ID ${mockShiftId}`,
+    });
+
+    expect(ShiftModel.createAssignmentForShift).not.toHaveBeenCalled();
   });
 });

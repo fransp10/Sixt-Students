@@ -116,7 +116,7 @@ export async function createShiftRequest(shiftId: string, userId: string) {
   //   Directly call model because we verified the user and shift exist, so no need to call service again
   const shiftRequest = await shiftModel.getShiftRequest(shiftId, userId);
 
-  if (shiftRequest != null || shiftRequest != undefined) {
+  if (shiftRequest != null) {
     throw new AppError(
       `User with ID ${userId} has already requested this shift`,
       400,

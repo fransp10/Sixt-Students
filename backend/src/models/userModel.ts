@@ -55,7 +55,7 @@ export async function createUser({
 
 export async function getUserById(
   userId: string,
-): Promise<UserWithoutPasswordType | undefined> {
+): Promise<UserWithoutPasswordType | null> {
   const result = await pool.query(
     "SELECT id,username,email,phone,user_role,default_hourly_rate,is_active FROM USERS WHERE id=$1",
     [userId],
