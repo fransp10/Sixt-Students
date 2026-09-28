@@ -126,7 +126,7 @@ function AdminScheduleCalendarModal({
         {/* CLOSE BUTTON */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 p-3 border border-borderDividers hover:bg-surfaceCards transition-colors duration-200 rounded-lg cursor-pointer"
+          className="absolute right-4 top-4 p-3 border border-borderDividers hover:bg-surfaceCards transition-colors  rounded-lg cursor-pointer"
         >
           <XMarkIcon className="h-6 w-6 text-primaryText" />
         </button>
