@@ -1,25 +1,28 @@
-import { TrashIcon, UserCircleIcon } from "@heroicons/react/24/outline";
-import StudentScheduleCard from "../StudentScheduleCard";
-import type {
-  StudentAssigned,
-  StudentRequesting,
-} from "../../../types/students";
+import { UserCircleIcon } from "@heroicons/react/24/outline";
+import type { StudentAssigned } from "../../../types/students";
+import AssignedStudentScheduleCard from "./ScheduleCardTypes/AssignedStudentScheduleCard";
 export type AssignedStudentsProps = {
   header: "Assigned Students" | "Students requesting this shift";
-  students?: StudentRequesting[] | StudentAssigned[];
+  students?: StudentAssigned[];
+  scheduledStart: string;
+  scheduledEnd: string;
   onClickAssignedStudents?: (studentId: number) => void;
+  shiftId: number;
 };
 
 function AdminModalAssignedSutdents({
   students,
+  scheduledStart,
+  scheduledEnd,
   onClickAssignedStudents,
+  shiftId,
 }: AssignedStudentsProps) {
   const numberOfAssignedStudents = students ? students.length : 0;
 
   return (
-    <div className="min-w-0 flex-1 rounded-lg overflow-y-auto custom-scrollbar border border-borderDividers">
+    <div className="min-w-0 flex-1 rounded-lg flex flex-col border border-borderDividers">
       {/* Sticky header */}
-      <div className="sticky top-0 z-10 items-center gap-2 p-4 font-semibold border-b border-success/30 bg-success/10">
+      <div className="sticky top-0 z- items-center gap-2 p-4 font-semibold border-b border-success/30 bg-success/10">
         <div className="flex items-center gap-6  ">
           <UserCircleIcon className="size-12 text-success text-succes" />
           <div className="flex flex-col gap-1">
@@ -36,15 +39,15 @@ function AdminModalAssignedSutdents({
         </div>
       </div>
       {/* Students */}
-      <div className="flex flex-col gap-2 p-4">
+      <div className="flex flex-col gap-2 p-4 flex-1 overflow-y-auto scrollbar-thin  scrollbar-track-transparent scrollbar-thumb-borderDividers hover:scrollbar-thumb-borderDividers">
         {students && students.length > 0 ? (
           students.map((student) => (
-            <StudentScheduleCard
+            <AssignedStudentScheduleCard
+              shiftId={shiftId}
               key={student.id}
-              studentId={student.id}
-              icon={TrashIcon}
-              variant={"assigned"}
-              name={`${student.first_name} ${student.last_name}`}
+              student={student}
+              scheduledStart={scheduledStart}
+              scheduledEnd={scheduledEnd}
               onClick={onClickAssignedStudents}
             />
           ))

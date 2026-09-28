@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { assignStudentToShift } from "../../api/shiftsApi";
 import type { ShiftWithStudentsAndRequesters } from "../../types/Shift";
+import type { StudentAssigned } from "../../types/students";
 
 export function useAssignStudentToShift() {
   const queryClient = useQueryClient();
@@ -13,7 +14,7 @@ export function useAssignStudentToShift() {
       startDate: string;
       endDate: string;
     }) => assignStudentToShift(vars.shiftId, vars.userId),
-    onSuccess: (_data, variables) => {
+    onSuccess: (newAssignment, variables) => {
       queryClient.setQueryData(
         ["shifts", variables.startDate, variables.endDate],
         (oldData: ShiftWithStudentsAndRequesters[]) => {
@@ -30,17 +31,31 @@ export function useAssignStudentToShift() {
             if (!studentToAssign) {
               return s;
             }
+            const assignedStudent: StudentAssigned = {
+              ...studentToAssign,
+              actual_start_time: newAssignment.actual_start_time,
+              actual_end_time: newAssignment.actual_end_time,
+              no_show: false,
+            };
             // return a new shift object with the student added to the students_assigned array and removed from the students_requesting array
             return {
               ...s,
-              students_assigned: [...s.students_assigned, studentToAssign],
+              students_assigned: [assignedStudent, ...s.students_assigned].sort(
+                (a, b) =>
+                  a.requested_at.localeCompare(b.requested_at) || a.id - b.id,
+              ),
               students_requesting: s.students_requesting.filter(
-                (student) => student.id !== variables.userId,
+                (student) => student.id !== assignedStudent.id,
               ),
             };
           });
         },
       );
+    },
+    onSettled: (_data, _error, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["shifts", variables.startDate, variables.endDate],
+      });
     },
   });
   return assignmentMutation;

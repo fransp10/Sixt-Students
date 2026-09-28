@@ -37,7 +37,10 @@ function CurrentlyActiveShiftCell({
           </span>
           <div className="flex flex-wrap gap-1.5">
             {studentsToDisplay.map((student) => (
-              <span className="bg-surfaceCards text-xs font-bold text-secondaryText rounded-full size-8 flex items-center justify-center">
+              <span
+                key={student.id}
+                className="bg-surfaceCards text-xs font-bold text-secondaryText rounded-full size-8 flex items-center justify-center"
+              >
                 {getInitials(student.first_name.concat(" ", student.last_name))}
               </span>
             ))}

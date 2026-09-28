@@ -1,11 +1,7 @@
 import { addDays, endOfWeek, format } from "date-fns";
 import * as shiftModel from "../models/shiftModel.js";
 import { ModifyShiftFields } from "../types/ModifyShiftFields.js";
-import {
-  AggregatedShiftWithStudents,
-  Shift,
-  ShiftWithStudentsAndRequesters,
-} from "../types/Shift.js";
+import { Shift, ShiftWithStudentsAndRequesters } from "../types/Shift.js";
 import AppError from "../errors/AppError.js";
 import * as userModel from "../models/userModel.js";
 import { ShiftRequest } from "../types/ShiftRequest.js";
@@ -244,4 +240,79 @@ export async function getAllShiftsWithShiftRequestsBetweenDates(
   //     });
   //   }
   return shifts;
+}
+
+export async function modifyShiftAssignedAdmin(
+  shiftId: string,
+  userId: string,
+  no_show: boolean,
+  arrivedAt?: string,
+  leftAt?: string,
+) {
+  if (!shiftId) {
+    throw new AppError("Shift ID is required", 400);
+  }
+
+  if (!userId) {
+    throw new AppError("User ID is required", 400);
+  }
+
+  if (typeof no_show !== "boolean") {
+    throw new AppError("no_show must be true or false", 400);
+  }
+
+  const shift = await shiftModel.getShiftById(shiftId);
+  if (!shift) {
+    throw new AppError(`Shift with ID ${shiftId} not found`, 404);
+  }
+
+  const shiftAssignment = await shiftModel.getShiftAssignment(shiftId, userId);
+  if (!shiftAssignment) {
+    throw new AppError(
+      `Shift assignment for shift ID ${shiftId} and user ID ${userId} not found`,
+      404,
+    );
+  }
+
+  // A no-show has no times, so both are cleared
+  if (no_show) {
+    return shiftModel.modifyShiftAssignedAdmin(
+      shiftId,
+      userId,
+      true,
+      null,
+      null,
+    );
+  }
+
+  if (!leftAt || !arrivedAt) {
+    throw new AppError("Both arrivedAt and leftAt must be provided", 400);
+  }
+
+  if (!isValidTime(arrivedAt) || !isValidTime(leftAt)) {
+    throw new AppError("Invalid time format. Please use HH:mm format.", 400);
+  }
+
+  if (arrivedAt >= leftAt) {
+    throw new AppError(
+      "actual_start_time must be earlier than actual_end_time",
+      400,
+    );
+  }
+
+  const { scheduled_start_time, scheduled_end_time } = shift;
+  if (arrivedAt < scheduled_start_time || leftAt > scheduled_end_time) {
+    throw new AppError(
+      `Actual times must be within the scheduled shift hours (${scheduled_start_time}-${scheduled_end_time})`,
+      400,
+    );
+  }
+
+  return shiftModel.modifyShiftAssignedAdmin(
+    shiftId,
+    userId,
+    false,
+    arrivedAt,
+    leftAt,
+  );
 }

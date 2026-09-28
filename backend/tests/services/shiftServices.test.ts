@@ -6,6 +6,7 @@ import {
   createShiftRequest,
   getRequestsForShift,
   modifyShift,
+  modifyShiftAssignedAdmin,
 } from "../../src/services/shiftsServices.js";
 import { Shift } from "../../src/types/Shift.js";
 vi.mock("../../src/models/shiftModel.js");
@@ -347,5 +348,206 @@ describe("createAssignmentForShift", () => {
     });
 
     expect(ShiftModel.createAssignmentForShift).not.toHaveBeenCalled();
+  });
+});
+
+describe("modifyShiftAssignedAdmin", () => {
+  const mockShiftId = "123";
+  const mockUserId = "1";
+  const mockShift: Shift = {
+    id: 123,
+    scheduled_start_time: "08:00",
+    scheduled_end_time: "16:00",
+    date: "2023-01-01",
+    shift_type: "morning",
+  };
+  const mockAssignment = {
+    shift_id: 123,
+    user_id: 1,
+    actual_start_time: "08:00",
+    actual_end_time: "16:00",
+    no_show: false,
+  };
+
+  function mockShiftAndAssignmentExist() {
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(mockShift);
+    vi.mocked(ShiftModel.getShiftAssignment).mockResolvedValue(mockAssignment);
+  }
+
+  it("should throw error 400 when shiftId is not provided", async () => {
+    await expect(
+      modifyShiftAssignedAdmin("", mockUserId, true),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "Shift ID is required",
+    });
+  });
+
+  it("should throw error 400 when userId is not provided", async () => {
+    await expect(
+      modifyShiftAssignedAdmin(mockShiftId, "", true),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "User ID is required",
+    });
+  });
+
+  it("should throw error 400 when no_show is not a boolean", async () => {
+    await expect(
+      modifyShiftAssignedAdmin(mockShiftId, mockUserId, "true" as any),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "no_show must be true or false",
+    });
+  });
+
+  it("should throw error 404 when the shift does not exist", async () => {
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(null);
+
+    await expect(
+      modifyShiftAssignedAdmin(mockShiftId, mockUserId, true),
+    ).rejects.toMatchObject({
+      statusCode: 404,
+      message: `Shift with ID ${mockShiftId} not found`,
+    });
+  });
+
+  it("should throw error 404 when the user is not assigned to the shift", async () => {
+    vi.mocked(ShiftModel.getShiftById).mockResolvedValue(mockShift);
+    vi.mocked(ShiftModel.getShiftAssignment).mockResolvedValue(undefined);
+
+    await expect(
+      modifyShiftAssignedAdmin(mockShiftId, mockUserId, true),
+    ).rejects.toMatchObject({
+      statusCode: 404,
+      message: `Shift assignment for shift ID ${mockShiftId} and user ID ${mockUserId} not found`,
+    });
+    expect(ShiftModel.modifyShiftAssignedAdmin).not.toHaveBeenCalled();
+  });
+
+  it("should clear both times when marking a no-show, even if times are provided", async () => {
+    mockShiftAndAssignmentExist();
+
+    await modifyShiftAssignedAdmin(
+      mockShiftId,
+      mockUserId,
+      true,
+      "09:00",
+      "15:00",
+    );
+
+    expect(ShiftModel.modifyShiftAssignedAdmin).toHaveBeenCalledWith(
+      mockShiftId,
+      mockUserId,
+      true,
+      null,
+      null,
+    );
+  });
+
+  it("should throw error 400 when no_show is false and a time is missing", async () => {
+    mockShiftAndAssignmentExist();
+
+    await expect(
+      modifyShiftAssignedAdmin(mockShiftId, mockUserId, false, "09:00"),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "Both actual_start_time and actual_end_time must be provided",
+    });
+    expect(ShiftModel.modifyShiftAssignedAdmin).not.toHaveBeenCalled();
+  });
+
+  it("should throw error 400 when a time is not in HH:mm format", async () => {
+    mockShiftAndAssignmentExist();
+
+    await expect(
+      modifyShiftAssignedAdmin(mockShiftId, mockUserId, false, "9am", "15:00"),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "Invalid time format. Please use HH:mm format.",
+    });
+  });
+
+  it("should throw error 400 when actual_start_time is not earlier than actual_end_time", async () => {
+    mockShiftAndAssignmentExist();
+
+    await expect(
+      modifyShiftAssignedAdmin(mockShiftId, mockUserId, false, "12:00", "12:00"),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "actual_start_time must be earlier than actual_end_time",
+    });
+  });
+
+  it("should throw error 400 when actual_start_time is before the scheduled start", async () => {
+    mockShiftAndAssignmentExist();
+
+    await expect(
+      modifyShiftAssignedAdmin(mockShiftId, mockUserId, false, "07:00", "15:00"),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "Actual times must be within the scheduled shift hours (08:00-16:00)",
+    });
+    expect(ShiftModel.modifyShiftAssignedAdmin).not.toHaveBeenCalled();
+  });
+
+  it("should throw error 400 when actual_end_time is after the scheduled end", async () => {
+    mockShiftAndAssignmentExist();
+
+    await expect(
+      modifyShiftAssignedAdmin(mockShiftId, mockUserId, false, "09:00", "17:00"),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "Actual times must be within the scheduled shift hours (08:00-16:00)",
+    });
+  });
+
+  it("should accept times exactly on the scheduled start and end", async () => {
+    mockShiftAndAssignmentExist();
+
+    await modifyShiftAssignedAdmin(
+      mockShiftId,
+      mockUserId,
+      false,
+      "08:00",
+      "16:00",
+    );
+
+    expect(ShiftModel.modifyShiftAssignedAdmin).toHaveBeenCalledWith(
+      mockShiftId,
+      mockUserId,
+      false,
+      "08:00",
+      "16:00",
+    );
+  });
+
+  it("should save adjusted times and return the updated assignment", async () => {
+    mockShiftAndAssignmentExist();
+    const updatedAssignment = {
+      ...mockAssignment,
+      actual_start_time: "09:30",
+      actual_end_time: "14:00",
+    };
+    vi.mocked(ShiftModel.modifyShiftAssignedAdmin).mockResolvedValue(
+      updatedAssignment,
+    );
+
+    const result = await modifyShiftAssignedAdmin(
+      mockShiftId,
+      mockUserId,
+      false,
+      "09:30",
+      "14:00",
+    );
+
+    expect(ShiftModel.modifyShiftAssignedAdmin).toHaveBeenCalledWith(
+      mockShiftId,
+      mockUserId,
+      false,
+      "09:30",
+      "14:00",
+    );
+    expect(result).toEqual(updatedAssignment);
   });
 });
