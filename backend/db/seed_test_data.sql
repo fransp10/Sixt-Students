@@ -39,8 +39,8 @@ ON CONFLICT (date, shift_type_id) DO NOTHING;
 -- fran.sipek is assigned to this week's Monday morning shift (along with marko.kovac),
 -- and to next Friday's afternoon shift alone.
 
-INSERT INTO shift_assignments (shift_id, user_id, hourly_rate)
-SELECT s.id, u.id, u.default_hourly_rate
+INSERT INTO shift_assignments (shift_id, user_id, hourly_rate, actual_start_time, actual_end_time)
+SELECT s.id, u.id, u.default_hourly_rate, s.scheduled_start_time, s.scheduled_end_time
 FROM (VALUES
   ('fran.sipek',  date_trunc('week', CURRENT_DATE)::date,               'morning'),
   ('marko.kovac', date_trunc('week', CURRENT_DATE)::date,               'morning'),
@@ -66,3 +66,17 @@ JOIN shifts s ON s.date = v.shift_date
 JOIN shift_types st ON st.id = s.shift_type_id AND st.shift_name = v.shift_type
 JOIN users u ON u.username = v.username
 ON CONFLICT DO NOTHING;
+
+-- 5) NO-SHOW ---------------------------------------------------------
+-- marko.kovac didn't show up for this week's Monday morning shift.
+-- Looked up by date/type instead of ids, since ids differ between databases.
+
+UPDATE shift_assignments sa
+SET no_show = true, actual_start_time = NULL, actual_end_time = NULL
+FROM shifts s, shift_types st, users u
+WHERE sa.shift_id = s.id
+  AND sa.user_id = u.id
+  AND st.id = s.shift_type_id
+  AND u.username = 'marko.kovac'
+  AND s.date = date_trunc('week', CURRENT_DATE)::date
+  AND st.shift_name = 'morning';

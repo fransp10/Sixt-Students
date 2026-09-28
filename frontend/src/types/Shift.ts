@@ -28,4 +28,5 @@ export type ShiftsWorkedHistoryData = {
   requested_at: string | null; // Format: timestampz
   hourly_rate: number;
   hours_worked: number;
+  no_show: boolean;
 };

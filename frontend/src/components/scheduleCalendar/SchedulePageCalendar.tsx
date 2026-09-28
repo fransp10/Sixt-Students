@@ -19,7 +19,6 @@ function SchedulePageCalendar({
 
   const currentDate = new Date();
   const { days, getShift } = useWeekSchedule(selectedDate);
-  console.log(getShift);
   return (
     <div className="w-full text-primaryText  rounded-2xl grid-rows-4">
       <DatePickerComponent

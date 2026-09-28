@@ -127,7 +127,7 @@ export async function createAssignmentForShiftAdmin(
   );
 }
 
-export async function deleteShiftAssignmentAdmin(
+export async function deleteShiftAssignedAdmin(
   req: Request<{ shiftId: string }, unknown, { userId: string }>,
   res: Response,
 ): Promise<void> {
@@ -140,4 +140,31 @@ export async function deleteShiftAssignmentAdmin(
   );
 
   res.status(200).json(deletedAssignment);
+}
+
+export async function modifyShiftAssignedAdmin(
+  req: Request<
+    { shiftId: string },
+    unknown,
+    {
+      userId: string;
+      no_show: boolean;
+      arrivedAt?: string;
+      leftAt?: string;
+    }
+  >,
+  res: Response,
+): Promise<void> {
+  const { shiftId } = req.params;
+  const { userId, arrivedAt, leftAt, no_show } = req.body;
+
+  const modifiedAssignment = await shiftsServices.modifyShiftAssignedAdmin(
+    shiftId,
+    userId,
+    no_show,
+    arrivedAt,
+    leftAt,
+  );
+
+  res.status(200).json(modifiedAssignment);
 }

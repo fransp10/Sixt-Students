@@ -8,7 +8,7 @@ import type {
   ShiftType,
   ShiftWithStudentsAndRequesters,
 } from "../../types/Shift";
-import AdminModalRequestingSutdentsList from "./AdminModal/AdminModalRequestingSutdentsList";
+import AdminModalRequestingSutdentsList from "./AdminModal/AdminModalRequestingSutdents";
 import AdminModalAssignedSutdents from "./AdminModal/AdminModalAssignedSutdents";
 import { useAssignStudentToShift } from "../../hooks/auth/useAssignStudentToShift";
 import { endOfWeek, format, startOfWeek } from "date-fns";
@@ -101,6 +101,9 @@ function AdminScheduleCalendarModal({
           <div className="flex min-h-0 flex-1 gap-4 ">
             <AdminModalAssignedSutdents
               students={shift.students_assigned}
+              scheduledStart={shift.scheduled_start_time}
+              scheduledEnd={shift.scheduled_end_time}
+              shiftId={shift.shift_id}
               header="Assigned Students"
               onClickAssignedStudents={(userId) =>
                 handleClickUnAssignStudent(userId)

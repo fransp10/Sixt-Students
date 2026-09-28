@@ -88,8 +88,10 @@ export async function getAllShiftsWithShiftRequestsBetweenDates(
             'username', u.username,
             'actual_start_time', sa.actual_start_time,
             'actual_end_time', sa.actual_end_time,
+            'no_show', sa.no_show,
             'requested_at', sa.requested_at
           )
+          ORDER BY sa.no_show, sa.requested_at, u.id
         ) AS students
       FROM shift_assignments sa
       JOIN users u ON u.id = sa.user_id
@@ -102,7 +104,7 @@ export async function getAllShiftsWithShiftRequestsBetweenDates(
             'last_name', u.last_name,
             'requested_at', sr.created_at,
             'username', u.username
-          )
+          ) ORDER BY sr.created_at, u.id
         ) AS requesters
         FROM shift_requests sr
         JOIN users u ON u.id = sr.user_id
@@ -179,11 +181,32 @@ export async function modifyShift(
 
   const values = Object.values(validFieldsToUpdate);
 
+  const shiftIdParam = `$${values.length + 1}`;
+
+  // One statement, so every CTE sees the shift's times from before the update.
+  // Assignments still on the old schedule move with the shift;
+  // adjusted and no-show assignments are left as they are.
   const modifiedShift = await pool.query<Shift>(
-    `UPDATE shifts SET
-     ${setClause}
-     WHERE id = $${values.length + 1}
-     RETURNING *`,
+    `WITH old_shift AS (
+       SELECT scheduled_start_time, scheduled_end_time
+       FROM shifts WHERE id = ${shiftIdParam}
+     ),
+     updated_shift AS (
+       UPDATE shifts SET ${setClause}
+       WHERE id = ${shiftIdParam}
+       RETURNING *
+     ),
+     moved_assignments AS (
+       UPDATE shift_assignments sa
+       SET actual_start_time = us.scheduled_start_time,
+           actual_end_time   = us.scheduled_end_time
+       FROM updated_shift us, old_shift os
+       WHERE sa.shift_id = us.id
+         AND sa.no_show = false
+         AND sa.actual_start_time = os.scheduled_start_time
+         AND sa.actual_end_time   = os.scheduled_end_time
+     )
+     SELECT * FROM updated_shift`,
     [...values, shiftId],
   );
 
@@ -244,13 +267,22 @@ export async function createAssignmentForShift(
   hourlyRate: number,
 ) {
   const newShiftAssignment = await pool.query(
-    `INSERT INTO shift_assignments (shift_id, user_id, hourly_rate,requested_at) 
-    VALUES ($1,$2,$3,
-    COALESCE(
-    (SELECT created_at 
-    FROM shift_requests 
-    WHERE shift_id = $1 AND user_id = $2),
-    NOW())) RETURNING *`,
+    `INSERT INTO shift_assignments
+     (shift_id, user_id, hourly_rate, requested_at, actual_start_time, actual_end_time)
+   SELECT
+     s.id,
+     $2::int,
+     $3::numeric,
+     COALESCE(
+       (SELECT sr.created_at FROM shift_requests sr
+        WHERE sr.shift_id = $1 AND sr.user_id = $2),
+       NOW()
+     ),
+     s.scheduled_start_time,
+     s.scheduled_end_time
+   FROM shifts s
+   WHERE s.id = $1
+   RETURNING *`,
     [shiftId, userId, hourlyRate],
   );
 
@@ -266,7 +298,7 @@ export async function getShiftAssignment(shiftId: string, userId: string) {
 }
 export async function getShiftAssignmentById(userId: string) {
   const shiftAssignments = await pool.query(
-    `SELECT sa.id as shift_assignmentId,sa.shift_id, sa.user_id,sa.actual_start_time, sa.actual_end_time, s.date, st.shift_name, s.scheduled_start_time, s.scheduled_end_time, sa.hourly_rate 
+    `SELECT sa.id as shift_assignmentId,sa.shift_id, sa.user_id,sa.actual_start_time, sa.actual_end_time, s.date, st.shift_name, s.scheduled_start_time, s.scheduled_end_time, sa.hourly_rate,sa.no_show
     FROM shift_assignments sa 
     JOIN shifts s ON s.id = sa.shift_id
     JOIN shift_types st ON st.id = s.shift_type_id 
@@ -283,7 +315,7 @@ export async function getShiftAssignmentsByIdBetweenDates(
   startDate?: string,
   endDate?: string,
 ) {
-  let query = `SELECT sa.id as shift_assignmentId, sa.shift_id, sa.user_id,sa.actual_start_time, sa.actual_end_time, s.date, st.shift_name, s.scheduled_start_time, s.scheduled_end_time, sa.hourly_rate 
+  let query = `SELECT sa.id as shift_assignmentId, sa.shift_id, sa.user_id,sa.actual_start_time, sa.actual_end_time, s.date, st.shift_name, s.scheduled_start_time, s.scheduled_end_time, sa.hourly_rate,sa.no_show 
     FROM shift_assignments sa 
     JOIN shifts s ON s.id = sa.shift_id
     JOIN shift_types st ON st.id = s.shift_type_id 
@@ -328,4 +360,22 @@ export async function getShiftRequestsByUserId(userId: string) {
   );
 
   return shiftRequests.rows;
+}
+
+export async function modifyShiftAssignedAdmin(
+  shiftId: string,
+  userId: string,
+  noShow: boolean,
+  arrivedAt: string | null,
+  leftAt: string | null,
+) {
+  const modifiedShiftAssignment = await pool.query(
+    `UPDATE shift_assignments
+     SET no_show = $1, actual_start_time = $2, actual_end_time = $3
+     WHERE shift_id = $4 AND user_id = $5
+     RETURNING *`,
+    [noShow, arrivedAt, leftAt, shiftId, userId],
+  );
+
+  return modifiedShiftAssignment.rows[0];
 }

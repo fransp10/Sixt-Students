@@ -5,8 +5,6 @@ import FullPageSpinner from "./FullPageSpinner";
 
 function RequireRole({ requiredRole }: { requiredRole: UserRoles }) {
   const { currentUser, isLoading } = useAuthContext();
-  console.log(currentUser?.user_role !== requiredRole);
-  console.dir(currentUser);
 
   if (isLoading) {
     return <FullPageSpinner />;

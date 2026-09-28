@@ -28,17 +28,7 @@ export function useUnAssignStudentFromShift() {
             if (!studentToUnAssign) {
               return s;
             }
-            console.log("studentToUnAssign", studentToUnAssign);
-            console.log({
-              ...s,
-              students_assigned: s.students_assigned.filter(
-                (student) => student.id !== variables.userId,
-              ),
-              students_requesting: [
-                ...s.students_requesting,
-                studentToUnAssign,
-              ],
-            });
+
             return {
               ...s,
               students_assigned: s.students_assigned.filter(
@@ -47,7 +37,10 @@ export function useUnAssignStudentFromShift() {
               students_requesting: [
                 ...s.students_requesting,
                 studentToUnAssign,
-              ],
+              ].sort(
+                (a, b) =>
+                  a.requested_at.localeCompare(b.requested_at) || a.id - b.id,
+              ),
             };
           });
         },

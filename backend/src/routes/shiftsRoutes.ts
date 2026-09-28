@@ -28,12 +28,12 @@ shiftsRouter.post(
 shiftsRouter.delete(
   "/:shiftId/assignments",
   requireAdmin,
-  shiftController.deleteShiftAssignmentAdmin,
-);
-shiftsRouter.delete(
-  "/:shiftId/assignments",
-  requireAdmin,
-  shiftController.deleteShiftAssignmentAdmin,
+  shiftController.deleteShiftAssignedAdmin,
 );
 
+shiftsRouter.patch(
+  "/:shiftId/assignments",
+  requireAdmin,
+  shiftController.modifyShiftAssignedAdmin,
+);
 export default shiftsRouter;

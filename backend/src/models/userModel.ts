@@ -157,12 +157,15 @@ export async function getShiftAssignmentsByUserId(
          sa.actual_start_time,
          sa.actual_end_time,
          sa.requested_at,
+         sa.no_show,
+         CASE WHEN sa.no_show THEN 0 ELSE
          (EXTRACT(EPOCH FROM (
-         COALESCE(sa.actual_end_time, s.scheduled_end_time) - 
-         COALESCE(sa.actual_start_time, s.scheduled_start_time) + 
-         CASE WHEN COALESCE(sa.actual_end_time, s.scheduled_end_time) < 
-         COALESCE(sa.actual_start_time, s.scheduled_start_time) 
-         THEN INTERVAL '1 day' ELSE INTERVAL '0' END)) / 3600)::int AS hours_worked
+         sa.actual_end_time - 
+         sa.actual_start_time + 
+         CASE WHEN sa.actual_end_time < 
+         sa.actual_start_time 
+         THEN INTERVAL '1 day' ELSE INTERVAL '0' END)) / 3600)::int
+         END AS hours_worked
   FROM shift_assignments sa
   JOIN shifts s       ON sa.shift_id = s.id
   JOIN shift_types st ON s.shift_type_id = st.id
@@ -207,11 +210,11 @@ export async function getStatsForUser(
     s.date,
     sa.hourly_rate,
     EXTRACT(EPOCH FROM (
-        COALESCE(sa.actual_end_time,   s.scheduled_end_time)
-      - COALESCE(sa.actual_start_time, s.scheduled_start_time)
+        sa.actual_end_time
+      - sa.actual_start_time
       + CASE
-          WHEN COALESCE(sa.actual_end_time, s.scheduled_end_time)
-             < COALESCE(sa.actual_start_time, s.scheduled_start_time)
+          WHEN sa.actual_end_time
+             < sa.actual_start_time
           THEN interval '24 hours'
           ELSE interval '0'
         END
@@ -219,7 +222,7 @@ export async function getStatsForUser(
   FROM shift_assignments sa
   JOIN shifts      s  ON s.id  = sa.shift_id
   JOIN shift_types st ON st.id = s.shift_type_id
-  WHERE sa.user_id = $1`;
+  WHERE sa.user_id = $1 AND sa.no_show = false`;
 
   if (startDate) {
     query += ` AND s.date >= $2`;

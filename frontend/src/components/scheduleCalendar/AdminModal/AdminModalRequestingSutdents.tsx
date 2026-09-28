@@ -1,6 +1,6 @@
-import { PlusIcon, UserPlusIcon } from "@heroicons/react/24/outline";
+import { UserPlusIcon } from "@heroicons/react/24/outline";
 import type { StudentRequesting } from "../../../types/students";
-import StudentScheduleCard from "../StudentScheduleCard";
+import RequestingStudentScheduleCard from "./ScheduleCardTypes/RequestingStudentScheduleCard";
 export type AssignedStudentsProps = {
   students?: StudentRequesting[];
   onClickRequestingStudent?: (studentId: number) => void;
@@ -39,18 +39,15 @@ function AdminModalRequestingSutdentsList({
       <div className="flex flex-col gap-2 p-4">
         {students && students.length > 0 ? (
           students.map((student) => (
-            <StudentScheduleCard
+            <RequestingStudentScheduleCard
               key={student.id}
-              studentId={student.id}
-              icon={PlusIcon}
-              variant={"requesting"}
-              name={`${student.first_name} ${student.last_name}`}
+              student={student}
               onClick={onClickRequestingStudent}
             />
           ))
         ) : (
           <p className="text-secondaryText text-sm">
-            No students are currently assigned to this shift.{" "}
+            No students are currently assigned to this shift.
           </p>
         )}
       </div>

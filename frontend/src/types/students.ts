@@ -12,6 +12,7 @@ export type Student = {
 export type StudentAssigned = StudentRequesting & {
   actual_start_time: string | null;
   actual_end_time: string | null;
+  no_show: boolean;
 };
 
 export type StudentRequesting = {
