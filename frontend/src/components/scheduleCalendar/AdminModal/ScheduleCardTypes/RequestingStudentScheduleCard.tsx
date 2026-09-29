@@ -12,13 +12,13 @@ function RequestingStudentScheduleCard({
 }) {
   const studentName = `${student.first_name} ${student.last_name}`;
   return (
-    <div className="flex gap-4 items-center p-2 h-22 bg-studentCard border rounded-xl border-borderDividers">
+    <div className="flex gap-4 items-center p-2 bg-studentCard border rounded-xl border-borderDividers">
       <span
-        className={`${getAvatarColor(student.id)} text-base font-semibold size-10 rounded-full flex items-center justify-center text-white shrink-0`}
+        className={`${getAvatarColor(student.id)} text-base font-semibold size-10 rounded-full flex items-center justify-center text-white `}
       >
         {getInitials(studentName)}
       </span>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col">
         <span className="text-lg truncate">{studentName}</span>
         <span className="text-xs text-secondaryText">
           {format(student.requested_at, "MMM dd, yyyy 'at' hh:mm a")}
@@ -29,9 +29,9 @@ function RequestingStudentScheduleCard({
         onClick={() => {
           if (onClick) onClick(student.id);
         }}
-        className={`ml-auto mr-2 border border-borderDividers rounded-xl p-4 hover:cursor-pointer transition-all duration-300 text-success hover:bg-success hover:text-primaryText`}
+        className={`ml-auto mr-2 border border-borderDividers rounded-xl p-2 hover:cursor-pointer transition-all duration-300 text-success hover:bg-success hover:text-primaryText`}
       >
-        <PlusIcon className="size-6" />
+        <PlusIcon className="size-5" />
       </button>
     </div>
   );

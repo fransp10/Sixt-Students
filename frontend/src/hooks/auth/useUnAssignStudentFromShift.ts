@@ -29,22 +29,28 @@ export function useUnAssignStudentFromShift() {
               return s;
             }
 
+            // only students who actually requested the shift go back to the requesting list
             return {
               ...s,
               students_assigned: s.students_assigned.filter(
                 (student) => student.id !== variables.userId,
               ),
-              students_requesting: [
-                ...s.students_requesting,
-                studentToUnAssign,
-              ].sort(
-                (a, b) =>
-                  a.requested_at.localeCompare(b.requested_at) || a.id - b.id,
-              ),
+              students_requesting: studentToUnAssign.has_request
+                ? [...s.students_requesting, studentToUnAssign].sort(
+                    (a, b) =>
+                      a.requested_at.localeCompare(b.requested_at) ||
+                      a.id - b.id,
+                  )
+                : s.students_requesting,
             };
           });
         },
       );
+    },
+    onSettled: (_data, _error, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["shifts", variables.startDate, variables.endDate],
+      });
     },
   });
   return unAssignStudentFromShift;

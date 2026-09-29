@@ -1,7 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { assignStudentToShift } from "../../api/shiftsApi";
 import type { ShiftWithStudentsAndRequesters } from "../../types/Shift";
-import type { StudentAssigned } from "../../types/students";
+import type {
+  StudentAssigned,
+  StudentRequesting,
+} from "../../types/students";
 
 export function useAssignStudentToShift() {
   const queryClient = useQueryClient();
@@ -13,6 +16,8 @@ export function useAssignStudentToShift() {
       userId: number;
       startDate: string;
       endDate: string;
+      // only needed for students who didn't request the shift, since they aren't in students_requesting
+      student?: Omit<StudentRequesting, "requested_at">;
     }) => assignStudentToShift(vars.shiftId, vars.userId),
     onSuccess: (newAssignment, variables) => {
       queryClient.setQueryData(
@@ -24,10 +29,17 @@ export function useAssignStudentToShift() {
             if (s.shift_id !== variables.shiftId) {
               return s; //without this every other shift becomes undefined. also we automatically filter out the shift that aren't the shift in the modal
             }
-            // find the student to assign inside of the students who are requesting the shift
-            const studentToAssign = s.students_requesting.find(
+            // find the student to assign inside of the students who are requesting the shift,
+            // otherwise fall back to the student passed in (assigned without a request)
+            const requester = s.students_requesting.find(
               (student) => student.id === variables.userId,
             );
+            const studentToAssign: StudentRequesting | undefined =
+              requester ??
+              (variables.student && {
+                ...variables.student,
+                requested_at: newAssignment.requested_at,
+              });
             if (!studentToAssign) {
               return s;
             }
@@ -36,6 +48,7 @@ export function useAssignStudentToShift() {
               actual_start_time: newAssignment.actual_start_time,
               actual_end_time: newAssignment.actual_end_time,
               no_show: false,
+              has_request: requester !== undefined,
             };
             // return a new shift object with the student added to the students_assigned array and removed from the students_requesting array
             return {
