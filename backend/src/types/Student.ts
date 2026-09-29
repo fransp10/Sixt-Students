@@ -9,4 +9,6 @@ export type StudentRequesting = {
 export type StudentAssigned = StudentRequesting & {
   actual_start_time: string | null;
   actual_end_time: string | null;
+  // false when an admin assigned the student without a shift request
+  has_request: boolean;
 };
