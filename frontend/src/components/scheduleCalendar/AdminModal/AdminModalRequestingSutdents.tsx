@@ -46,7 +46,7 @@ function AdminModalRequestingSutdentsList({
             />
           ))
         ) : (
-          <p className="text-secondaryText text-sm">
+          <p className="text-secondaryText text-base font-semibold flex items-center justify-center h-full">
             No students are currently requesting this shift.
           </p>
         )}

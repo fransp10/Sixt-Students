@@ -14,8 +14,8 @@ function StudentsInTheShiftList({
             <StudentsInTheShiftListItem key={student.id} student={student} />
           ))
         ) : (
-          <p className="text-secondaryText text-sm">
-            No students are currently assigned to this shift.{" "}
+          <p className="text-secondaryText text-sm flex justify-center items-center h-full w-full">
+            No students are currently assigned to this shift.
           </p>
         )}
       </ul>
