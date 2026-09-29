@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "debug": "tsx --inspect watch src/server.ts",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "migrate": "node-pg-migrate -j sql"
   },
   "dependencies": {
     "argon2": "^0.45.1",
@@ -37,6 +38,7 @@
     "@types/pg": "^8.23.1",
     "eslint": "^10.10.0",
     "globals": "^17.12.0",
+    "node-pg-migrate": "^9.0.0",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2",
     "vitest": "^5.0.2"
