@@ -1,9 +1,12 @@
 import { EnvelopeIcon } from "@heroicons/react/24/outline";
 import { useAuthContext } from "../../hooks/auth/useAuthContext";
 import { formatPhone } from "../../helpers/formatPhoneNumber";
+import { useState } from "react";
 
 function ContactInfoCard() {
   const { currentUser } = useAuthContext();
+  const [phone, setPhone] = useState(currentUser?.phone ?? "");
+  const [email, setEmail] = useState(currentUser?.email ?? "");
 
   if (!currentUser) {
     return (
@@ -38,13 +41,13 @@ function ContactInfoCard() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <input
               placeholder="Enter your email"
-              defaultValue={currentUser.email ?? ""}
+              defaultValue={email}
               className="bg-cardBG p-2 px-4  border-borderDividers border rounded-lg
                 focus:outline-none focus:border-primary"
               type="email"
             />
             <button className="py-2 px-8 bg-primary rounded-lg text-primaryText">
-              <p className="text-sm ">Update</p>
+              <p className="text-sm font-semibold uppercase ">Update</p>
             </button>
           </div>
         </div>
@@ -59,13 +62,13 @@ function ContactInfoCard() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <input
               placeholder="Enter your phone number"
-              defaultValue={formatPhone(currentUser.phone ?? "") ?? ""}
+              defaultValue={phone}
               className="bg-cardBG p-2 px-4  border-borderDividers border rounded-lg
                 focus:outline-none focus:border-primary"
               type="tel"
             />
             <button className="py-2 px-8 bg-primary rounded-lg text-primaryText">
-              <p className="text-sm ">Update</p>
+              <p className="text-sm uppercase font-semibold ">Update</p>
             </button>
           </div>
         </div>
