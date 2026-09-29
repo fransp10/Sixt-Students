@@ -20,9 +20,8 @@ function AdminModalAssignedSutdents({
   const numberOfAssignedStudents = students ? students.length : 0;
 
   return (
-    <div className="min-w-0 flex-1 rounded-lg flex flex-col border border-borderDividers">
-      {/* Sticky header */}
-      <div className="sticky top-0 z- items-center gap-2 p-4 font-semibold border-b border-success/30 bg-success/10">
+    <div className="min-w-0 flex-1  rounded-lg flex flex-col border border-borderDividers">
+      <div className="items-center gap-2 p-4 font-semibold border-b border-success/30 bg-success/10">
         <div className="flex items-center gap-6  ">
           <UserCircleIcon className="size-12 text-success text-succes" />
           <div className="flex flex-col gap-1">
