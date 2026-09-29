@@ -6,7 +6,7 @@ import EmptyCell from "./calendarCellTypes/EmptyCell";
 import { format, isAfter, isBefore, parseISO } from "date-fns";
 import ShiftPassedCell from "./calendarCellTypes/ShiftPassedCell";
 import CurrentlyActiveShiftCell from "./calendarCellTypes/CurrentlyActiveShiftCell";
-
+import { getShiftTiming } from "../../helpers/shiftTiming";
 type StudentsScheduleCalendarCellProps = {
   onClick: () => void;
   shift: ShiftWithStudentsAndRequesters | undefined;
@@ -48,7 +48,7 @@ function ScheduleCalendarCell({
       return (
         <OtherStudentsCell
           students={shift.students_assigned}
-          label="Assigned"
+          label={getShiftTiming(shift)}
           onClick={onClick}
         />
       );
@@ -69,7 +69,7 @@ function ScheduleCalendarCell({
       return (
         <OtherStudentsCell
           students={shift.students_requesting}
-          label="Requested"
+          label={getShiftTiming(shift)}
           onClick={onClick}
         />
       );

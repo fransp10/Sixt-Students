@@ -10,6 +10,7 @@ import type {
 
 import StaffingTab from "./AdminModal/StaffingTab";
 import AttendanceTab from "./AdminModal/AttendanceTab";
+import { getShiftTiming } from "../../helpers/shiftTiming";
 
 type scheduleCalendarModalProps = {
   shift: ShiftWithStudentsAndRequesters | null;
@@ -51,7 +52,7 @@ function AdminScheduleCalendarModal({
         : "14:00 - 22:00";
 
   const shiftType: ShiftType = shift.shift_type;
-
+  const shiftTiming = getShiftTiming(shift);
   return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
@@ -69,6 +70,7 @@ function AdminScheduleCalendarModal({
           shiftType={shiftType}
           activeTab={tab}
           setActiveTab={setTab}
+          shiftTiming={shiftTiming}
         />
         {tab === "staffing" && <StaffingTab shift={shift} />}
         {tab === "attendance" && <AttendanceTab shift={shift} />}

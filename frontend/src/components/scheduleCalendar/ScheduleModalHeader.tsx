@@ -4,6 +4,8 @@ import {
   UsersIcon,
 } from "@heroicons/react/24/outline";
 import type { ShiftType } from "../../types/Shift";
+import type { ShiftTiming } from "../../helpers/shiftTiming";
+import ShiftTimingIndicator from "../ShiftTimingIndicator";
 
 function ScheduleModalHeader({
   formatedDate,
@@ -11,12 +13,14 @@ function ScheduleModalHeader({
   shiftType,
   activeTab,
   setActiveTab,
+  shiftTiming,
 }: {
   formatedDate: string;
   shiftTime: string;
   shiftType: ShiftType;
   activeTab: "staffing" | "attendance";
   setActiveTab: (tab: "staffing" | "attendance") => void;
+  shiftTiming: ShiftTiming;
 }) {
   const formattedShiftType =
     shiftType.charAt(0).toUpperCase() + shiftType.slice(1) + " " + "Shift";
@@ -33,6 +37,7 @@ function ScheduleModalHeader({
           </div>
           <p className="text-secondaryText text-xl">{shiftTime}</p>
         </div>
+        <ShiftTimingIndicator shiftTiming={shiftTiming} />
       </div>
       <div className="flex gap-2 items-center border p-1 rounded-lg border-borderDividers mr-14">
         <button

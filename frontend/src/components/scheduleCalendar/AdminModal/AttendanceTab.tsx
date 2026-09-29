@@ -6,7 +6,6 @@ import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 function AttendanceTab({ shift }: { shift: ShiftWithStudentsAndRequesters }) {
   const [listRef] = useAutoAnimate();
-
   const shiftDate = new Date(shift.date);
   const currentDate = new Date();
   const timeDifference = differenceInCalendarDays(shiftDate, currentDate);

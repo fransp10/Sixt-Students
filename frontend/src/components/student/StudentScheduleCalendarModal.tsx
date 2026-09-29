@@ -1,13 +1,14 @@
 import { endOfWeek, format, startOfWeek } from "date-fns";
 import { useEffect } from "react";
 import StudentsInTheShiftList from "./StudentsInTheShiftList";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { CalendarDateRangeIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
 import StudentsRequestingShfitList from "./StudentsRequestingShfitList";
 import type { ShiftWithStudentsAndRequesters } from "../../types/Shift";
 import { useRequestShift } from "../../hooks/auth/useRequestShift";
 import { useCurrentUser } from "../../hooks/auth/useCurrentUser";
 import { useDeleteShiftRequest } from "../../hooks/auth/useDeleteShiftRequest";
+import { EnvelopeIcon } from "@heroicons/react/24/solid";
 
 type StudentScheduleCalendarModalProps = {
   onClose: () => void;
@@ -78,6 +79,8 @@ function StudentScheduleCalendarModal({
     studentsRequestingShift.some((student) => student.id === currentUser?.id) ??
     false;
 
+  const hasShiftPassed = new Date(shift.date) < new Date();
+
   return (
     <div
       className="fixed inset-0 z-10 flex items-center justify-center bg-black/80 p-4"
@@ -90,16 +93,32 @@ function StudentScheduleCalendarModal({
       >
         {/* Heading */}
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 p-6">
-          <div className="flex flex-col">
-            <p className="text-secondaryText text-sm uppercase">
-              {formattedDate}
-            </p>
-            <p className="text-primaryText text-2xl font-semibold">
-              {formattedShiftType} shift
-            </p>
-            <p className="text-secondaryText text-base">{shiftTime}</p>
+          <div className="flex flex-row items-center gap-4">
+            <CalendarDateRangeIcon className="size-12 text-primary" />
+            <div className="flex flex-col gap-2">
+              <p className="text-secondaryText text-sm uppercase">
+                {formattedDate}
+              </p>
+              <p className="text-primaryText text-2xl font-semibold">
+                {formattedShiftType} shift
+              </p>
+              <p className="text-secondaryText text-base">{shiftTime}</p>
+            </div>
           </div>
-
+          {hasShiftPassed && (
+            <div className="flex items-center gap-3 w-full sm:w-auto px-4 py-3 rounded-lg border border-warning/30 bg-warning/10 text-primaryText">
+              <ClockIcon className="size-6 shrink-0 text-warning" />
+              <div className="flex flex-col">
+                <p className="text-base font-semibold text-warning">
+                  Shift passed
+                </p>
+                <p className="text-sm text-secondaryText">
+                  This shift has already passed. You can still view the students
+                  assigned and requesting this shift.
+                </p>
+              </div>
+            </div>
+          )}
           {isShiftRequestedByStudent && (
             <div className="flex items-center gap-3 w-full sm:w-auto px-4 py-3 mr-8 rounded-lg border border-success/30 bg-success/10 text-primaryText">
               <CheckCircleIcon className="size-6 shrink-0 text-success" />
@@ -154,7 +173,7 @@ function StudentScheduleCalendarModal({
         <div className="flex  flex-col gap-2  sm:flex-row items-center justify-between p-0">
           <p className="text-sm text-secondaryText">Want to work this shift?</p>
 
-          {isShiftRequestedByStudent ? (
+          {isShiftRequestedByStudent && !hasShiftPassed ? (
             <button
               type="button"
               onClick={handleDeleteShiftRequest}
@@ -164,14 +183,16 @@ function StudentScheduleCalendarModal({
               Delete shift request
             </button>
           ) : (
-            <button
-              type="button"
-              onClick={handleRequestShift}
-              disabled={shiftRequestMutation.isPending}
-              className="rounded-lg  w-full sm:w-auto bg-primary px-6 py-2.5 text-sm font-medium text-primaryText transition-opacity hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Request this shift
-            </button>
+            !hasShiftPassed && (
+              <button
+                type="button"
+                onClick={handleRequestShift}
+                disabled={shiftRequestMutation.isPending}
+                className="rounded-lg  w-full sm:w-auto bg-primary px-6 py-2.5 text-sm font-medium text-primaryText transition-opacity hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Request this shift
+              </button>
+            )
           )}
           {/* Close */}
         </div>

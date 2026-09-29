@@ -1,5 +1,6 @@
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import type { ShiftWithStudentsAndRequesters } from "../../../types/Shift";
+import { useAuthContext } from "../../../hooks/auth/useAuthContext";
 
 function ShiftPassedCell({
   onClick,
@@ -8,6 +9,8 @@ function ShiftPassedCell({
   onClick: () => void;
   shift: ShiftWithStudentsAndRequesters;
 }) {
+  const { currentUser } = useAuthContext();
+  const isAdmin = currentUser?.user_role === "admin";
   return (
     <td
       className="h-24 border border-borderDividers
@@ -24,18 +27,22 @@ function ShiftPassedCell({
           <span className="text-sm font-semibold uppercase tracking-wide opacity-50">
             Shift passed
           </span>
-          <span
-            className="text-xs font-semibold uppercase tracking-wide opacity-50
+          {isAdmin && (
+            <>
+              <span
+                className="text-xs font-semibold uppercase tracking-wide opacity-50
          text-success"
-          >
-            Assigned: {shift.students_assigned.length}{" "}
-          </span>
-          <span
-            className="text-xs font-semibold uppercase tracking-wide opacity-50
+              >
+                Assigned: {shift.students_assigned.length}{" "}
+              </span>
+              <span
+                className="text-xs font-semibold uppercase tracking-wide opacity-50
         text-pending"
-          >
-            Requested: {shift.students_requesting.length}{" "}
-          </span>
+              >
+                Requested: {shift.students_requesting.length}{" "}
+              </span>
+            </>
+          )}
         </div>
       </button>
     </td>

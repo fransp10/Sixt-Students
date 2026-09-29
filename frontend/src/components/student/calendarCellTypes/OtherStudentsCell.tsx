@@ -5,6 +5,7 @@ import type {
   StudentRequesting,
 } from "../../../types/students";
 import { MAX_VISIBLE_STUDENTS } from "../../../config/maxStudents";
+import { capitalize } from "../../../helpers/capitalize";
 
 function OtherStudentsCell({
   students,
@@ -29,7 +30,7 @@ function OtherStudentsCell({
         <div className="flex items-center gap-1.5 text-secondaryText">
           <UserGroupIcon className="size-4 shrink-0" />
           <span className="text-xs font-semibold uppercase tracking-wide">
-            {label}
+            {capitalize(label)}
           </span>
         </div>
         <div className="flex flex-wrap h-full gap-1.5   ">
