@@ -8,7 +8,7 @@ function ScheduleCalendarFooter({ onClose }: ScheduleCalendarFooterProps) {
         onClick={onClose}
         className="hover:cursor-pointer rounded-xl transition-all duration-200 w-36 border border-borderDividers bg-studentCard hover:bg-borderDividers px-6 py-3"
       >
-        Cancel
+        Leave
       </button>
     </div>
   );
