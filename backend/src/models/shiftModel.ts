@@ -89,7 +89,11 @@ export async function getAllShiftsWithShiftRequestsBetweenDates(
             'actual_start_time', sa.actual_start_time,
             'actual_end_time', sa.actual_end_time,
             'no_show', sa.no_show,
-            'requested_at', sa.requested_at
+            'requested_at', sa.requested_at,
+            'has_request', EXISTS (
+              SELECT 1 FROM shift_requests sr
+              WHERE sr.shift_id = sa.shift_id AND sr.user_id = sa.user_id
+            )
           )
           ORDER BY sa.no_show, sa.requested_at, u.id
         ) AS students
