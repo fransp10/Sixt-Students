@@ -8,7 +8,6 @@ import type { ShiftWithStudentsAndRequesters } from "../../types/Shift";
 import { useRequestShift } from "../../hooks/auth/useRequestShift";
 import { useCurrentUser } from "../../hooks/auth/useCurrentUser";
 import { useDeleteShiftRequest } from "../../hooks/auth/useDeleteShiftRequest";
-import { EnvelopeIcon } from "@heroicons/react/24/solid";
 
 type StudentScheduleCalendarModalProps = {
   onClose: () => void;

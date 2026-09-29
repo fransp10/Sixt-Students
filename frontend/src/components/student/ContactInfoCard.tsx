@@ -1,14 +1,25 @@
 import { EnvelopeIcon } from "@heroicons/react/24/outline";
+import { useAuthContext } from "../../hooks/auth/useAuthContext";
+import { formatPhone } from "../../helpers/formatPhoneNumber";
 
 function ContactInfoCard() {
+  const { currentUser } = useAuthContext();
+
+  if (!currentUser) {
+    return (
+      <div>
+        <h1>No user</h1>
+      </div>
+    );
+  }
   return (
     <div className="p-6 bg-cardBg border-borderDividers border rounded-xl text-primaryText">
       <div className="flex items-center gap-4">
         <div>
-          <EnvelopeIcon className="size-8 sm:size-10" />
+          <EnvelopeIcon className="size-8 sm:size-10 text-primary" />
         </div>
         <div>
-          <p className="text-lg sm:text-2xl font-semibold">
+          <p className="text-lg sm:text-2xl font-semibold text-primary">
             Contact information
           </p>
           <p className="text-xs sm:text-md text-secondaryText">
@@ -27,7 +38,7 @@ function ContactInfoCard() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <input
               placeholder="Enter your email"
-              defaultValue="student@email.com"
+              defaultValue={currentUser.email ?? ""}
               className="bg-cardBG p-2 px-4  border-borderDividers border rounded-lg
                 focus:outline-none focus:border-primary"
               type="email"
@@ -48,7 +59,7 @@ function ContactInfoCard() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <input
               placeholder="Enter your phone number"
-              defaultValue="+ 385 91 123 4567"
+              defaultValue={formatPhone(currentUser.phone ?? "") ?? ""}
               className="bg-cardBG p-2 px-4  border-borderDividers border rounded-lg
                 focus:outline-none focus:border-primary"
               type="tel"
