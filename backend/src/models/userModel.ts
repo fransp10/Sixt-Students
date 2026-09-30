@@ -26,6 +26,16 @@ export async function getUsers(
   return result.rows;
 }
 
+export async function getPasswordHashById(
+  userId: string,
+): Promise<string | undefined> {
+  const result = await pool.query(
+    "SELECT password_hash FROM users WHERE id = $1",
+    [userId],
+  );
+  return result.rows[0]?.password_hash;
+}
+
 export async function createUser({
   username,
   email,
@@ -343,4 +353,13 @@ FROM per_type`;
 
   const stats = await pool.query(query, values);
   return stats.rows[0].stats;
+}
+
+export async function updatePassword(userId: string, newPasswordHash: string) {
+  const result = await pool.query<UserWithoutPassword>(
+    `UPDATE users SET password_hash = $1, must_change_password = false WHERE id = $2 RETURNING id,username,email,phone,user_role,default_hourly_rate,is_active,first_name,last_name,date_of_birth`,
+    [newPasswordHash, userId],
+  );
+
+  return result.rows[0];
 }

@@ -13,7 +13,6 @@ function AccountInfoCard() {
     );
   }
 
-  console.log(currentUser.created_at);
   const fullName = currentUser.first_name + " " + currentUser.last_name;
   return (
     <div className="p-4 sm:p-6 bg-cardBg border-borderDividers border rounded-xl text-primaryText">

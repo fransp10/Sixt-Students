@@ -1,6 +1,15 @@
 import { LockClosedIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
+import StudentChangePasswordModal from "./ChangePassword/StudentChangePasswordModal";
 
 function SecurityCard() {
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
+    useState(false);
+
+  function handleCloseModal() {
+    setIsChangePasswordModalOpen(false);
+  }
+
   return (
     <div className="p-6 bg-cardBg border-borderDividers border rounded-xl text-primaryText">
       <div className="flex items-center justify-between ">
@@ -26,11 +35,17 @@ function SecurityCard() {
               Update your password regularly to keep your account safe.
             </span>
           </div>
-          <button className="p-2 px-6 w-full sm:w-auto bg-primary cursor-pointer hover:bg-primary/80 rounded-xl text-nowrap">
+          <button
+            onClick={() => setIsChangePasswordModalOpen(true)}
+            className="p-2 px-6 w-full sm:w-auto bg-primary cursor-pointer hover:bg-primary/80 rounded-xl text-nowrap"
+          >
             Change password
           </button>
         </div>
       </div>
+      {isChangePasswordModalOpen && (
+        <StudentChangePasswordModal handleCloseModal={handleCloseModal} />
+      )}
     </div>
   );
 }

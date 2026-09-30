@@ -64,6 +64,17 @@ export async function getShiftsBetweenDates(
   return shifts.rows;
 }
 
+// userModel.ts
+export async function getPasswordHashById(
+  userId: string,
+): Promise<string | undefined> {
+  const result = await pool.query(
+    "SELECT password_hash FROM users WHERE id = $1",
+    [userId],
+  );
+  return result.rows[0]?.password_hash;
+}
+
 export async function getAllShiftsWithShiftRequestsBetweenDates(
   startDate: string | undefined,
   endDate: string | undefined,
