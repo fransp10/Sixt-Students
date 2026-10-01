@@ -85,6 +85,7 @@ function LoginForm() {
               autoComplete="current-password"
             />
             <button
+              type="button"
               className="hover:cursor-pointer"
               onClick={(e) => togglePasswordVisibility(e)}
             >
