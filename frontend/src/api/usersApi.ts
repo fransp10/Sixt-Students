@@ -66,3 +66,17 @@ export async function getUsersShiftsWorked(
 
   return res.data;
 }
+
+export async function updateMyInfo(email?: string, phone?: string) {
+  return (await axiosClient.patch("/me", { email, phone })).data;
+}
+
+export async function changeMyPassword(
+  currentPassword: string,
+  newPassword: string,
+) {
+  return await axiosClient.patch("/me/password", {
+    currentPassword,
+    newPassword,
+  });
+}

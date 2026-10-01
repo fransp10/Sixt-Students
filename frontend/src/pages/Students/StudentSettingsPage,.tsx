@@ -1,6 +1,6 @@
 import PageHeading from "../../components/PageHeading";
 import AccountInfoCard from "../../components/student/AccountInfoCard";
-import ContactInfoCard from "../../components/student/ContactInfoCard";
+import ContactInfoCard from "../../components/student/ContactInfo/ContactInfoCard";
 import SecurityCard from "../../components/student/SecurityCard";
 
 function StudentSettingsPage() {

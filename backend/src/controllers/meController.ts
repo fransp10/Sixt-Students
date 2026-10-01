@@ -58,3 +58,31 @@ export async function getMyShiftRequests(req: Request, res: Response) {
 
   res.status(200).json({ shiftRequests });
 }
+
+export async function updateMyInfo(
+  req: Request<{}, unknown, { email?: unknown; phone?: unknown }>,
+  res: Response,
+) {
+  // type checks and normalizing happen in the service
+  const { email, phone } = req.body;
+
+  const userId = req.user!.id;
+  const updatedUser = await meServices.updateUserInfo(userId, email, phone);
+
+  res.status(200).json(updatedUser);
+}
+
+export async function updateMyPassword(
+  req: Request<{}, unknown, { currentPassword: string; newPassword: string }>,
+  res: Response,
+) {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user!.id;
+
+  const updatedUser = await meServices.updateMyPassword(
+    userId,
+    currentPassword,
+    newPassword,
+  );
+  res.status(200).json(updatedUser);
+}
