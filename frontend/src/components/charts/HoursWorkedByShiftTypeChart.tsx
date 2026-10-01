@@ -1,7 +1,4 @@
-import { useParams } from "react-router-dom";
 import { Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { useGetStatsForShiftsUserHasWorked } from "../../hooks/useGetStatsForShiftsUserHasWorked";
-import LoadingSpinner from "../LoadingSpinner";
 import type { StatsByShiftType } from "../../types/stats";
 import { getColorForShiftType } from "../../helpers/getColorForShiftType";
 import { capitalize } from "../../helpers/capitalize";
@@ -9,7 +6,7 @@ import NoDataYet from "../NoDataYet";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomTooltip({ active, payload }: any) {
-  if (!active && !payload.length) {
+  if (!active || !payload?.length) {
     return null;
   }
   return (
@@ -20,34 +17,13 @@ function CustomTooltip({ active, payload }: any) {
   );
 }
 
-function HoursWorkedByShiftTypeChart() {
-  const { userId } = useParams<{ userId: string }>();
-  const stats = useGetStatsForShiftsUserHasWorked(userId!);
-
-  if (stats.status === "error") {
-    return (
-      <div className="flex h-82 items-center justify-center rounded-xl border border-borderDividers bg-cardBG p-4">
-        <p className="text-lg text-secondaryText">Error loading data</p>
-      </div>
-    );
-  }
-
-  if (stats.status === "loading") {
-    return (
-      <div className="flex h-82 items-center justify-center rounded-xl border border-borderDividers bg-cardBG p-4">
-        <LoadingSpinner size={82} />
-      </div>
-    );
-  }
-
-  const totalHours = stats.data.totalHours;
-  const graphData = stats.data.byShiftTypes.map(
-    (shiftType: StatsByShiftType) => ({
-      name: capitalize(shiftType.shift_name),
-      value: shiftType.hours,
-      fill: getColorForShiftType(shiftType.shift_name),
-    }),
-  );
+function HoursWorkedByShiftTypeChart({ data }: { data: StatsByShiftType[] }) {
+  const totalHours = data.reduce((acc, shiftType) => acc + shiftType.hours, 0);
+  const graphData = data.map((shiftType: StatsByShiftType) => ({
+    name: capitalize(shiftType.shift_name),
+    value: shiftType.hours,
+    fill: getColorForShiftType(shiftType.shift_name),
+  }));
 
   return (
     <div className="flex  flex-col h-82  p-4 rounded-xl border border-borderDividers bg-cardBG">
@@ -76,7 +52,11 @@ function HoursWorkedByShiftTypeChart() {
                     outerRadius="90%"
                     stroke="none"
                   />
-                  <Tooltip offset={30} content={<CustomTooltip />} />
+                  <Tooltip
+                    offset={30}
+                    content={<CustomTooltip />}
+                    wrapperStyle={{ zIndex: 10 }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
 

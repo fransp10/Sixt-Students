@@ -11,11 +11,7 @@ export async function loginUser(
     username,
     password,
   );
-  console.log("ENV:", process.env.ACCESS_TOKEN_EXPIRATION);
-  console.log(
-    "maxAge:",
-    Number(process.env.ACCESS_TOKEN_EXPIRATION) * 60 * 1000,
-  );
+
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

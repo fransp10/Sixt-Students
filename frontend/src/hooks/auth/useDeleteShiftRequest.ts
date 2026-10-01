@@ -31,7 +31,6 @@ export function useDeleteShiftRequest() {
           });
         },
       );
-      console.log("Shift request deleted successfully");
     },
     onError: (error) => {
       console.error("Error deleting shift request:", error);

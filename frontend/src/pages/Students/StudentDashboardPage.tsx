@@ -4,44 +4,48 @@ import HoursWorkedByShiftTypeChart from "../../components/charts/HoursWorkedBySh
 import StudentStatList from "../../components/student/StudentStatList";
 import TotalEarningsCard from "../../components/student/TotalEarningsCard";
 import FavoriteShiftTypeCard from "../../components/student/FavoriteShiftTypeCard";
-import { useCurrentUser } from "../../hooks/auth/useCurrentUser";
+
+import { useState } from "react";
+import { useGetMyStats } from "../../hooks/useGetMyStats";
+import DashBoardPageSelectMonth from "./DashBoardPageSelectMonth";
+import DashboardHeader from "../../components/student/Dashboard/DashboardHeader";
+import { useAuthContext } from "../../hooks/auth/useAuthContext";
 
 function StudentDashboardPage() {
-  const currentTime = new Date().getHours();
-  const { data: user } = useCurrentUser();
-  let greeting;
+  const { data: stats } = useGetMyStats();
+  const [chosenMonth, setChosenMonth] = useState(new Date());
+  const { currentUser } = useAuthContext();
 
-  if (currentTime < 10 && currentTime >= 5) {
-    greeting = "Good morning";
+  if (!currentUser) {
+    return <div>No current user</div>;
   }
-  if (currentTime >= 10 && currentTime < 18) {
-    greeting = "Good afternoon";
-  }
-  if (currentTime >= 18 || currentTime < 5) {
-    greeting = "Good evening";
+
+  if (!stats) {
+    return <div>Loading...</div>;
   }
 
   return (
     <div>
-      <div className="text-primaryText mb-4">
-        <h1 className="text-2xl md:text-3xl font-semibold ">
-          {greeting}, {user.first_name}!
-        </h1>
-        <p className="text-base md:text-xl text-secondaryText font-semibold">
-          Here's an overview of your activities
-        </p>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+        <DashboardHeader />
+        <DashBoardPageSelectMonth
+          byMonth={stats?.byMonth ?? {}}
+          onChange={setChosenMonth}
+          value={chosenMonth}
+        />
       </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2  xl:grid-cols-5 ">
         {/* 1st row */}
 
-        <StudentStatList />
+        <StudentStatList chosenMonth={chosenMonth} />
 
         {/* 2nd row */}
         <div className="sm:col-span-2 xl:col-span-2">
-          <BarChartHoursByWeekday />
+          <BarChartHoursByWeekday data={stats.byWeekday} />
         </div>
         <div className="sm:col-span-2 xl:col-span-2">
-          <HoursWorkedByShiftTypeChart />
+          <HoursWorkedByShiftTypeChart data={stats.byShiftTypes} />
         </div>
         <div className="sm:col-span-2 xl:col-span-1">
           <FavoriteShiftTypeCard />
@@ -51,7 +55,7 @@ function StudentDashboardPage() {
           <BarChartEarningsByMonth />
         </div>
         <div className="sm:col-span-2 xl:col-span-1">
-          <TotalEarningsCard />
+          <TotalEarningsCard stats={stats} />
         </div>
       </div>
     </div>

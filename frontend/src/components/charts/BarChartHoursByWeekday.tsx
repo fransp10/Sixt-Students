@@ -1,4 +1,3 @@
-import { useParams } from "react-router-dom";
 import {
   Bar,
   BarChart,
@@ -9,9 +8,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useGetStatsForShiftsUserHasWorked } from "../../hooks/useGetStatsForShiftsUserHasWorked";
-import LoadingSpinner from "../LoadingSpinner";
 import NoDataYet from "../NoDataYet";
+import type { StatsByWeekDay } from "../../types/stats";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomTooltip({ active, payload, label }: any) {
@@ -30,27 +28,8 @@ function CustomTooltip({ active, payload, label }: any) {
   );
 }
 
-function BarChartHoursByWeekday() {
-  const { userId } = useParams<{ userId: string }>();
-  const stats = useGetStatsForShiftsUserHasWorked(userId!);
-
-  if (stats.status === "error") {
-    return (
-      <div className="flex h-82 items-center justify-center rounded-xl border border-borderDividers bg-cardBG p-4">
-        <p className="text-sm text-secondaryText">Error loading data</p>
-      </div>
-    );
-  }
-
-  if (stats.status === "loading") {
-    return (
-      <div className="flex h-82 items-center justify-center rounded-xl border border-borderDividers bg-cardBG p-4">
-        <LoadingSpinner size={82} />
-      </div>
-    );
-  }
-
-  const isEmptyData = stats.data.byWeekday.every((day) => day.hours === 0);
+function BarChartHoursByWeekday({ data }: { data: StatsByWeekDay[] }) {
+  const isEmptyData = data.every((day) => day.hours === 0);
 
   return (
     <div className="flex  h-82 flex-col rounded-xl border border-borderDividers bg-cardBG p-4">
@@ -61,7 +40,7 @@ function BarChartHoursByWeekday() {
         </h2>
 
         <p className="mt-1 text-sm text-secondaryText">
-          Total hours worked on each day of the week this month
+          Total hours worked on each day of the week.
         </p>
       </div>
       {isEmptyData ? (
@@ -69,12 +48,13 @@ function BarChartHoursByWeekday() {
       ) : (
         <div className="flex-1">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stats.data.byWeekday}>
+            <BarChart data={data}>
               <Label value="Hours Worked" position="top" />
               <CartesianGrid vertical={false} stroke="#1a1e21" />
 
               <XAxis
                 dataKey="day"
+                fontSize={12}
                 tick={{ fill: "#6b7075" }}
                 axisLine={false}
                 tickLine={false}
@@ -95,6 +75,7 @@ function BarChartHoursByWeekday() {
                 minPointSize={3}
                 radius={[6, 6, 0, 0]}
                 label={{ position: "top", fill: "#4b4e55", fontSize: 12 }}
+                fontSize={12}
               ></Bar>
             </BarChart>
           </ResponsiveContainer>

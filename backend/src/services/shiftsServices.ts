@@ -170,7 +170,6 @@ export async function createAssignmentForShift(
   if (!shift) {
     throw new AppError(`Shift with ID ${shiftId} not found`, 404);
   }
-  console.log(shift);
   const user = await userModel.getUserById(userId);
   if (!user) {
     throw new AppError(`User with ID ${userId} not found`, 404);

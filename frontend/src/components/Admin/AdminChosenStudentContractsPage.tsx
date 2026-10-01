@@ -8,7 +8,6 @@ import {
 import { useState } from "react";
 import { eachMonthOfInterval } from "date-fns";
 import { format } from "date-fns";
-import ContractTableRow from "./ContractTableRow";
 import ContractsTable from "./ContractsTable";
 
 function AdminChosenStudentContractsPage() {
@@ -28,8 +27,6 @@ function AdminChosenStudentContractsPage() {
     end: new Date(selectedYear, 11, 31),
   }).map((month) => format(month, "MMMM yyyy"));
   tableRowMonths.reverse(); // Reverse the array to display months in descending order
-
-  console.log(tableRowMonths);
 
   return (
     <div className="p-4 flex flex-col gap-4">

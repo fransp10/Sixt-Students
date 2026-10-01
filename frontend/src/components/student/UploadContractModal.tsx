@@ -20,7 +20,6 @@ function UploadContractModal({ onClose, month }: UploadContractModalProps) {
     if (!file) return;
 
     setSelectedFile(file);
-    console.log(file);
   }
 
   function handleDragLeave() {

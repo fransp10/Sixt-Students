@@ -9,5 +9,6 @@ meRouter.post("/:shiftId/request", meController.requestShift);
 meRouter.delete("/:shiftId/request", meController.deleteShiftRequest);
 meRouter.patch("/", meController.updateMyInfo);
 meRouter.patch("/password", meController.updateMyPassword);
-
+meRouter.get("/stats", meController.getMyStats);
 meRouter.get("/assignments", meController.getMyShiftAssignments);
+meRouter.get("/assignments/next", meController.getNextShift);

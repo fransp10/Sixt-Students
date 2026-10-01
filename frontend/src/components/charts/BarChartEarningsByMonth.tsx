@@ -7,22 +7,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useGetMyStats } from "../../hooks/useGetMyStats";
 
-const data = [
-  { month: "Jan", earnings: 120 },
-  { month: "Feb", earnings: 240 },
-  { month: "Mar", earnings: 180 },
-  { month: "Apr", earnings: 300 },
-  { month: "May", earnings: 200 },
-  { month: "Jun", earnings: 280 },
-  { month: "Jul", earnings: 150 },
-  { month: "Aug", earnings: 220 },
-  { month: "Sep", earnings: 260 },
-  { month: "Oct", earnings: 190 },
-  { month: "Nov", earnings: 310 },
-  { month: "Dec", earnings: 270 },
-];
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) {
     return null;
@@ -40,6 +27,23 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 function BarChartEarningsByMonth() {
+  const { data: stats } = useGetMyStats();
+
+  const isEmptyData = Object.keys(stats?.byMonth ?? {}).length === 0;
+
+  if (isEmptyData) {
+    return (
+      <div className="flex flex-2 h-82 flex-col items-center justify-center rounded-xl border border-borderDividers bg-cardBG p-4">
+        <p className="text-sm text-secondaryText">
+          No earnings data available for this year.
+        </p>
+      </div>
+    );
+  }
+
+  const currentYear = new Date().getFullYear();
+  const currentYearData = stats?.byMonth?.[currentYear] ?? [];
+
   return (
     <div className="flex flex-2 h-82 flex-col rounded-xl border border-borderDividers bg-cardBG p-4">
       {/* Chart heading */}
@@ -54,7 +58,10 @@ function BarChartEarningsByMonth() {
       </div>
       <div className="flex-1">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
+          <LineChart
+            data={currentYearData}
+            margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+          >
             <CartesianGrid vertical={false} stroke="#1a1e21" />
 
             <XAxis
