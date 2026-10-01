@@ -9,7 +9,7 @@ function Drum({
 }) {
   return (
     <span
-      className={`flex h-14 w-9 items-center justify-center border-r border-black/60 bg-linear-to-b from-black/50 via-transparent to-black/50 text-3xl font-semibold last:border-r-0 sm:w-10 ${className}`}
+      className={`flex h-14 w-9 items-center justify-center text-3xl font-semibold sm:w-10 ${className}`}
     >
       {digit}
     </span>
@@ -28,10 +28,7 @@ function Odometer() {
       <RacePageCardHeader heading="Odometer" subheading="All-time earnings" />
 
       <div className="flex flex-1 flex-col justify-center gap-6 mt-4">
-        <div
-          className="flex items-center justify-center gap-2 tabular-nums"
-          aria-label={`€${earnings.toFixed(2)} earned all time`}
-        >
+        <div className="flex items-center justify-center gap-2 tabular-nums">
           <span className="text-2xl font-semibold text-secondaryText">€</span>
 
           <div className="flex overflow-hidden rounded-lg border border-borderDividers bg-pageBackground">
@@ -52,7 +49,7 @@ function Odometer() {
           </div>
         </div>
 
-        <div className="h-1 bg-borderDividers" />
+        <div className="h-2 bg-borderDividers" />
 
         <div className="grid grid-cols-3 gap-2">
           <div>
