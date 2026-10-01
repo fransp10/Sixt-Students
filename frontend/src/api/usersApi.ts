@@ -80,3 +80,9 @@ export async function changeMyPassword(
     newPassword,
   });
 }
+
+export async function getNextShiftForUser() {
+  const res = await axiosClient.get("/me/assignments/next");
+
+  return res.data;
+}

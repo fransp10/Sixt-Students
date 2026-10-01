@@ -20,7 +20,6 @@ export type AssignedShiftToUser = {
   actual_end_time: string | null; // Format: timestampz
   requested_at: string | null; // Format: timestampz
   hourly_rate: number;
-  hours_worked: number;
 };
 
 export type SingleShiftRowToAggregate = {
@@ -62,7 +61,9 @@ export type UserStats = {
   totalShifts: number;
   totalHours: number;
   totalEarnings: number;
+  averageMonth: AverageMonthStats;
   acceptance: AcceptanceStats;
+  attendance: AttendanceStats;
   byShiftTypes: StatsByShiftType[];
   byWeekDay: StatsByWeekDay[];
   byMonth: Record<string, MonthStats[]>;
@@ -70,9 +71,24 @@ export type UserStats = {
 
 export type MonthStats = {
   month: string;
+  monthNumber: number; // 1-12
   count: number;
   hours: number;
   earnings: number;
+  attendanceRate: number;
+};
+
+export type AverageMonthStats = {
+  count: number;
+  hours: number;
+  earnings: number;
+  attendanceRate: number;
+};
+
+export type AttendanceStats = {
+  total: number;
+  noShows: number;
+  rate: number;
 };
 
 export type StatsByShiftType = {

@@ -209,8 +209,8 @@ export async function getShiftAssignmentsByUserId(
 
 export async function getStatsForUser(
   userId: string,
-  startDate: string,
-  endDate: string,
+  startDate?: string,
+  endDate?: string,
 ): Promise<UserStats> {
   let values: (string | number)[] = [userId];
   let query = `WITH worked AS (
@@ -259,7 +259,27 @@ export async function getStatsForUser(
     query += ` AND s.date < $3`;
   }
 
-  query += `), per_month AS (
+  query += `), attendance_per_month AS (
+  SELECT
+    EXTRACT(YEAR FROM s.date)  AS year,
+    EXTRACT(MONTH FROM s.date) AS month_number,
+    COUNT(*)                           AS total,
+    COUNT(*) FILTER (WHERE sa.no_show) AS no_shows,
+    ROUND(COUNT(*) FILTER (WHERE NOT sa.no_show) * 100.0 / COUNT(*), 0) AS rate
+  FROM shift_assignments sa
+  JOIN shifts s ON s.id = sa.shift_id
+  WHERE sa.user_id = $1
+    AND s.date < CURRENT_DATE`;
+
+  if (startDate) {
+    query += ` AND s.date >= $2`;
+  }
+  if (endDate) {
+    query += ` AND s.date < $3`;
+  }
+
+  query += ` GROUP BY year, month_number
+), per_month AS (
   SELECT
     EXTRACT(YEAR FROM date)  AS year,
     EXTRACT(MONTH FROM date) AS month_number,
@@ -293,6 +313,23 @@ export async function getStatsForUser(
 )
 SELECT json_build_object(
   'totalShifts',   COALESCE(SUM(count), 0),
+  'averageMonth', (
+  SELECT json_build_object(
+    'count',    ROUND(AVG(count), 1),
+    'hours',    ROUND(AVG(hours), 2),
+    'earnings', ROUND(AVG(earnings), 2),
+    'attendanceRate', (SELECT ROUND(AVG(rate), 0) FROM attendance_per_month)
+  )
+  FROM per_month
+),
+  'attendance', (
+    SELECT json_build_object(
+      'total',   COALESCE(SUM(total), 0),
+      'noShows', COALESCE(SUM(no_shows), 0),
+      'rate',    COALESCE(ROUND((SUM(total) - SUM(no_shows)) * 100.0 / NULLIF(SUM(total), 0), 0), 0)
+    )
+    FROM attendance_per_month
+  ),
   'totalHours',    COALESCE(SUM(hours), 0),
   'totalEarnings', COALESCE(SUM(earnings), 0),
   'acceptance', (
@@ -339,12 +376,15 @@ SELECT json_build_object(
         json_agg(
           json_build_object(
             'month', month_name,
+            'monthNumber', month_number::int,
             'count', count,
             'hours', hours,
-            'earnings', earnings
+            'earnings', earnings,
+            'attendanceRate', COALESCE(a.rate, 0)
           ) ORDER BY month_number
         ) AS months
       FROM per_month
+      LEFT JOIN attendance_per_month a USING (year, month_number)
       GROUP BY year
     ) y
   )
@@ -362,4 +402,26 @@ export async function updatePassword(userId: string, newPasswordHash: string) {
   );
 
   return result.rows[0];
+}
+
+export async function getNextShift(
+  userId: string,
+): Promise<AssignedShiftToUser | null> {
+  const result = await pool.query(
+    `SELECT sa.id AS assigned_shift_id,
+    s.date,
+    st.shift_name AS shift_type,
+    s.scheduled_start_time,
+    s.scheduled_end_time,
+    sa.hourly_rate,
+    sa.actual_start_time,
+    sa.actual_end_time,
+    sa.requested_at
+    FROM shift_assignments sa INNER JOIN shifts s ON sa.shift_id = s.id INNER JOIN shift_types st ON s.shift_type_id = st.id
+    WHERE sa.user_id = $1 AND (s.date + s.scheduled_start_time) > NOW() ORDER BY s.date ASC, s.scheduled_start_time 
+    LIMIT 1 `,
+    [userId],
+  );
+
+  return result.rows[0] || null;
 }

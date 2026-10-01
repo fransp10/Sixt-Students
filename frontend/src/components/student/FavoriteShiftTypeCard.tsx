@@ -1,15 +1,30 @@
 import { StarIcon } from "@heroicons/react/24/outline";
 import { CloudIcon, MoonIcon, SunIcon } from "@heroicons/react/24/solid";
+import { useGetMyStats } from "../../hooks/useGetMyStats";
+import { capitalize } from "../../helpers/capitalize";
 
 function FavoriteShiftTypeCard() {
-  const favoriteShiftType = "Morning Shift"; // Replace with actual data source
+  const stats = useGetMyStats();
+
+  const favoriteShiftType = stats.data?.byShiftTypes.reduce((prev, current) =>
+    prev.hours > current.hours ? prev : current,
+  )?.shift_name;
+
+  const totalHoursWorkedInFavoriteShiftType =
+    stats.data?.byShiftTypes.find(
+      (shift) => shift.shift_name === favoriteShiftType,
+    )?.hours || 0;
+
+  const percantageOfShiftsInFavoriteShiftType = Math.round(
+    (totalHoursWorkedInFavoriteShiftType / (stats.data?.totalHours ?? 0)) * 100,
+  );
 
   const Icon =
-    favoriteShiftType === "Morning Shift"
+    favoriteShiftType === "morning"
       ? SunIcon
-      : favoriteShiftType === "Middle"
+      : favoriteShiftType === "middle"
         ? CloudIcon
-        : MoonIcon; // Replace with actual icon mapping
+        : MoonIcon;
 
   return (
     <div className=" h-full flex flex-col  text-primaryText p-4 border border-borderDividers rounded-xl">
@@ -20,12 +35,14 @@ function FavoriteShiftTypeCard() {
 
       <div className="flex flex-col items-center justify-center  gap-1 flex-1 ">
         <Icon className="size-14 text-primary" />
-        <p className="text-2xl">{favoriteShiftType}</p>
+        <p className="text-2xl">{capitalize(favoriteShiftType!)}</p>
         <p className="text-md text-secondaryText text-center mt-2">
-          You've worked 5 {favoriteShiftType.toLowerCase()} this month. Keep it
-          up!
+          You've worked 5 {capitalize(favoriteShiftType!)} shifts.
         </p>
-        <p className="text-secondaryText">48% of your shifts this month</p>
+        <p className="text-md text-secondaryText text-center">Keep it up!</p>
+        <p className="text-secondaryText">
+          That is {percantageOfShiftsInFavoriteShiftType}% of your shifts.
+        </p>
       </div>
     </div>
   );

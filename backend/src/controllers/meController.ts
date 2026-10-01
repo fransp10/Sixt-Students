@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as meServices from "../services/meServices.js";
 import * as shiftModel from "../models/shiftModel.js";
+import * as userModel from "../models/userModel.js";
 export async function checkMe(req: Request, res: Response) {
   const userId = req.user!.id;
 
@@ -85,4 +86,24 @@ export async function updateMyPassword(
     newPassword,
   );
   res.status(200).json(updatedUser);
+}
+
+export async function getMyStats(
+  req: Request<{}, unknown, unknown, { startDate?: string; endDate?: string }>,
+  res: Response,
+) {
+  const userId = req.user!.id;
+  const { startDate, endDate } = req.query;
+
+  const stats = await meServices.getStatsByUserId(userId, startDate, endDate);
+
+  res.status(200).json(stats);
+}
+
+export async function getNextShift(req: Request, res: Response) {
+  const userId = req.user!.id;
+
+  const nextShiftAssignment = await userModel.getNextShift(userId);
+
+  res.status(200).json(nextShiftAssignment);
 }

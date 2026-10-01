@@ -10,8 +10,7 @@ function LogoutButton() {
   function handleLogout(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     logoutMutation.mutate(undefined, {
-      onSuccess: (data) => {
-        console.log(data);
+      onSuccess: () => {
         navigate("/login");
       },
       onError: (error) => {

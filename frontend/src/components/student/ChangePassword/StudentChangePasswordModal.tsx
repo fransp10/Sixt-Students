@@ -49,9 +49,7 @@ function StudentChangePasswordModal({
     changePassword(
       { currentPassword, newPassword },
       {
-        onSuccess: () => {
-          console.log("Password changed successfully");
-        },
+        onSuccess: () => {},
       },
     );
   }

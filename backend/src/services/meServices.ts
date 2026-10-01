@@ -167,3 +167,17 @@ export async function updateMyPassword(
 
   return updatedUser;
 }
+
+export async function getStatsByUserId(
+  userId: string,
+  startDate?: string,
+  endDate?: string,
+) {
+  if (!userId) {
+    throw new AppError("UserId is required", 400);
+  }
+
+  const stats = await userModel.getStatsForUser(userId, startDate, endDate);
+
+  return stats;
+}
