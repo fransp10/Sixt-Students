@@ -14,8 +14,8 @@ function RaceEarningsMonthlyGoal({
   const ARC = Math.PI * 100; // length of a half circle with radius 100
 
   const arc = "M20 130 A100 100 0 0 1 220 130"; // half circle path
-  const difference = Math.min(goal - earned, earned); // difference between earned and goal, capped so it cant go past the goal
-  const differencePct = Math.round((difference / goal) * 100);
+  const difference = goal - earned;
+  const differencePct = Math.round((earned / goal) * 100);
 
   return (
     <div className=" col-span-1 row-span-1  flex flex-col bg-cardLighterBG rounded-lg p-6 h-84">
@@ -55,12 +55,19 @@ function RaceEarningsMonthlyGoal({
         </svg>
         <div className="flex flex-col gap-0.5 items-center mt-4 text-primaryText">
           <p className="text-4xl font-extrabold tracking-wider">{earned}€</p>
-          <div className="flex flex-row items-center gap-1.5 text-primary font-bold">
-            <p>{differencePct}%</p>
-            <p className="text-sm text-secondaryText">
-              of goal · {difference}€ to go
-            </p>
-          </div>
+          {difference > 0 && (
+            <div className="flex flex-row items-center gap-1.5 text-primary font-bold">
+              <p>{differencePct}%</p>
+              <p className="text-sm text-secondaryText">
+                of goal · {difference}€ to go
+              </p>
+            </div>
+          )}
+          {difference <= 0 && (
+            <div className="flex flex-row items-center gap-1.5 text-success font-bold">
+              <p>Goal reached!</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

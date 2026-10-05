@@ -107,3 +107,20 @@ export async function getNextShift(req: Request, res: Response) {
 
   res.status(200).json(nextShiftAssignment);
 }
+
+export async function getRaceStats(
+  req: Request<{}, {}, {}, { month?: string }>,
+  res: Response,
+) {
+  const { month } = req.query;
+
+  const earningsStats = await meServices.getRaceStats(month);
+
+  res.status(200).json(earningsStats);
+}
+
+export async function getRaceMonths(req: Request, res: Response) {
+  const months = await userModel.getRaceMonths();
+
+  res.status(200).json(months);
+}

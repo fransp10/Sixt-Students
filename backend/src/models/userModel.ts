@@ -232,7 +232,7 @@ export async function getStatsForUser(
   FROM shift_assignments sa
   JOIN shifts      s  ON s.id  = sa.shift_id
   JOIN shift_types st ON st.id = s.shift_type_id
-  WHERE sa.user_id = $1 AND sa.no_show = false`;
+  WHERE sa.user_id = $1 AND sa.no_show = false AND s.date < CURRENT_DATE`;
 
   if (startDate) {
     query += ` AND s.date >= $2`;
@@ -375,16 +375,19 @@ SELECT json_build_object(
         year,
         json_agg(
           json_build_object(
-            'month', month_name,
+            'month', TO_CHAR(make_date(year::int, month_number::int, 1), 'FMMonth'),
             'monthNumber', month_number::int,
-            'count', count,
-            'hours', hours,
-            'earnings', earnings,
-            'attendanceRate', COALESCE(a.rate, 0)
+            'count', COALESCE(p.count, 0),
+            'hours', COALESCE(p.hours, 0),
+            'earnings', COALESCE(p.earnings, 0),
+            'attendanceRate', a.rate,
+            'assigned', a.total::int,
+            'noShows', a.no_shows::int
           ) ORDER BY month_number
         ) AS months
-      FROM per_month
-      LEFT JOIN attendance_per_month a USING (year, month_number)
+      -- start from attendance so months with only no-shows still appear
+      FROM attendance_per_month a
+      LEFT JOIN per_month p USING (year, month_number)
       GROUP BY year
     ) y
   )
@@ -424,4 +427,68 @@ export async function getNextShift(
   );
 
   return result.rows[0] || null;
+}
+
+export async function getRaceStats(month?: string) {
+  if (!month) {
+    const raceStats = await pool.query(
+      `WITH race AS (
+    SELECT
+    u.id,
+    u.first_name,
+    u.last_name,
+    COUNT(*)::int AS shifts_worked,
+    ROUND(SUM(EXTRACT(EPOCH FROM sa.actual_end_time - sa.actual_start_time) / 3600)::numeric, 2) AS hours_worked
+  FROM shift_assignments sa
+  INNER JOIN shifts s ON sa.shift_id = s.id
+  INNER JOIN users u ON sa.user_id = u.id
+  WHERE  sa.no_show = false
+    AND u.user_role = 'student'
+  GROUP BY u.id, u.first_name, u.last_name
+)
+SELECT COALESCE(json_agg(race ORDER BY hours_worked DESC), '[]') AS standings
+FROM race;
+    `,
+    );
+
+    return raceStats.rows[0].standings;
+  }
+
+  const raceStats = await pool.query(
+    `
+    WITH race AS (
+    SELECT
+    u.id,
+    u.first_name,
+    u.last_name,
+    COUNT(*)::int AS shifts_worked,
+    ROUND(SUM(EXTRACT(EPOCH FROM sa.actual_end_time - sa.actual_start_time) / 3600)::numeric, 2) AS hours_worked
+  FROM shift_assignments sa
+  INNER JOIN shifts s ON sa.shift_id = s.id
+  INNER JOIN users u ON sa.user_id = u.id
+  WHERE s.date >= ($1 || '-01')::date
+    AND s.date <  ($1 || '-01')::date + INTERVAL '1 month'
+    AND sa.no_show = false
+    AND u.user_role = 'student'
+  GROUP BY u.id, u.first_name, u.last_name
+)
+SELECT COALESCE(json_agg(race ORDER BY hours_worked DESC), '[]') AS standings
+FROM race;
+    `,
+    [month],
+  );
+
+  return raceStats.rows[0].standings;
+}
+
+export async function getRaceMonths() {
+  const result = await pool.query(`
+    SELECT DISTINCT TO_CHAR(date, 'YYYY-MM') as month
+    FROM shift_assignments sa
+    JOIN shifts s ON sa.shift_id = s.id
+    WHERE date < CURRENT_DATE AND sa.no_show = false
+    ORDER BY month DESC;
+  `);
+
+  return result.rows.map((row) => row.month);
 }

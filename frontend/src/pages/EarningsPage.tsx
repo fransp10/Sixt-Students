@@ -1,46 +1,75 @@
 import { format } from "date-fns";
-import PageHeading from "../components/PageHeading";
-import RaceDatePicker from "../components/student/RacePage/RaceDatePicker";
 import RaceEarningsMonthlyGoal from "../components/student/RacePage/RaceEarningsMonthlyGoal";
 import Odometer from "../components/student/RacePage/Odometer";
 import Gear from "../components/student/RacePage/Gear";
 import Race from "../components/student/RacePage/Race";
 import Podium from "../components/student/RacePage/Podium";
-import Laps from "../components/student/RacePage/Laps";
-const currentMonth = format(new Date(), "MMMM yyyy");
+import Overtake from "../components/student/RacePage/Overtake";
+import FuelGauge from "../components/student/RacePage/FuelGauge";
+import { useGetMyStats } from "../hooks/useGetMyStats";
+import { useAuthContext } from "../hooks/auth/useAuthContext";
+import { useGetRaceStats } from "../hooks/useGetRaceStats";
+import { useState } from "react";
+import RacePageHeading from "../components/student/RacePage/RacePageHeading";
+
 function EarningsPage() {
+  const [chosenMonth, setChosenMonth] = useState(
+    format(new Date(), "MMMM yyyy"),
+  );
+  const { data: myStats, isLoading, isError } = useGetMyStats();
+  const { currentUser: me } = useAuthContext();
+  const {
+    data: raceStats,
+    isLoading: isLoadingRaceStats,
+    isError: isErrorRaceStats,
+  } = useGetRaceStats(chosenMonth);
+
+  const chosenMonthNumber = Number(format(new Date(chosenMonth), "M"));
+  const chosenYear = Number(format(new Date(chosenMonth), "yyyy"));
+
+  if (isLoading || isLoadingRaceStats) {
+    return <div>Loading...</div>;
+  }
+  if (isError || isErrorRaceStats || !myStats || !raceStats) {
+    return <div>Error loading stats.</div>;
+  }
+
+  const currentMonthEarnings = myStats?.byMonth[chosenYear].find(
+    (monthData) => monthData.monthNumber === chosenMonthNumber,
+  )?.earnings;
+
+  const top3 = raceStats.slice(0, 3);
+
   return (
     <div className=" flex flex-col gap-4">
-      <RacePageHeading />
+      <RacePageHeading
+        chosenMonth={chosenMonth}
+        handleMonthChange={setChosenMonth}
+      />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <RaceEarningsMonthlyGoal earned={400} goal={600} />
-        <Odometer />
-        <Gear />
-        <Race />
-        <Podium />
-        <Laps />
+        <RaceEarningsMonthlyGoal
+          earned={currentMonthEarnings ?? 0}
+          goal={600}
+        />
+        <Odometer
+          earnings={myStats?.totalEarnings ?? 0}
+          hoursWorked={myStats?.totalHours ?? 0}
+          shifts={myStats?.totalShifts ?? 0}
+          hourlyRate={me?.default_hourly_rate ?? 0}
+        />
+        <Gear hoursWorked={myStats?.totalHours ?? 0} />
+        <Race raceStats={raceStats} />
+        <Podium top3={top3} currentMonth={chosenMonth} />
+        <FuelGauge
+          stats={myStats}
+          chosenYear={chosenYear}
+          chosenMonthNumber={chosenMonthNumber}
+        />
+
+        <Overtake raceStats={raceStats} />
       </div>
     </div>
   );
 }
 
 export default EarningsPage;
-
-function RacePageHeading() {
-  return (
-    <div className="flex flex-row justify-between items-center">
-      <div>
-        <h2 className="text-primary font-semibold uppercase -mb-1">
-          Race season · {currentMonth}{" "}
-        </h2>
-        <PageHeading
-          heading="Earnings"
-          subheading="Your pay, your progress, and who's leading the pack this month."
-        />
-      </div>
-      <div className="mr-12 flex flex-col gap-1.5">
-        <RaceDatePicker />
-      </div>
-    </div>
-  );
-}

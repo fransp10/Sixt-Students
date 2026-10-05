@@ -16,9 +16,17 @@ function Drum({
   );
 }
 
-function Odometer() {
-  const earnings = 5518.22;
-
+function Odometer({
+  earnings,
+  hoursWorked,
+  shifts,
+  hourlyRate,
+}: {
+  earnings: number;
+  hoursWorked: number;
+  shifts: number;
+  hourlyRate: number;
+}) {
   const [whole, cents] = earnings.toFixed(2).split(".");
   const wholeDigits = whole.padStart(5, "0").split("");
   const firstRealDigit = wholeDigits.findIndex((d) => d !== "0");
@@ -53,15 +61,15 @@ function Odometer() {
 
         <div className="grid grid-cols-3 gap-2">
           <div>
-            <p className="text-xl font-bold tabular-nums">649h</p>
+            <p className="text-xl font-bold tabular-nums">{hoursWorked}</p>
             <p className="text-sm text-secondaryText">Hours driven</p>
           </div>
           <div>
-            <p className="text-xl font-bold tabular-nums">84</p>
+            <p className="text-xl font-bold tabular-nums">{shifts}</p>
             <p className="text-sm text-secondaryText">Laps (shifts)</p>
           </div>
           <div>
-            <p className="text-xl font-bold tabular-nums">€8.50</p>
+            <p className="text-xl font-bold tabular-nums">€{hourlyRate}</p>
             <p className="text-sm text-secondaryText">Per hour</p>
           </div>
         </div>

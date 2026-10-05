@@ -6,6 +6,7 @@ import { isValidEmail } from "../helpers/isValidEmail.js";
 import { isValidPhone } from "../helpers/isValidPhone.js";
 import { getUserByUsername } from "../models/authModel.js";
 import argon2 from "argon2";
+import { isValidMonth } from "../helpers/isValidMonth.js";
 export async function checkMe(userId: string) {
   const user = await getUserById(userId);
 
@@ -180,4 +181,14 @@ export async function getStatsByUserId(
   const stats = await userModel.getStatsForUser(userId, startDate, endDate);
 
   return stats;
+}
+
+export async function getRaceStats(month?: string) {
+  if (month && !isValidMonth(month)) {
+    throw new AppError("Invalid month format. Expected format: YYYY-MM", 400);
+  }
+
+  const earningsStats = await userModel.getRaceStats(month);
+
+  return earningsStats;
 }
