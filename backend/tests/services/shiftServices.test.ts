@@ -164,7 +164,9 @@ describe("getRequestsForShift", () => {
 
     expect(result).toEqual({
       shift_id: mockShiftId,
-      students: mockRequests.map(({ shift_id: _shiftId, ...student }) => student),
+      students: mockRequests.map(
+        ({ shift_id: _shiftId, ...student }) => student,
+      ),
     });
     expect(ShiftModel.getRequestsForShift).toHaveBeenCalledWith(mockShiftId);
   });
@@ -452,7 +454,7 @@ describe("modifyShiftAssignedAdmin", () => {
       modifyShiftAssignedAdmin(mockShiftId, mockUserId, false, "09:00"),
     ).rejects.toMatchObject({
       statusCode: 400,
-      message: "Both actual_start_time and actual_end_time must be provided",
+      message: "Both arrivedAt and leftAt must be provided",
     });
     expect(ShiftModel.modifyShiftAssignedAdmin).not.toHaveBeenCalled();
   });
@@ -472,7 +474,13 @@ describe("modifyShiftAssignedAdmin", () => {
     mockShiftAndAssignmentExist();
 
     await expect(
-      modifyShiftAssignedAdmin(mockShiftId, mockUserId, false, "12:00", "12:00"),
+      modifyShiftAssignedAdmin(
+        mockShiftId,
+        mockUserId,
+        false,
+        "12:00",
+        "12:00",
+      ),
     ).rejects.toMatchObject({
       statusCode: 400,
       message: "actual_start_time must be earlier than actual_end_time",
@@ -483,10 +491,17 @@ describe("modifyShiftAssignedAdmin", () => {
     mockShiftAndAssignmentExist();
 
     await expect(
-      modifyShiftAssignedAdmin(mockShiftId, mockUserId, false, "07:00", "15:00"),
+      modifyShiftAssignedAdmin(
+        mockShiftId,
+        mockUserId,
+        false,
+        "07:00",
+        "15:00",
+      ),
     ).rejects.toMatchObject({
       statusCode: 400,
-      message: "Actual times must be within the scheduled shift hours (08:00-16:00)",
+      message:
+        "Actual times must be within the scheduled shift hours (08:00-16:00)",
     });
     expect(ShiftModel.modifyShiftAssignedAdmin).not.toHaveBeenCalled();
   });
@@ -495,10 +510,17 @@ describe("modifyShiftAssignedAdmin", () => {
     mockShiftAndAssignmentExist();
 
     await expect(
-      modifyShiftAssignedAdmin(mockShiftId, mockUserId, false, "09:00", "17:00"),
+      modifyShiftAssignedAdmin(
+        mockShiftId,
+        mockUserId,
+        false,
+        "09:00",
+        "17:00",
+      ),
     ).rejects.toMatchObject({
       statusCode: 400,
-      message: "Actual times must be within the scheduled shift hours (08:00-16:00)",
+      message:
+        "Actual times must be within the scheduled shift hours (08:00-16:00)",
     });
   });
 
