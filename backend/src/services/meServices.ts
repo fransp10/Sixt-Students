@@ -4,7 +4,6 @@ import * as shiftModel from "../models/shiftModel.js";
 import * as userModel from "../models/userModel.js";
 import { isValidEmail } from "../helpers/isValidEmail.js";
 import { isValidPhone } from "../helpers/isValidPhone.js";
-import { getUserByUsername } from "../models/authModel.js";
 import argon2 from "argon2";
 import { isValidMonth } from "../helpers/isValidMonth.js";
 export async function checkMe(userId: string) {

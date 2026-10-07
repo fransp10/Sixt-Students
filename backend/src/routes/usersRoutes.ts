@@ -1,6 +1,5 @@
 import express from "express";
 import * as userController from "../controllers/usersController.js";
-import { requireAdmin } from "../middleware/requireAdmin.js";
 const userRouter = express.Router();
 
 userRouter.get("/", userController.getUsers);
