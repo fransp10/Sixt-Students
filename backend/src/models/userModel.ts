@@ -168,16 +168,10 @@ export async function getShiftAssignmentsByUserId(
          sa.actual_end_time,
          sa.requested_at,
          sa.no_show,
-         CASE WHEN sa.no_show THEN 0 ELSE
-         (EXTRACT(EPOCH FROM (
-         sa.actual_end_time - 
-         sa.actual_start_time + 
-         CASE WHEN sa.actual_end_time < 
-         sa.actual_start_time 
-         THEN INTERVAL '1 day' ELSE INTERVAL '0' END)) / 3600)::int
-         END AS hours_worked
+         ROUND(COALESCE(ws.hours, 0),2)::float AS hours_worked
   FROM shift_assignments sa
   JOIN shifts s       ON sa.shift_id = s.id
+  LEFT JOIN worked_shifts ws ON ws.id = sa.id
   JOIN shift_types st ON s.shift_type_id = st.id
   WHERE sa.user_id = $1
 `;
@@ -213,34 +207,27 @@ export async function getStatsForUser(
   endDate?: string,
 ): Promise<UserStats> {
   let values: (string | number)[] = [userId];
+  let startParam = "";
+  let endParam = "";
   let query = `WITH worked AS (
   SELECT
-    st.id   AS type_id,
-    st.shift_name,
-    s.date,
-    sa.hourly_rate,
-    EXTRACT(EPOCH FROM (
-        sa.actual_end_time
-      - sa.actual_start_time
-      + CASE
-          WHEN sa.actual_end_time
-             < sa.actual_start_time
-          THEN interval '24 hours'
-          ELSE interval '0'
-        END
-    )) / 3600 AS hours
-  FROM shift_assignments sa
-  JOIN shifts      s  ON s.id  = sa.shift_id
-  JOIN shift_types st ON st.id = s.shift_type_id
-  WHERE sa.user_id = $1 AND sa.no_show = false`;
+    type_id,
+    shift_name,
+    date,
+    hourly_rate,
+    hours
+    FROM worked_shifts
+    WHERE user_id = $1 AND date < CURRENT_DATE`;
 
   if (startDate) {
-    query += ` AND s.date >= $2`;
     values.push(startDate);
+    query += ` AND date >= $${values.length}`;
+    startParam = `$${values.length}`;
   }
   if (endDate) {
-    query += ` AND s.date < $3`;
     values.push(endDate);
+    query += ` AND date < $${values.length}`;
+    endParam = `$${values.length}`;
   }
 
   query += `), acceptance AS (
@@ -252,11 +239,11 @@ export async function getStatsForUser(
     LEFT JOIN shift_assignments sa ON sa.shift_id = sr.shift_id AND sa.user_id = sr.user_id
     WHERE sr.user_id = $1`;
   if (startDate) {
-    query += ` AND s.date >= $2`;
+    query += ` AND s.date >= ${startParam}`;
   }
 
   if (endDate) {
-    query += ` AND s.date < $3`;
+    query += ` AND s.date < ${endParam}`;
   }
 
   query += `), attendance_per_month AS (
@@ -272,10 +259,10 @@ export async function getStatsForUser(
     AND s.date < CURRENT_DATE`;
 
   if (startDate) {
-    query += ` AND s.date >= $2`;
+    query += ` AND s.date >= ${startParam}`;
   }
   if (endDate) {
-    query += ` AND s.date < $3`;
+    query += ` AND s.date < ${endParam}`;
   }
 
   query += ` GROUP BY year, month_number

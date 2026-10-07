@@ -125,6 +125,8 @@ export async function createAssignmentForShiftAdmin(
     shiftId,
     userId,
   );
+
+  res.status(201).json(newAssignment)
 }
 
 export async function deleteShiftAssignedAdmin(
