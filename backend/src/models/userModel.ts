@@ -417,54 +417,24 @@ export async function getNextShift(
 }
 
 export async function getRaceStats(month?: string) {
-  if (!month) {
-    const raceStats = await pool.query(
-      `WITH race AS (
-    SELECT
-    u.id,
-    u.first_name,
-    u.last_name,
-    COUNT(*)::int AS shifts_worked,
-    ROUND(SUM(EXTRACT(EPOCH FROM sa.actual_end_time - sa.actual_start_time) / 3600)::numeric, 2) AS hours_worked
-  FROM shift_assignments sa
-  INNER JOIN shifts s ON sa.shift_id = s.id
-  INNER JOIN users u ON sa.user_id = u.id
-  WHERE  sa.no_show = false
-    AND u.user_role = 'student'
-  GROUP BY u.id, u.first_name, u.last_name
-)
-SELECT COALESCE(json_agg(race ORDER BY hours_worked DESC), '[]') AS standings
-FROM race;
-    `,
-    );
-
-    return raceStats.rows[0].standings;
-  }
-
   const raceStats = await pool.query(
-    `
-    WITH race AS (
-    SELECT
-    u.id,
-    u.first_name,
-    u.last_name,
-    COUNT(*)::int AS shifts_worked,
-    ROUND(SUM(EXTRACT(EPOCH FROM sa.actual_end_time - sa.actual_start_time) / 3600)::numeric, 2) AS hours_worked
-  FROM shift_assignments sa
-  INNER JOIN shifts s ON sa.shift_id = s.id
-  INNER JOIN users u ON sa.user_id = u.id
-  WHERE s.date >= ($1 || '-01')::date
-    AND s.date <  ($1 || '-01')::date + INTERVAL '1 month'
-    AND sa.no_show = false
-    AND u.user_role = 'student'
-  GROUP BY u.id, u.first_name, u.last_name
-)
-SELECT COALESCE(json_agg(race ORDER BY hours_worked DESC), '[]') AS standings
-FROM race;
-    `,
-    [month],
+    `WITH race AS (
+      SELECT u.id, u.first_name, u.last_name,
+             COUNT(*)::int            AS shifts_worked,
+             ROUND(SUM(ws.hours), 2)  AS hours_worked
+      FROM worked_shifts ws
+      JOIN users u ON u.id = ws.user_id
+      WHERE u.user_role = 'student'
+        AND ws.date < CURRENT_DATE
+        AND ($1::text IS NULL OR (
+              ws.date >= ($1 || '-01')::date
+          AND ws.date <  ($1 || '-01')::date + INTERVAL '1 month'))
+      GROUP BY u.id, u.first_name, u.last_name
+    )
+    SELECT COALESCE(json_agg(race ORDER BY hours_worked DESC), '[]') AS standings
+    FROM race`,
+    [month ?? null],
   );
-
   return raceStats.rows[0].standings;
 }
 
