@@ -1,0 +1,3 @@
+const DEFAULT_GOAL_AMOUNT = 600;
+
+export { DEFAULT_GOAL_AMOUNT };

@@ -3,8 +3,6 @@ import type { RaceStats, RaceStatsStudent } from "../../../types/raceStats";
 import CarIcon from "./Race/Car";
 import RacePageCardHeader from "./RacePageCardHeader";
 
-const MAX_OFFSET = 35;
-
 function Overtake({ raceStats }: { raceStats: RaceStats }) {
   const { currentUser } = useAuthContext();
 
@@ -16,7 +14,15 @@ function Overtake({ raceStats }: { raceStats: RaceStats }) {
     (racer) => Number(racer.id) === currentUser.id,
   );
   if (meIndex === -1) {
-    return null;
+    return (
+      <div className="md:col-span-2 md:row-span-2 flex flex-col bg-cardLighterBG rounded-lg p-6 text-primaryText ">
+        <RacePageCardHeader heading="Overtake" subheading="No data" />
+        <p className="text-sm text-secondaryText h-full items-center justify-center flex">
+          No data found for this month's race. Start working to see overtake
+          data here
+        </p>
+      </div>
+    );
   }
 
   const me = raceStats[meIndex];
@@ -27,20 +33,14 @@ function Overtake({ raceStats }: { raceStats: RaceStats }) {
   const gapAhead = inFront ? inFront.hours_worked - me.hours_worked : null;
   const gapBehind = behind ? me.hours_worked - behind.hours_worked : null;
 
-  const maxGap = Math.max(gapAhead ?? 0, gapBehind ?? 0, 1);
-
-  const leftFor = (hours: number) =>
-    50 + ((hours - me.hours_worked) / maxGap) * MAX_OFFSET;
-
-  const cars = [behind, me, inFront]
-    .filter((r: RaceStatsStudent | undefined) => r !== undefined)
-    .map((r) => ({
-      ...r,
-      left: leftFor(r?.hours_worked),
-    }));
+  const cars = [
+    behind && { ...behind, left: 20 },
+    { ...me, left: 50 },
+    inFront && { ...inFront, left: 80 },
+  ].filter((c) => c !== undefined);
 
   const youPercentage = 50;
-  const averageShiftHours = me.hours_worked / me.shifts_worked;
+  const averageShiftHours = Math.round(me.hours_worked / me.shifts_worked);
   const shiftsToOvertake = Math.max(
     1,
     Math.ceil((gapAhead ?? 0) / averageShiftHours),
@@ -106,7 +106,7 @@ function Overtake({ raceStats }: { raceStats: RaceStats }) {
               className="absolute h-10 top-1/2 -translate-y-1/2 rounded-md border border-dashed border-primary bg-primary/15"
               style={{
                 left: `${youPercentage}%`,
-                width: `${leftFor(inFront.hours_worked) - 50}%`,
+                width: `${33}%`,
               }}
             >
               <span className="p-1 px-4 bg-cardBG text-primary font-bold absolute -translate-x-1/2  -translate-y-1/2 left-1/2 rounded-md">

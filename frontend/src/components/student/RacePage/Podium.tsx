@@ -36,7 +36,7 @@ function Podium({
   if (top3.length === 0) {
     return (
       <div className=" col-span-1 row-span-2  flex flex-col bg-cardLighterBG rounded-lg p-6 text-primaryText">
-        <p>No shifts this month yet</p>
+        <p>No data this month yet</p>
       </div>
     );
   }
@@ -47,7 +47,7 @@ function Podium({
         heading="Podium"
         subheading={`Top performers ${format(new Date(currentMonth), "MMM yyyy")} `}
       />
-      <div className="flex flex-row w-full flex-1  items-end gap-4 min-h-92">
+      <div className=" md:col-span-2 flex flex-row w-full flex-1  items-end gap-4 min-h-92">
         {top3.map((racer, i) => {
           const place = i + 1;
           const style = PLACE_STYLES[i];

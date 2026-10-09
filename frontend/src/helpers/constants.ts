@@ -1,2 +1,2 @@
 export const SHIFT_HISTORY_PAGE_SIZE = 10;
-export const RACE_MAX_STUDENTS_TO_DISPLAY = 8;
+export const RACE_MAX_STUDENTS_TO_DISPLAY = 5;

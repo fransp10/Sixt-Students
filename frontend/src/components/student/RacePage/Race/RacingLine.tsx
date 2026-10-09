@@ -40,21 +40,20 @@ function RacingLine({
         {/* middle line */}
         <div className="absolute left-0 right-3 top-1/2 border-t-2 border-dashed border-icons/50 " />
         {/* finish line */}
-        <div className="absolute inset-y-0 right-0 w-3 bg-[repeating-conic-gradient(#e5e7ea_0_25%,#1c2027_0_50%)] bg-size-[6px_6px] opacity-60" />
+        <div className="absolute inset-y-0 right-0 w-3 bg-[repeating-conic-gradient(var(--color-primaryText)_0_25%,var(--color-cardLighterBG)_0_50%)] bg-size-[6px_6px] opacity-60" />
         <div
           className={` h-full bg-icons/20 `}
           style={{ width: `${percentage}%` }}
         />
         <Car
-          className={`absolute top-1/2 -translate-x-full -translate-y-1/2 `}
-          style={{
-            left: `${percentage}%`,
-            color: isCurrentUser
-              ? "#ff5f00"
+          className={`absolute top-1/2 -translate-x-full -translate-y-1/2 ${
+            isCurrentUser
+              ? "text-primary"
               : position === 1
-                ? "#ffff"
-                : "#838992",
-          }}
+                ? "text-primaryText"
+                : "text-secondaryText"
+          }`}
+          style={{ left: `${percentage}%` }}
         />
       </div>
       <span

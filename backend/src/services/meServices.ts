@@ -6,6 +6,7 @@ import { isValidEmail } from "../helpers/isValidEmail.js";
 import { isValidPhone } from "../helpers/isValidPhone.js";
 import argon2 from "argon2";
 import { isValidMonth } from "../helpers/isValidMonth.js";
+import { DEFAULT_GOAL_AMOUNT } from "../helpers/constants.js";
 export async function checkMe(userId: string) {
   const user = await getUserById(userId);
 
@@ -190,4 +191,44 @@ export async function getRaceStats(month?: string) {
   const earningsStats = await userModel.getRaceStats(month);
 
   return earningsStats;
+}
+
+export async function getMyGoal(userId: string, month: string) {
+  if (!userId) {
+    throw new AppError("UserId is required", 400);
+  }
+
+  if (!month) {
+    throw new AppError("Month is required", 400);
+  }
+
+  if (!isValidMonth(month)) {
+    throw new AppError("Invalid month format. Expected format: YYYY-MM", 400);
+  }
+
+  const goal = await userModel.getMyGoal(userId, month);
+
+  if (!goal) {
+    return { amount: DEFAULT_GOAL_AMOUNT };
+  }
+
+  return goal;
+}
+
+export async function updateMyGoal(userId: string, amount: number) {
+  if (!userId) {
+    throw new AppError("UserId is required", 400);
+  }
+
+  if (!amount) {
+    throw new AppError("Amount is required", 400);
+  }
+
+  if (typeof amount !== "number" || isNaN(amount)) {
+    throw new AppError("Amount must be a valid number", 400);
+  }
+
+  const updatedGoal = await userModel.updateMyGoal(userId, amount);
+
+  return updatedGoal;
 }

@@ -4,22 +4,22 @@ import RaceModePicker from "./Race/RaceModePicker";
 import RacingLine from "./Race/RacingLine";
 import type { RaceStats, RaceStatsStudent } from "../../../types/raceStats";
 import { RACE_MAX_STUDENTS_TO_DISPLAY } from "../../../helpers/constants";
+import { useAuthContext } from "../../../hooks/auth/useAuthContext";
 
 function Race({ raceStats }: { raceStats: RaceStats }) {
   const [mode, setMode] = useState<"hours" | "shifts">("hours");
 
-  const raceDataHoursSorted = raceStats
-    .sort(
-      (a: RaceStatsStudent, b: RaceStatsStudent) =>
-        b.hours_worked - a.hours_worked,
-    )
-    .slice(0, RACE_MAX_STUDENTS_TO_DISPLAY);
-  const raceDataShiftsSorted = raceStats
-    .sort(
-      (a: RaceStatsStudent, b: RaceStatsStudent) =>
-        b.shifts_worked - a.shifts_worked,
-    )
-    .slice(0, RACE_MAX_STUDENTS_TO_DISPLAY);
+  const { currentUser } = useAuthContext();
+
+  const sorted =
+    mode === "hours"
+      ? raceStats.toSorted((a, b) => b.hours_worked - a.hours_worked)
+      : raceStats.toSorted((a, b) => b.shifts_worked - a.shifts_worked);
+
+  const topRacers = sorted.slice(0, RACE_MAX_STUDENTS_TO_DISPLAY);
+  const myIndex = sorted.findIndex((s) => Number(s.id) === currentUser?.id);
+  const me = myIndex === -1 ? undefined : sorted[myIndex];
+  const isMeOutsideTop = myIndex >= RACE_MAX_STUDENTS_TO_DISPLAY;
 
   const maxHoursValue = Math.max(
     ...raceStats.map((student: RaceStatsStudent) => student.hours_worked),
@@ -29,7 +29,7 @@ function Race({ raceStats }: { raceStats: RaceStats }) {
   );
 
   return (
-    <div className=" col-span-2 row-span-2  flex flex-col bg-cardLighterBG rounded-lg p-6 text-primaryText">
+    <div className=" md:col-span-2 md:row-span-2 flex flex-col bg-cardLighterBG rounded-lg p-6 text-primaryText">
       <div className="flex flex-row justify-between items-center">
         <RaceHeader />
         <RaceModePicker handleChangeMode={setMode} mode={mode} />
@@ -37,28 +37,43 @@ function Race({ raceStats }: { raceStats: RaceStats }) {
       <div>
         <ul className="flex flex-col gap-4 mt-6">
           {mode === "hours" &&
-            raceDataHoursSorted.map((data, index) => (
+            topRacers.map((data, index) => (
               <RacingLine
                 dataValue={data.hours_worked}
                 position={index + 1}
                 racer={data.first_name + " " + data.last_name}
                 racerId={+data.id}
                 maxValue={maxHoursValue}
-                key={index}
+                key={data.id}
                 sufix="h"
               />
             ))}
           {mode === "shifts" &&
-            raceDataShiftsSorted.map((data, index) => (
+            topRacers.map((data, index) => (
               <RacingLine
                 dataValue={data.shifts_worked}
                 racerId={+data.id}
                 position={index + 1}
                 racer={data.first_name + " " + data.last_name}
                 maxValue={maxShiftsValue}
-                key={index}
+                key={data.id}
               />
             ))}
+
+          {isMeOutsideTop && me && (
+            <div className="mt-4 border-t border-surfaceCards pt-4">
+              <RacingLine
+                position={myIndex + 1}
+                racer={`${me.first_name} ${me.last_name}`}
+                racerId={+me.id}
+                dataValue={
+                  mode === "hours" ? me.hours_worked : me.shifts_worked
+                }
+                maxValue={mode === "hours" ? maxHoursValue : maxShiftsValue}
+                sufix={mode === "hours" ? "h" : undefined}
+              />
+            </div>
+          )}
         </ul>
       </div>
     </div>

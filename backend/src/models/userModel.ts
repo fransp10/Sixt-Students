@@ -449,3 +449,26 @@ export async function getRaceMonths() {
 
   return result.rows.map((row) => row.month);
 }
+
+export async function getMyGoal(userId: string, month: string) {
+  const result = await pool.query(
+    `
+    SELECT amount FROM monthly_goals WHERE user_id = $1 AND month = ($2 || '-01')::date
+    LIMIT 1
+  `,
+    [userId, month],
+  );
+
+  return result.rows[0];
+}
+
+export async function updateMyGoal(userId: string, amount: number) {
+  const result = await pool.query(
+    `INSERT INTO monthly_goals (user_id,month,amount) VALUES ($1, date_trunc('month', CURRENT_DATE)::date, $2)
+    ON CONFLICT (user_id, month) DO UPDATE SET amount = EXCLUDED.amount
+    RETURNING amount::float AS amount`,
+    [userId, amount],
+  );
+
+  return result.rows[0];
+}

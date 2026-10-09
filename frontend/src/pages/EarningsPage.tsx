@@ -5,7 +5,7 @@ import Gear from "../components/student/RacePage/Gear";
 import Race from "../components/student/RacePage/Race";
 import Podium from "../components/student/RacePage/Podium";
 import Overtake from "../components/student/RacePage/Overtake";
-import FuelGauge from "../components/student/RacePage/FuelGauge";
+import Turbo from "../components/student/RacePage/Turbo";
 import { useGetMyStats } from "../hooks/useGetMyStats";
 import { useAuthContext } from "../hooks/auth/useAuthContext";
 import { useGetRaceStats } from "../hooks/useGetRaceStats";
@@ -13,9 +13,8 @@ import { useState } from "react";
 import RacePageHeading from "../components/student/RacePage/RacePageHeading";
 
 function EarningsPage() {
-  const [chosenMonth, setChosenMonth] = useState(
-    format(new Date(), "MMMM yyyy"),
-  );
+  // "yyyy-MM", the same format the select options and the API use
+  const [chosenMonth, setChosenMonth] = useState(format(new Date(), "yyyy-MM"));
   const { data: myStats, isLoading, isError } = useGetMyStats();
   const { currentUser: me } = useAuthContext();
   const {
@@ -24,8 +23,7 @@ function EarningsPage() {
     isError: isErrorRaceStats,
   } = useGetRaceStats(chosenMonth);
 
-  const chosenMonthNumber = Number(format(new Date(chosenMonth), "M"));
-  const chosenYear = Number(format(new Date(chosenMonth), "yyyy"));
+  const [chosenYear, chosenMonthNumber] = chosenMonth.split("-").map(Number);
 
   if (isLoading || isLoadingRaceStats) {
     return <div>Loading...</div>;
@@ -34,7 +32,7 @@ function EarningsPage() {
     return <div>Error loading stats.</div>;
   }
 
-  const currentMonthEarnings = myStats?.byMonth[chosenYear].find(
+  const currentMonthEarnings = myStats?.byMonth[chosenYear]?.find(
     (monthData) => monthData.monthNumber === chosenMonthNumber,
   )?.earnings;
 
@@ -60,7 +58,7 @@ function EarningsPage() {
         <Gear hoursWorked={myStats?.totalHours ?? 0} />
         <Race raceStats={raceStats} />
         <Podium top3={top3} currentMonth={chosenMonth} />
-        <FuelGauge
+        <Turbo
           stats={myStats}
           chosenYear={chosenYear}
           chosenMonthNumber={chosenMonthNumber}

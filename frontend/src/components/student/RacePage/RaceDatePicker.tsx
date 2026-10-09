@@ -3,8 +3,10 @@ import { useGetRaceMonths } from "../../../hooks/useGetRaceStats";
 
 function RaceDatePicker({
   handleMonthChange,
+  chosenMonth,
 }: {
   handleMonthChange: (month: string) => void;
+  chosenMonth: string;
 }) {
   const { data: raceMonths, isLoading, isError } = useGetRaceMonths();
 
@@ -21,8 +23,8 @@ function RaceDatePicker({
         Month
       </label>
       <select
+        value={chosenMonth}
         onChange={(e) => {
-          e.preventDefault();
           handleMonthChange(e.target.value);
         }}
         id="month"

@@ -28,20 +28,20 @@ function CarIcon({
       {/* window */}
       <path
         d="M19.5 8.8 C22 6.2 25 5.6 28 5.6 C31.5 5.6 34 7 36 8.8 Z"
-        fill="#08090b"
+        className="fill-pageBackground"
         opacity="0.55"
       />
       {/* side stripe */}
       <path
         d="M14 12.6 L50 13.2"
-        stroke="#08090b"
+        className="stroke-pageBackground"
         strokeWidth="1"
         opacity="0.35"
       />
       {/* headlight */}
       <path
         d="M53 11.8 L56.5 12.6"
-        stroke="#e5e7ea"
+        className="stroke-primaryText"
         strokeWidth="1.2"
         strokeLinecap="round"
         opacity="0.9"
@@ -51,7 +51,7 @@ function CarIcon({
         cx="14"
         cy="16.5"
         r="4.6"
-        fill="#08090b"
+        className="fill-pageBackground"
         stroke="currentColor"
         strokeWidth="1.6"
       />
@@ -60,7 +60,7 @@ function CarIcon({
         cx="47"
         cy="16.5"
         r="4.6"
-        fill="#08090b"
+        className="fill-pageBackground"
         stroke="currentColor"
         strokeWidth="1.6"
       />

@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import PageHeading from "../../PageHeading";
 import RaceDatePicker from "./RaceDatePicker";
 
@@ -8,11 +9,13 @@ function RacePageHeading({
   handleMonthChange: (month: string) => void;
   chosenMonth: string;
 }) {
+  const [year, month] = chosenMonth.split("-").map(Number);
+
   return (
     <div className="flex flex-row justify-between items-center">
       <div>
         <h2 className="text-primary font-semibold uppercase -mb-1">
-          Race season · {chosenMonth}
+          Race season · {format(new Date(year, month - 1), "MMMM yyyy")}
         </h2>
         <PageHeading
           heading="Earnings"
@@ -20,7 +23,10 @@ function RacePageHeading({
         />
       </div>
       <div className="mr-12 flex flex-col gap-1.5">
-        <RaceDatePicker handleMonthChange={handleMonthChange} />
+        <RaceDatePicker
+          chosenMonth={chosenMonth}
+          handleMonthChange={handleMonthChange}
+        />
       </div>
     </div>
   );
