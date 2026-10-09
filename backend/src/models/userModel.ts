@@ -453,7 +453,7 @@ export async function getRaceMonths() {
 export async function getMyGoal(userId: string, month: string) {
   const result = await pool.query(
     `
-    SELECT amount FROM monthly_goals WHERE user_id = $1 AND month = ($2 || '-01')::date
+    SELECT amount::float FROM monthly_goals WHERE user_id = $1 AND month = ($2 || '-01')::date
     LIMIT 1
   `,
     [userId, month],

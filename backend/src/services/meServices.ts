@@ -228,6 +228,10 @@ export async function updateMyGoal(userId: string, amount: number) {
     throw new AppError("Amount must be a valid number", 400);
   }
 
+  if (amount < 0) {
+    throw new AppError("Amount must be a non-negative number", 400);
+  }
+
   const updatedGoal = await userModel.updateMyGoal(userId, amount);
 
   return updatedGoal;

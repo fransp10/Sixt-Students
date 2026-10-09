@@ -1,27 +1,54 @@
+import { format } from "date-fns";
+import { useGetMyGoal } from "../../../hooks/auth/useGetMyGoal";
+import LoadingSpinner from "../../LoadingSpinner";
 import RacePageCardHeader from "./RacePageCardHeader";
+import { useState } from "react";
+import ChangeMonthlyGoalModal from "./ChangeMonthlyGoalModal";
 
 type RaceEarningsMonthlyGoalProps = {
   earned: number;
-  goal: number;
+  chosenMonth: string;
 };
 
 function RaceEarningsMonthlyGoal({
   earned,
-  goal,
+  chosenMonth,
 }: RaceEarningsMonthlyGoalProps) {
-  const pct = Math.min(earned / goal, 1); // 0 to 1, capped so it cant go past the goal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { data: goal, isLoading, isError } = useGetMyGoal(chosenMonth);
+
+  if (isLoading) {
+    return (
+      <div className=" col-span-1 row-span-1  flex flex-col items-center justify-center bg-cardLighterBG rounded-lg p-6 h-84">
+        <LoadingSpinner />;
+      </div>
+    );
+  }
+
+  if (isError || goal === undefined) {
+    return (
+      <div className=" col-span-1 row-span-1  flex flex-col items-center justify-center bg-cardLighterBG rounded-lg p-6 h-84">
+        <p className="text-primaryText">Error loading goal.</p>
+      </div>
+    );
+  }
+
+  const pct = Math.min(earned / goal.amount, 1); // 0 to 1, capped so it cant go past the goal
   const ARC = Math.PI * 100; // length of a half circle with radius 100
 
   const arc = "M20 130 A100 100 0 0 1 220 130"; // half circle path
-  const difference = Math.round((goal - earned) * 10) / 10;
-  const differencePct = Math.round((earned / goal) * 100);
+  const difference = Math.round((goal.amount - earned) * 10) / 10;
+  const differencePct = Math.round((earned / goal.amount) * 100);
+  const isChosenMonthCurrentMonth =
+    chosenMonth === format(new Date(), "yyyy-MM");
 
   return (
     <div className=" col-span-1 row-span-1  flex flex-col bg-cardLighterBG rounded-lg p-6 h-84">
       <RacePageCardHeader
         heading="Monthly Goal"
-        subheading={`Goal: ${goal}€`}
+        subheading={`Goal: ${goal.amount}€`}
       />
+
       <div className="flex flex-col mt-4 w-full items-center">
         <svg viewBox="0 0 240 140" className="w-60">
           {/* grey track */}
@@ -71,6 +98,20 @@ function RaceEarningsMonthlyGoal({
           )}
         </div>
       </div>
+      {isChosenMonthCurrentMonth && (
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="mt-2 text-sm cursor-pointer text-secondaryText p-2 bg-cardBG rounded-lg hover:bg-cardBG/70  transition-all"
+        >
+          Edit current month goal
+        </button>
+      )}
+      {isModalOpen && (
+        <ChangeMonthlyGoalModal
+          currentGoal={goal.amount}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

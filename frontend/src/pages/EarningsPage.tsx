@@ -46,8 +46,8 @@ function EarningsPage() {
       />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <RaceEarningsMonthlyGoal
+          chosenMonth={chosenMonth}
           earned={currentMonthEarnings ?? 0}
-          goal={600}
         />
         <Odometer
           earnings={myStats?.totalEarnings ?? 0}
