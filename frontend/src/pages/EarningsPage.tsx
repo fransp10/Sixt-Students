@@ -1,87 +1,70 @@
+import { format } from "date-fns";
+import RaceEarningsMonthlyGoal from "../components/student/RacePage/RaceEarningsMonthlyGoal";
+import Odometer from "../components/student/RacePage/Odometer";
+import Gear from "../components/student/RacePage/Gear";
+import Race from "../components/student/RacePage/Race";
+import Podium from "../components/student/RacePage/Podium";
+import Overtake from "../components/student/RacePage/Overtake";
+import Turbo from "../components/student/RacePage/Turbo";
+import { useGetMyStats } from "../hooks/useGetMyStats";
+import { useAuthContext } from "../hooks/auth/useAuthContext";
+import { useGetRaceStats } from "../hooks/useGetRaceStats";
 import { useState } from "react";
-import PageHeading from "../components/PageHeading";
-import StudentContractYearPicker from "../components/student/StudentContractYearPicker";
-import EarningsPageTableRow from "../components/student/EarningsPageTableRow";
-
-const dummyEarningsData = [
-  {
-    yearMonth: "January 2024",
-    hours: 160,
-    shifts: 20,
-    hourlyRate: 15,
-    earnings: 2400,
-  },
-  {
-    yearMonth: "February 2024",
-    hours: 140,
-    shifts: 18,
-    hourlyRate: 15,
-    earnings: 2100,
-  },
-  {
-    yearMonth: "March 2024",
-    hours: 150,
-    shifts: 19,
-    hourlyRate: 15,
-    earnings: 2250,
-  },
-];
+import RacePageHeading from "../components/student/RacePage/RacePageHeading";
 
 function EarningsPage() {
-  const dateStudentStartedWorking = new Date(2024, 0, 1);
-  const yearStudentStartedWorking = dateStudentStartedWorking.getFullYear();
-  const [selectedYear, setSelectedYear] = useState<number>(
-    yearStudentStartedWorking,
-  );
-  const [expandedMonths, setExpandedMonths] = useState<string[]>([]);
-  function handleClickMonth(month: string) {
-    setExpandedMonths((prevExpandedMonths) => {
-      if (prevExpandedMonths.includes(month)) {
-        return prevExpandedMonths.filter((m) => m !== month);
-      }
-      return [...prevExpandedMonths, month];
-    });
+  // "yyyy-MM", the same format the select options and the API use
+  const [chosenMonth, setChosenMonth] = useState(format(new Date(), "yyyy-MM"));
+  const { data: myStats, isLoading, isError } = useGetMyStats();
+  const { currentUser: me } = useAuthContext();
+  const {
+    data: raceStats,
+    isLoading: isLoadingRaceStats,
+    isError: isErrorRaceStats,
+  } = useGetRaceStats(chosenMonth);
+
+  const [chosenYear, chosenMonthNumber] = chosenMonth.split("-").map(Number);
+
+  if (isLoading || isLoadingRaceStats) {
+    return <div>Loading...</div>;
   }
-  const earningsToDisplay = dummyEarningsData.filter((earning) => {
-    return earning.yearMonth.split(" ")[1] === selectedYear.toString();
-  });
+  if (isError || isErrorRaceStats || !myStats || !raceStats) {
+    return <div>Error loading stats.</div>;
+  }
+
+  const currentMonthEarnings = myStats?.byMonth[chosenYear]?.find(
+    (monthData) => monthData.monthNumber === chosenMonthNumber,
+  )?.earnings;
+
+  const top3 = raceStats.slice(0, 3);
 
   return (
-    <div>
-      <PageHeading
-        heading="Earnings page"
-        subheading="See details about your earnings"
+    <div className=" flex flex-col gap-4">
+      <RacePageHeading
+        chosenMonth={chosenMonth}
+        handleMonthChange={setChosenMonth}
       />
-      <div className="mt-8 text-primaryText">
-        <div className="flex justify-center">
-          <StudentContractYearPicker
-            firstYearToDisplay={yearStudentStartedWorking}
-            selectedYear={selectedYear}
-            onYearChange={setSelectedYear}
-          />
-        </div>
-        <h1 className="text-xl font-bold">Earnings history</h1>
-        <div className="w-full overflow-x-auto rounded-lg border border-borderDividers bg-cardBG p-4">
-          <table className="w-full  border-collapse text-left text-sm">
-            <thead className=" text-primaryText uppercase">
-              <th className="px-4 py-2">Month</th>
-              <th className="px-4 py-2">Hours</th>
-              <th className="px-4 py-2">Shifts</th>
-              <th className="px-4 py-2">Hourly rate</th>
-              <th className="px-4 py-2">Earnings</th>
-            </thead>
-            <tbody>
-              {earningsToDisplay.map((earning) => (
-                <EarningsPageTableRow
-                  key={earning.yearMonth}
-                  handleClickMonth={handleClickMonth}
-                  earning={earning}
-                  isExpanded={expandedMonths.includes(earning.yearMonth)}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <RaceEarningsMonthlyGoal
+          chosenMonth={chosenMonth}
+          earned={currentMonthEarnings ?? 0}
+        />
+        <Odometer
+          earnings={myStats?.totalEarnings ?? 0}
+          hoursWorked={myStats?.totalHours ?? 0}
+          shifts={myStats?.totalShifts ?? 0}
+          hourlyRate={me?.default_hourly_rate ?? 0}
+        />
+        <Gear hoursWorked={myStats?.totalHours ?? 0} />
+        <Race raceStats={raceStats} />
+        <Podium top3={top3} currentMonth={chosenMonth} />
+        <Turbo
+          stats={myStats}
+          chosenYear={chosenYear}
+          chosenMonthNumber={chosenMonthNumber}
+        />
+
+        <Overtake raceStats={raceStats} />
       </div>
     </div>
   );

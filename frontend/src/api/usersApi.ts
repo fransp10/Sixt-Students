@@ -86,3 +86,31 @@ export async function getNextShiftForUser() {
 
   return res.data;
 }
+
+export async function getRaceStats(month?: string) {
+  let endpoint = `/me/race`;
+  if (month) {
+    month = format(new Date(month), "yyyy-MM");
+  }
+  if (month) {
+    endpoint += `?month=${month}`;
+  }
+
+  const res = await axiosClient.get(endpoint);
+  return res.data;
+}
+
+export async function getRaceMonths() {
+  const res = await axiosClient.get("/me/race/months");
+  return res.data;
+}
+
+export async function getMyGoal(month?: string): Promise<{ amount: number }> {
+  const res = await axiosClient.get(`/me/goal?month=${month}`);
+
+  return res.data;
+}
+
+export async function updateMyGoal(amount: number): Promise<{ amount: number }> {
+  return (await axiosClient.patch("/me/goal", { amount })).data;
+}

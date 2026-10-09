@@ -76,6 +76,8 @@ export type MonthStats = {
   hours: number;
   earnings: number;
   attendanceRate: number;
+  assigned: number;
+  noShows: number;
 };
 
 export type AverageMonthStats = {

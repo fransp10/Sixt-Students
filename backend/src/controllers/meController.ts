@@ -107,3 +107,44 @@ export async function getNextShift(req: Request, res: Response) {
 
   res.status(200).json(nextShiftAssignment);
 }
+
+export async function getRaceStats(
+  req: Request<{}, {}, {}, { month?: string }>,
+  res: Response,
+) {
+  const { month } = req.query;
+
+  const earningsStats = await meServices.getRaceStats(month);
+
+  res.status(200).json(earningsStats);
+}
+
+export async function getRaceMonths(req: Request, res: Response) {
+  const months = await userModel.getRaceMonths();
+
+  res.status(200).json(months);
+}
+
+export async function getMyGoal(
+  req: Request<{}, {}, {}, { month: string }>,
+  res: Response,
+) {
+  const userId = req.user!.id;
+  const { month } = req.query;
+
+  const goal = await meServices.getMyGoal(userId, month);
+
+  res.status(200).json(goal);
+}
+
+export async function updateMyGoal(
+  req: Request<{}, {}, { amount: number }>,
+  res: Response,
+) {
+  const userId = req.user!.id;
+  const { amount } = req.body;
+
+  const updatedGoal = await meServices.updateMyGoal(userId, amount);
+
+  res.status(200).json(updatedGoal);
+}

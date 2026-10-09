@@ -12,3 +12,7 @@ meRouter.patch("/password", meController.updateMyPassword);
 meRouter.get("/stats", meController.getMyStats);
 meRouter.get("/assignments", meController.getMyShiftAssignments);
 meRouter.get("/assignments/next", meController.getNextShift);
+meRouter.get("/race", meController.getRaceStats);
+meRouter.get("/race/months", meController.getRaceMonths);
+meRouter.get("/goal", meController.getMyGoal);
+meRouter.patch("/goal", meController.updateMyGoal);
