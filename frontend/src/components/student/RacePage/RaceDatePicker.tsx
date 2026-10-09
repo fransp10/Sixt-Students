@@ -10,7 +10,6 @@ function RaceDatePicker({
 }) {
   const { data: raceMonths, isLoading, isError } = useGetRaceMonths();
   const currentMonth = format(new Date(), "yyyy-MM");
-  console.log(currentMonth, chosenMonth);
 
   if (isLoading) {
     return <div>Loading...</div>;
