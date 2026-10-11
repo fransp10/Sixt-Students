@@ -3,6 +3,7 @@ import {
   UserMinusIcon,
 } from "@heroicons/react/24/outline";
 import type { Student } from "../../types/students";
+import { getFullName } from "../../helpers/helpers";
 import DangerZoneModal from "./DangerZoneModal";
 import { useState } from "react";
 
@@ -43,7 +44,7 @@ function DangerZoneCard({ student }: { student: Student | undefined }) {
               Deactivate student
             </p>
             <p className="text-xs sm:text-sm text-secondaryText">
-              {student?.name} will no longer be able to sign in or request
+              {getFullName(student)} will no longer be able to sign in or request
               shifts. You can reactivate their account later.
             </p>
           </div>

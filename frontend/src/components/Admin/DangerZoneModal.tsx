@@ -1,5 +1,6 @@
 import { createPortal } from "react-dom";
 import type { Student } from "../../types/students";
+import { getFullName } from "../../helpers/helpers";
 import { UserMinusIcon } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
 type DangerZoneModalProps = {
@@ -35,9 +36,9 @@ function DangerZoneModal({
           <div className="shrink-0 flex items-center justify-center size-18 bg-red-500/10 rounded-full">
             <UserMinusIcon className="w-12 h-12 text-red-500" />
           </div>
-          <p className="text-xl font-bold">Deactivate {student?.name}?</p>
+          <p className="text-xl font-bold">Deactivate {getFullName(student)}?</p>
           <p className="text-sm text-secondaryText text-center">
-            {student?.name} will no longer be able to sign in or request shifts.
+            {getFullName(student)} will no longer be able to sign in or request shifts.
             Existing shift and earnings history will remain available.
           </p>
         </div>

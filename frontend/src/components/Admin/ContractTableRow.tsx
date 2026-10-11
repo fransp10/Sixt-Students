@@ -1,13 +1,10 @@
 import { ClipboardIcon, EyeIcon } from "@heroicons/react/24/outline";
-import type { Student } from "../../types/students";
 
 function ContractTableRow({
   month,
-  student,
   status,
 }: {
   status: "approved" | "pending" | "rejected" | "not_uploaded";
-  student: Student | undefined;
   month: string;
 }) {
   const statusColors = {

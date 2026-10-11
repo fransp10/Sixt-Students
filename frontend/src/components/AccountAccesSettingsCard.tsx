@@ -1,5 +1,6 @@
 import { KeyIcon } from "@heroicons/react/24/outline";
 import type { Student } from "../types/students";
+import { getFullName } from "../helpers/helpers";
 
 function AccountAccesSettingsCard({
   student,
@@ -33,7 +34,7 @@ function AccountAccesSettingsCard({
           id="username"
           inputMode="text"
           disabled
-          value={student?.name}
+          value={student?.username ?? ""}
           className="w-full rounded-lg border border-borderDividers bg-cardLighterBG px-4 py-2 text-sm text-secondaryText sm:w-32"
         />
       </div>
@@ -43,7 +44,7 @@ function AccountAccesSettingsCard({
         <div>
           <p className="font-medium text-primaryText">Password</p>
           <p className="mt-1 text-sm text-secondaryText ">
-            Send {student?.name} a password reset link to her email address.
+            Send {getFullName(student)} a password reset link to their email address.
           </p>
         </div>
         <button

@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import type { NavItemType } from "../types/navItem";
+import type { NavItemType } from "../types/NavItem";
 
 function NavItem({ icon: Icon, label, to, end }: NavItemType) {
   return (

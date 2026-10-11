@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import AppNav from "../components/AppNav";
-import type { NavItemType } from "../types/navItem";
+import type { NavItemType } from "../types/NavItem";
 
 type AppLayoutProps = {
   navItems: NavItemType[];
