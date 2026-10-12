@@ -121,3 +121,25 @@ export async function getUserById(userId: string) {
   const res = await axiosClient.get(`/users/${userId}`);
   return res.data;
 }
+
+export async function sendPasswordResetEmail(userId: string, email: string) {
+  const res = await axiosClient.post(`/users/${userId}/password-reset`, {
+    email,
+  });
+  return res.data;
+}
+
+export async function resetPassword(token: string, newPassword: string) {
+  const res = await axiosClient.post(`/auth/reset-password`, {
+    token,
+    newPassword,
+  });
+  return res.data;
+}
+
+export async function checkPasswordResetToken(token: string) {
+  const res = await axiosClient.post(`/auth/reset-password/validate`, {
+    token,
+  });
+  return res.data;
+}

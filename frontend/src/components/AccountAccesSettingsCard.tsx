@@ -4,11 +4,7 @@ import { getFullName } from "../helpers/helpers";
 import { useState } from "react";
 import ResetPasswordModal from "./Admin/ResetPasswordModal";
 
-function AccountAccesSettingsCard({
-  student,
-}: {
-  student: Student | undefined;
-}) {
+function AccountAccesSettingsCard({ student }: { student: Student }) {
   console.log("student", student);
 
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] =

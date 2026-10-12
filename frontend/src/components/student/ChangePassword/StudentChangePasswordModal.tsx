@@ -1,14 +1,12 @@
-import {
-  LockClosedIcon,
-  StopIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+import { LockClosedIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import PasswordInput from "./PasswordInput";
 import { useChangeMyPassword } from "../../../hooks/useChangeMyPassword";
 import { getErrorMessage } from "../../../helpers/getErrorMessage";
 import LoadingSpinner from "../../LoadingSpinner";
-import SuccessView from "./SuccessView";
+import { isPasswordRequirementsMet } from "../../../helpers/passwordRequirments";
+import PasswordRequirements from "../../PasswordRequirements";
+import SuccessView from "../../SuccessView";
 
 function StudentChangePasswordModal({
   handleCloseModal,
@@ -26,22 +24,16 @@ function StudentChangePasswordModal({
     isSuccess,
     reset,
   } = useChangeMyPassword();
-  const requirements = [
-    { label: "At least 8 characters", met: newPassword.length >= 8 },
-    { label: "Contains a number", met: /\d/.test(newPassword) },
-    {
-      label: "Different from your current password",
-      met: newPassword !== "" && newPassword !== currentPassword,
-    },
-  ];
 
   const isPasswordMatch =
     newPassword === "" ||
     confirmNewPassword === "" ||
     newPassword === confirmNewPassword;
 
-  const isRequirementsMet = requirements.every(
-    (requirement) => requirement.met,
+  const { isRequirementsMet, requirements } = isPasswordRequirementsMet(
+    newPassword,
+    "change",
+    currentPassword,
   );
 
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
@@ -84,7 +76,11 @@ function StudentChangePasswordModal({
           </div>
         )}
         {isSuccess ? (
-          <SuccessView handleCloseModal={handleCloseModal} />
+          <SuccessView
+            heading="Password updated"
+            message="Use your new password the next time you sign in."
+            handleCloseModal={handleCloseModal}
+          />
         ) : (
           <div className="flex flex-col gap-4 p-6">
             {/* HEADER */}
@@ -120,26 +116,7 @@ function StudentChangePasswordModal({
                   placeholder="Your new password"
                   setValue={setNewPassword}
                 />
-                <div>
-                  <ul className="flex flex-col gap-1 mt-2 text-sm text-secondaryText">
-                    {requirements.map((requirement) => (
-                      <li
-                        key={requirement.label}
-                        className="flex items-center gap-1"
-                      >
-                        {requirement.met ? (
-                          <StopIcon className="size-6 text-success fill-success" />
-                        ) : (
-                          <StopIcon className="size-6 " />
-                        )}
-
-                        <p className={`${requirement.met && "text-success"}`}>
-                          {requirement.label}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <PasswordRequirements requirements={requirements} />
               </div>
               <div>
                 <PasswordInput
