@@ -5,13 +5,11 @@ import { useState } from "react";
 import ResetPasswordModal from "./Admin/ResetPasswordModal";
 
 function AccountAccesSettingsCard({ student }: { student: Student }) {
-  console.log("student", student);
-
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] =
     useState(false);
 
   return (
-    <div className="flex flex-1 flex-col bg-cardLighterBG rounded-lg p-4 gap-4">
+    <div className="flex flex-1 flex-col bg-cardBG rounded-lg p-4 gap-4">
       <div className="flex  items-center gap-4">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-icons/20">
           <KeyIcon className="size-6 text-primary" />
@@ -53,8 +51,8 @@ function AccountAccesSettingsCard({ student }: { student: Student }) {
         </div>
         <button
           onClick={() => setIsResetPasswordModalOpen(true)}
-          className="w-full rounded-lg border border-borderDividers bg-cardLighterBG 
-                px-4 py-2 text-sm font-medium text-secondaryText transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-primaryText sm:w-auto text-nowrap cursor-pointer"
+          className="w-full rounded-lg border border-borderDividers bg-cardBG 
+                px-4 py-2 text-sm font-medium text-primaryText transition-colors hover:bg-cardLighterBG sm:w-auto text-nowrap cursor-pointer"
         >
           Reset password
         </button>

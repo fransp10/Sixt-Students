@@ -8,6 +8,7 @@ function AdminChosenStudentManagePage() {
   const { userId } = useParams<{ userId: string }>();
 
   const { data: student, isLoading, isError } = useGetUserById(userId!);
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
