@@ -4,10 +4,14 @@ import StudentsInTheShiftList from "./StudentsInTheShiftList";
 import { CalendarDateRangeIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
 import StudentsRequestingShfitList from "./StudentsRequestingShfitList";
-import type { ShiftWithStudentsAndRequesters } from "../../types/Shift";
+import type {
+  ShiftStatus,
+  ShiftWithStudentsAndRequesters,
+} from "../../types/Shift";
 import { useRequestShift } from "../../hooks/auth/useRequestShift";
 import { useCurrentUser } from "../../hooks/auth/useCurrentUser";
 import { useDeleteShiftRequest } from "../../hooks/auth/useDeleteShiftRequest";
+import { getShiftStatus } from "../../helpers/getShiftStatus";
 
 type StudentScheduleCalendarModalProps = {
   onClose: () => void;
@@ -36,6 +40,10 @@ function StudentScheduleCalendarModal({
   const shiftDeleteRequestMutation = useDeleteShiftRequest();
 
   if (!shift) {
+    return null;
+  }
+
+  if (!currentUser) {
     return null;
   }
 
@@ -74,11 +82,7 @@ function StudentScheduleCalendarModal({
     });
   }
 
-  const isShiftRequestedByStudent =
-    studentsRequestingShift.some((student) => student.id === currentUser?.id) ??
-    false;
-
-  const hasShiftPassed = new Date(shift.date) < new Date();
+  const shiftStatus: ShiftStatus = getShiftStatus(shift, currentUser.id);
 
   return (
     <div
@@ -104,7 +108,7 @@ function StudentScheduleCalendarModal({
               <p className="text-secondaryText text-base">{shiftTime}</p>
             </div>
           </div>
-          {hasShiftPassed && (
+          {shiftStatus === "passed" && (
             <div className="flex items-center gap-3 w-full sm:w-auto px-4 py-3 rounded-lg border border-warning/30 bg-warning/10 text-primaryText">
               <ClockIcon className="size-6 shrink-0 text-warning" />
               <div className="flex flex-col">
@@ -118,7 +122,7 @@ function StudentScheduleCalendarModal({
               </div>
             </div>
           )}
-          {isShiftRequestedByStudent && (
+          {shiftStatus === "requested" && (
             <div className="flex items-center gap-3 w-full sm:w-auto px-4 py-3 mr-8 rounded-lg border border-success/30 bg-success/10 text-primaryText">
               <CheckCircleIcon className="size-6 shrink-0 text-success" />
               <div className="flex flex-col">
@@ -172,7 +176,7 @@ function StudentScheduleCalendarModal({
         <div className="flex  flex-col gap-2  sm:flex-row items-center justify-between p-0">
           <p className="text-sm text-secondaryText">Want to work this shift?</p>
 
-          {isShiftRequestedByStudent && !hasShiftPassed ? (
+          {shiftStatus === "requested" ? (
             <button
               type="button"
               onClick={handleDeleteShiftRequest}
@@ -182,7 +186,9 @@ function StudentScheduleCalendarModal({
               Delete shift request
             </button>
           ) : (
-            !hasShiftPassed && (
+            shiftStatus !== "passed" &&
+            shiftStatus !== "ongoing" &&
+            shiftStatus !== "assigned" && (
               <button
                 type="button"
                 onClick={handleRequestShift}

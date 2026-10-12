@@ -2,6 +2,13 @@ import type { StudentAssigned, StudentRequesting } from "./students";
 
 export type ShiftType = "morning" | "middle" | "afternoon";
 
+export type ShiftStatus =
+  | "passed"
+  | "requested"
+  | "assigned"
+  | "ongoing"
+  | "available";
+
 export type StudentShort = {
   id: number;
   name: string;
