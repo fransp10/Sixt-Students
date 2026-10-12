@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { fakeStudents } from "../../helpers/helpers";
+import { fakeStudents, getFullName } from "../../helpers/helpers";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -39,7 +39,7 @@ function AdminChosenStudentContractsPage() {
           <div className="flex flex-col items-start">
             <p className="text-xl font-bold">Contracts</p>
             <p className="text-base text-secondaryText">
-              View and manage {student?.name}'s contracts
+              View and manage {getFullName(student)}'s contracts
             </p>
           </div>
         </div>
@@ -75,7 +75,7 @@ function AdminChosenStudentContractsPage() {
         </div>
       </div>
       {/* TABLE */}
-      <ContractsTable student={student} tableRowMonths={tableRowMonths} />
+      <ContractsTable tableRowMonths={tableRowMonths} />
     </div>
   );
 }

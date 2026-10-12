@@ -1,12 +1,9 @@
-import type { Student } from "../../types/students";
 import ContractTableRow from "./ContractTableRow";
 
 function ContractsTable({
   tableRowMonths,
-  student,
 }: {
   tableRowMonths: string[];
-  student: Student | undefined;
 }) {
   return (
     <div className="overflow-hidden rounded-lg border border-borderDividers">
@@ -37,7 +34,6 @@ function ContractsTable({
           {tableRowMonths.map((month) => (
             <ContractTableRow
               status="pending"
-              student={student}
               key={month}
               month={month}
             />

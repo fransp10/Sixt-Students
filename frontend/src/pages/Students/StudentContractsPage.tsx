@@ -1,4 +1,3 @@
-import { fakeStudents } from "../../helpers/helpers";
 import {
   addMonths,
   eachMonthOfInterval,
@@ -12,7 +11,6 @@ import PageHeading from "../../components/PageHeading";
 
 function StudentContractsPage() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const student = fakeStudents[0];
   const currentYear = new Date().getFullYear();
   const currentDate = new Date();
   const dateStudentStartedWork = new Date(2024, 2, 22); // January 1, 2024

@@ -1,5 +1,5 @@
 import sixtStudentsLogo from "../assets/sixtStudentsLogo.png";
-import type { NavItemType } from "../types/navItem";
+import type { NavItemType } from "../types/NavItem";
 import LogoutButton from "./LogoutButton";
 import NavItem from "./NavItem";
 

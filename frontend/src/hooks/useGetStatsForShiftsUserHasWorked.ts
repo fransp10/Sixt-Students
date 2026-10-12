@@ -18,7 +18,7 @@ export function useGetStatsForShiftsUserHasWorked(
   });
 
   if (isLoading) return { status: "loading" };
-  if (isError) return { status: "error" };
+  if (isError || !data) return { status: "error" };
 
   return { data: data, status: "success" };
 }

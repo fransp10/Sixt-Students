@@ -7,7 +7,7 @@ import {
   Cog6ToothIcon,
   DocumentTextIcon,
 } from "@heroicons/react/24/outline";
-import type { NavItemType } from "../types/navItem";
+import type { NavItemType } from "../types/NavItem";
 
 export const adminNavItems: NavItemType[] = [
   {
