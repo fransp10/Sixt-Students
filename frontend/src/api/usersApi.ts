@@ -150,3 +150,13 @@ export async function updateUserHourlyRate(userId: string, hourlyRate: number) {
   });
   return res.data;
 }
+
+export async function deactivateUser(userId: string) {
+  const res = await axiosClient.patch(`/users/${userId}/deactivate`);
+  return res.data;
+}
+
+export async function activateUser(userId: string) {
+  const res = await axiosClient.patch(`/users/${userId}/activate`);
+  return res.data;
+}

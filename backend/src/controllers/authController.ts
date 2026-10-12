@@ -27,3 +27,25 @@ export function logoutUser(req: Request, res: Response) {
 
   res.status(200).json({ message: "Logout successful" });
 }
+
+export async function resetPassword(
+  req: Request<{}, unknown, { token: string; newPassword: string }>,
+  res: Response,
+): Promise<void> {
+  const { token, newPassword } = req.body;
+
+  const message = await authServices.resetPassword(token, newPassword);
+
+  res.status(200).json(message);
+}
+
+export async function validateResetToken(
+  req: Request<{}, unknown, { token: string }>,
+  res: Response,
+): Promise<void> {
+  const { token } = req.body;
+
+  const message = await authServices.validateResetToken(token);
+
+  res.status(200).json(message);
+}

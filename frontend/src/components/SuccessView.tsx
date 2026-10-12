@@ -10,7 +10,7 @@ function SuccessView({
   message: string;
 }) {
   return (
-    <div className="flex flex-col items-center text-center gap-4 py-10 px-6 h-82">
+    <div className="flex flex-col items-center text-center gap-4 py-10 px-6 h-82 w-full max-w-md rounded-lg justify-center  bg-cardBG border border-borderDividers text-primaryText p-4">
       <div className="bg-success/10 p-3 rounded-full">
         <CheckCircleIcon className="size-10 text-success" />
       </div>

@@ -7,6 +7,7 @@ import { isValidPhone } from "../helpers/isValidPhone.js";
 import argon2 from "argon2";
 import { isValidMonth } from "../helpers/isValidMonth.js";
 import { DEFAULT_GOAL_AMOUNT } from "../helpers/constants.js";
+import { isPasswordRequirementsMet } from "../helpers/isPasswordRequirementsMet.js";
 export async function checkMe(userId: string) {
   const user = await getUserById(userId);
 
@@ -134,16 +135,13 @@ export async function updateMyPassword(
   const trimedCurrentPassword = currentPassword.trim();
   const trimedNewPassword = newPassword.trim();
 
-  const requirements = [
-    { met: trimedNewPassword.length >= 8 },
-    { met: /\d/.test(trimedNewPassword) },
-    {
-      met:
-        trimedNewPassword !== "" && trimedNewPassword !== trimedCurrentPassword,
-    },
-  ];
+  const { isRequirementsMet } = isPasswordRequirementsMet(
+    trimedNewPassword,
+    "update",
+    trimedCurrentPassword,
+  );
 
-  if (!requirements.every((requirement) => requirement.met)) {
+  if (!isRequirementsMet) {
     throw new AppError("New password does not meet the requirements", 400);
   }
 

@@ -472,3 +472,28 @@ export async function updateMyGoal(userId: string, amount: number) {
 
   return result.rows[0];
 }
+export async function storePasswordResetToken(
+  userId: string,
+  resetTokenHash: string,
+): Promise<void> {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query(
+      ` UPDATE password_reset_tokens SET used_at = now() WHERE user_id = $1 and used_at IS NULL;`,
+      [userId],
+    );
+    await client.query(
+      `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
+       VALUES ($1, $2, now() + INTERVAL '1 hour')`,
+      [userId, resetTokenHash],
+    );
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+  // Had to use a transaction to ensure that any previous unused tokens for the user are marked as used before inserting a new token. This prevents multiple valid tokens from existing for the same user at the same time.
+}
