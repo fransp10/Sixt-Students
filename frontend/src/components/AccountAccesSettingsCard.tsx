@@ -1,12 +1,19 @@
 import { KeyIcon } from "@heroicons/react/24/outline";
 import type { Student } from "../types/students";
 import { getFullName } from "../helpers/helpers";
+import { useState } from "react";
+import ResetPasswordModal from "./Admin/ResetPasswordModal";
 
 function AccountAccesSettingsCard({
   student,
 }: {
   student: Student | undefined;
 }) {
+  console.log("student", student);
+
+  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] =
+    useState(false);
+
   return (
     <div className="flex flex-1 flex-col bg-cardLighterBG rounded-lg p-4 gap-4">
       <div className="flex  items-center gap-4">
@@ -44,16 +51,24 @@ function AccountAccesSettingsCard({
         <div>
           <p className="font-medium text-primaryText">Password</p>
           <p className="mt-1 text-sm text-secondaryText ">
-            Send {getFullName(student)} a password reset link to their email address.
+            Send {getFullName(student)} a password reset link to their email
+            address.
           </p>
         </div>
         <button
+          onClick={() => setIsResetPasswordModalOpen(true)}
           className="w-full rounded-lg border border-borderDividers bg-cardLighterBG 
-                px-4 py-2 text-sm font-medium text-secondaryText transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-primaryText sm:w-auto text-nowrap"
+                px-4 py-2 text-sm font-medium text-secondaryText transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-primaryText sm:w-auto text-nowrap cursor-pointer"
         >
           Reset password
         </button>
       </div>
+      {isResetPasswordModalOpen && (
+        <ResetPasswordModal
+          student={student}
+          handleClose={() => setIsResetPasswordModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

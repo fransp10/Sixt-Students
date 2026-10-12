@@ -111,6 +111,13 @@ export async function getMyGoal(month?: string): Promise<{ amount: number }> {
   return res.data;
 }
 
-export async function updateMyGoal(amount: number): Promise<{ amount: number }> {
+export async function updateMyGoal(
+  amount: number,
+): Promise<{ amount: number }> {
   return (await axiosClient.patch("/me/goal", { amount })).data;
+}
+
+export async function getUserById(userId: string) {
+  const res = await axiosClient.get(`/users/${userId}`);
+  return res.data;
 }
