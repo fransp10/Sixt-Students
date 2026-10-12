@@ -143,3 +143,10 @@ export async function checkPasswordResetToken(token: string) {
   });
   return res.data;
 }
+
+export async function updateUserHourlyRate(userId: string, hourlyRate: number) {
+  const res = await axiosClient.patch(`/users/${userId}`, {
+    default_hourly_rate: hourlyRate,
+  });
+  return res.data;
+}
