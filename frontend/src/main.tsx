@@ -31,6 +31,7 @@ import RequireRole from "./pages/RequireRole.tsx";
 import Unauthorized from "./pages/Error/Unauthorized.tsx";
 import { AuthContextProvider } from "./context/Providers/AuthContexProvider.tsx";
 import ShiftHistoryPage from "./components/Admin/ShiftHistoryPage.tsx";
+import ResetPasswordPage from "./pages/ResetPasswordPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -147,6 +148,7 @@ const router = createBrowserRouter([
     path: "/login",
     element: <Login />,
   },
+  { path: "/reset-password/", element: <ResetPasswordPage /> },
   { path: "/unauthorized", element: <Unauthorized /> },
   { path: "*", element: <NotFoundPage /> },
 ]);

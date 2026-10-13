@@ -111,6 +111,52 @@ export async function getMyGoal(month?: string): Promise<{ amount: number }> {
   return res.data;
 }
 
-export async function updateMyGoal(amount: number): Promise<{ amount: number }> {
+export async function updateMyGoal(
+  amount: number,
+): Promise<{ amount: number }> {
   return (await axiosClient.patch("/me/goal", { amount })).data;
+}
+
+export async function getUserById(userId: string) {
+  const res = await axiosClient.get(`/users/${userId}`);
+  return res.data;
+}
+
+export async function sendPasswordResetEmail(userId: string, email: string) {
+  const res = await axiosClient.post(`/users/${userId}/password-reset`, {
+    email,
+  });
+  return res.data;
+}
+
+export async function resetPassword(token: string, newPassword: string) {
+  const res = await axiosClient.post(`/auth/reset-password`, {
+    token,
+    newPassword,
+  });
+  return res.data;
+}
+
+export async function checkPasswordResetToken(token: string) {
+  const res = await axiosClient.post(`/auth/reset-password/validate`, {
+    token,
+  });
+  return res.data;
+}
+
+export async function updateUserHourlyRate(userId: string, hourlyRate: number) {
+  const res = await axiosClient.patch(`/users/${userId}`, {
+    default_hourly_rate: hourlyRate,
+  });
+  return res.data;
+}
+
+export async function deactivateUser(userId: string) {
+  const res = await axiosClient.patch(`/users/${userId}/deactivate`);
+  return res.data;
+}
+
+export async function activateUser(userId: string) {
+  const res = await axiosClient.patch(`/users/${userId}/activate`);
+  return res.data;
 }

@@ -12,6 +12,8 @@ import {
 } from "../types/User.js";
 import { UserStats } from "../types/Shift.js";
 import { isValid } from "date-fns";
+import { sendPasswordResetEmail } from "./emailServices.js";
+import { isValidEmail } from "../helpers/isValidEmail.js";
 
 export async function createUser(
   data: CreateUserReqBodyType,
@@ -92,4 +94,41 @@ export async function getStatsForUser(
   const stats = await userModel.getStatsForUser(userId, startDate, endDate);
 
   return stats;
+}
+
+export async function sendPasswordResetLink(
+  userId: string,
+  email: string,
+): Promise<void> {
+  if (!userId) {
+    throw new AppError("User ID is required", 400);
+  }
+
+  if (!email) {
+    throw new AppError("Email is required", 400);
+  }
+
+
+  if (!isValidEmail(email)) {
+    throw new AppError("Invalid email format", 400);
+  }
+
+  const user = await userModel.getUserById(userId);
+
+  if (!user) {
+    throw new AppError(`User with id ${userId} not found`, 404);
+  }
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const resetTokenHash = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  await userModel.storePasswordResetToken(userId, resetTokenHash);
+
+  const link = new URL("/reset-password", process.env.FRONTEND_URL);
+  link.searchParams.set("token", resetToken);
+
+  await sendPasswordResetEmail(email, link.toString());
 }

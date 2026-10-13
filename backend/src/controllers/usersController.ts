@@ -133,3 +133,16 @@ export async function getStatsForUser(
 
   res.status(200).json(user);
 }
+
+export async function sendPasswordResetLink(
+  req: Request<{ userId: string }, unknown, { email: string }>,
+  res: Response,
+): Promise<void> {
+  const { userId } = req.params;
+  const { email } = req.body;
+
+  // Call the service function to send the password reset link
+  await UserServices.sendPasswordResetLink(userId, email);
+
+  res.status(200).json({ message: "Password reset link sent successfully" });
+}

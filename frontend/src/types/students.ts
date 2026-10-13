@@ -7,6 +7,7 @@ export type Student = {
   last_name: string;
   default_hourly_rate: number;
   created_at: string;
+  is_active: boolean;
 };
 
 export type StudentAssigned = StudentRequesting & {

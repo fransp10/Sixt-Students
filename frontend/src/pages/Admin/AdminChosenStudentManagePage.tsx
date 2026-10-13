@@ -1,13 +1,20 @@
 import { useParams } from "react-router-dom";
-import { fakeStudents } from "../../helpers/helpers";
 import AccountAccesSettingsCard from "../../components/AccountAccesSettingsCard";
 import WorkSettingsCard from "../../components/WorkSettingsCard";
 import DangerZoneCard from "../../components/Admin/DangerZoneCard";
+import { useGetUserById } from "../../hooks/useGetUserById";
 
 function AdminChosenStudentManagePage() {
-  const studentId = useParams().studentId;
+  const { userId } = useParams<{ userId: string }>();
 
-  const student = fakeStudents.find((student) => student.id === studentId);
+  const { data: student, isLoading, isError } = useGetUserById(userId!);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (isError) {
+    return <div>Error loading student data</div>;
+  }
 
   return (
     <div className="flex flex-col gap-4 p-4">

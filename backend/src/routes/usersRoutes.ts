@@ -21,4 +21,9 @@ userRouter.get(
   userController.getShiftAssignmentsByUserId,
 );
 
+userRouter.post(
+  "/:userId/password-reset",
+  userController.sendPasswordResetLink,
+);
+
 export default userRouter;
