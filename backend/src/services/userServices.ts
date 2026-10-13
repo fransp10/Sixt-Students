@@ -33,7 +33,7 @@ export async function createUser(
     if (
       error instanceof DatabaseError &&
       error.code === "23505" &&
-      error.constraint === "users_username_key"
+      error.constraint === "users_username_unique"
     ) {
       throw new AppError("Username already exists", 409);
     }

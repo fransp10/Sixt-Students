@@ -1,7 +1,11 @@
 import { Navigate } from "react-router-dom";
 import { useCurrentUser } from "../../../hooks/auth/useCurrentUser";
 
-function DashboardHeader() {
+function DashboardHeader({
+  subheading = "Here's an overview of your activities",
+}: {
+  subheading?: string;
+}) {
   const currentTime = new Date().getHours();
   const { data: user } = useCurrentUser();
 
@@ -27,7 +31,7 @@ function DashboardHeader() {
         {greeting}, {user.first_name}!
       </h1>
       <p className="text-base md:text-xl text-secondaryText font-semibold">
-        Here's an overview of your activities
+        {subheading}
       </p>
     </div>
   );
