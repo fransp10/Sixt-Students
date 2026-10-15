@@ -1,11 +1,11 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { createPortal } from "react-dom";
-import CreateStudentInput from "../../CreateStudentInput";
+import CreateStudentInput from "./CreateStudentInput";
 import { useState } from "react";
 import { generateUsername } from "../../../helpers/generateUsername";
 import FirstTimeSignInOptionButton from "./FirstTimeSignInOptionButton";
-import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
+import CreateStudentDateInput from "./CreateStudentDateInput";
 type CreateStudentModalProps = {
   handleCloseModal: () => void;
 };
@@ -14,7 +14,7 @@ function CreateStudentModal({ handleCloseModal }: CreateStudentModalProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [dob, setDob] = useState<Date>();
+  const [dob, setDob] = useState<Date | undefined>(undefined);
   const [hourlyRate, setHourlyRate] = useState("");
   const [firstSignInOption, setFirstSignInOption] = useState<
     "email" | "tempPassword" | null
@@ -49,6 +49,12 @@ function CreateStudentModal({ handleCloseModal }: CreateStudentModalProps) {
               placeholder="8.56"
               value={hourlyRate}
               setter={setHourlyRate}
+            />
+
+            <CreateStudentDateInput
+              label="Date of birth"
+              onChange={setDob}
+              value={dob}
             />
             <CreateStudentInput
               label="Email (optional)"
