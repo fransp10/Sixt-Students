@@ -4,7 +4,6 @@ import CreateStudentInput from "./CreateStudentInput";
 import { useState } from "react";
 import { generateUsername } from "../../../helpers/generateUsername";
 import FirstTimeSignInOptionButton from "./FirstTimeSignInOptionButton";
-import "react-day-picker/style.css";
 import CreateStudentDateInput from "./CreateStudentDateInput";
 type CreateStudentModalProps = {
   handleCloseModal: () => void;
@@ -23,7 +22,7 @@ function CreateStudentModal({ handleCloseModal }: CreateStudentModalProps) {
 
   return createPortal(
     <div className="fixed flex items-center justify-center inset-0 bg-black/60">
-      <div className="w-lg bg-cardBG p-4 border border-borderDividers rounded-lg text-primaryText relative">
+      <div className=" bg-cardBG p-4 border border-borderDividers rounded-lg text-primaryText relative">
         <div className="overflow-y-auto scrollbar-thin">
           <h1 className="text-xl font-semibold">Add a student</h1>
           <h2 className="text-sm font-semibold text-secondaryText">
