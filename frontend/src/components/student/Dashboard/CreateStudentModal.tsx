@@ -2,9 +2,8 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { createPortal } from "react-dom";
 import CreateStudentInput from "./CreateStudentInput";
 import { useState } from "react";
-import { generateUsername } from "../../../helpers/generateUsername";
-import FirstTimeSignInOptionButton from "./FirstTimeSignInOptionButton";
 import CreateStudentDateInput from "./CreateStudentDateInput";
+import CreateStudentInputRadtioButton from "./CreateStudentInputRadtioButton";
 type CreateStudentModalProps = {
   handleCloseModal: () => void;
 };
@@ -12,13 +11,18 @@ type CreateStudentModalProps = {
 function CreateStudentModal({ handleCloseModal }: CreateStudentModalProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [role, setRole] = useState<"student" | "admin">("student");
   const [email, setEmail] = useState("");
   const [dob, setDob] = useState<Date | undefined>(undefined);
   const [hourlyRate, setHourlyRate] = useState("");
   const [firstSignInOption, setFirstSignInOption] = useState<
     "email" | "tempPassword" | null
   >(null);
-  const username = generateUsername(firstName, lastName);
+
+  // function handleCreateStudent() {
+  //   if (!firstName || !lastName || !dob || !hourlyRate || !firstSignInOption) {
+  //   }
+  // }
 
   return createPortal(
     <div className="fixed flex items-center justify-center inset-0 bg-black/60">
@@ -31,12 +35,14 @@ function CreateStudentModal({ handleCloseModal }: CreateStudentModalProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
             <CreateStudentInput
+              required={true}
               label="First name"
               placeholder="Fran"
               value={firstName}
               setter={setFirstName}
             />
             <CreateStudentInput
+              required={true}
               label="Last name"
               placeholder="Sipek"
               value={lastName}
@@ -44,38 +50,55 @@ function CreateStudentModal({ handleCloseModal }: CreateStudentModalProps) {
             />
 
             <CreateStudentInput
-              label="Hourly rate"
+              required={role === "admin" ? false : true}
+              label={`Hourly rate ${role === "admin" ? "(optional)" : "(required)"}`}
               placeholder="8.56"
               value={hourlyRate}
               setter={setHourlyRate}
             />
 
             <CreateStudentDateInput
-              label="Date of birth"
+              required={role === "admin" ? false : true}
+              label={`Date of birth ${role === "admin" ? "(optional)" : "(required)"}`}
               onChange={setDob}
               value={dob}
             />
             <CreateStudentInput
-              label="Email (optional)"
-              style={"col-span-full"}
+              required={firstSignInOption === "email"}
+              label={`Email ${firstSignInOption === "email" ? "(required)" : "(optional)"}`}
+              style={`col-span-full`}
               placeholder="fran.sipek@example.com"
               value={email}
               setter={setEmail}
             />
+            <div className="col-span-full flex flex-col gap-2">
+              <h2 className="text-sm font-semibold">Role for the new user</h2>
+              <div className="flex flex-col md:flex-row gap-2">
+                <CreateStudentInputRadtioButton
+                  label="Student"
+                  onSelect={() => setRole("student")}
+                  selected={role === "student"}
+                  disabled={role === "student"}
+                />
+                <CreateStudentInputRadtioButton
+                  label="Admin"
+                  onSelect={() => setRole("admin")}
+                  selected={role === "admin"}
+                  disabled={role === "admin"}
+                />
+              </div>
+            </div>
           </div>
-          <div className="text-xs font-semibold mt-2">
-            <span className="text-secondaryText">Username: </span>
-            <span className="text-primaryText">{username}</span>
-          </div>
+
           <h2 className="text-sm font-semibold mt-2">First sign-in option</h2>
           <div className="flex flex-col md:flex-row gap-2 col-span-full mt-2">
-            <FirstTimeSignInOptionButton
+            <CreateStudentInputRadtioButton
               label="Email setup link"
               onSelect={() => setFirstSignInOption("email")}
               selected={firstSignInOption === "email"}
               disabled={firstSignInOption === "email"}
             />
-            <FirstTimeSignInOptionButton
+            <CreateStudentInputRadtioButton
               label="Temporary password"
               onSelect={() => setFirstSignInOption("tempPassword")}
               selected={firstSignInOption === "tempPassword"}

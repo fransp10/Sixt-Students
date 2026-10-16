@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 import AppError from "../errors/AppError.js";
 import * as Users from "../models/userModel.js";
 import {
+  CreatedUser,
   CreateUserReqBodyType,
   UserRoles,
   UserWithoutPassword,
-  UserWithPassword,
 } from "../types/User.js";
 import * as UserServices from "../services/userServices.js";
 export async function getUsers(
@@ -36,22 +36,12 @@ export async function getUserById(
 
 export async function createUser(
   req: Request<{}, unknown, CreateUserReqBodyType>,
-  res: Response<UserWithPassword>,
+  res: Response<CreatedUser>,
 ): Promise<void> {
-  const { username, user_role, default_hourly_rate } = req.body;
+  // The service validates the body and only picks the fields it knows
+  const createdUser = await UserServices.createUser(req.body);
 
-  if (!username) {
-    throw new AppError("Missing username field", 400);
-  }
-  if (!default_hourly_rate) {
-    throw new AppError("Missing defaultHourlyRate field", 400);
-  }
-  if (!user_role) {
-    throw new AppError("Missing userRole field", 400);
-  }
-
-  const result: UserWithPassword = await UserServices.createUser(req.body);
-  res.status(201).json(result);
+  res.status(201).json(createdUser);
 }
 
 export async function updateUser(

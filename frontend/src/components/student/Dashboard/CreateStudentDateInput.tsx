@@ -3,6 +3,7 @@ import { useState } from "react";
 import { MINIMUM_STUDENT_AGE } from "../../../helpers/constants";
 
 type CreateStudentDateInputProps = {
+  required?: boolean;
   label: string;
   value?: Date;
   onChange: (date?: Date) => void;
@@ -41,6 +42,7 @@ function toDate({ day, month, year }: DateParts): Date | null {
 }
 
 function CreateStudentDateInput({
+  required = true,
   label,
   value,
   onChange,
@@ -77,11 +79,14 @@ function CreateStudentDateInput({
 
   return (
     <fieldset>
-      <legend className="text-sm text-primaryText font-semibold mb-1">
+      <legend
+        className={`text-sm font-semibold mb-1 ${required ? "text-primaryText" : "text-secondaryText"}`}
+      >
         {label}
       </legend>
       <div className="flex gap-2">
         <input
+          required={required}
           aria-label="Day"
           placeholder="DD"
           inputMode="numeric"
@@ -91,6 +96,7 @@ function CreateStudentDateInput({
           className={`${fieldClass} w-14 text-center`}
         />
         <select
+          required={required}
           aria-label="Month"
           value={parts.month}
           onChange={(e) => update({ month: e.target.value })}
@@ -108,6 +114,7 @@ function CreateStudentDateInput({
           ))}
         </select>
         <input
+          required={required}
           aria-label="Year"
           placeholder="YYYY"
           inputMode="numeric"

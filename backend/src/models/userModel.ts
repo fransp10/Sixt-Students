@@ -4,7 +4,6 @@ import {
   CreateUserModel,
   UserRoles,
   UserWithoutPassword,
-  UserWithPassword,
 } from "../types/User.js";
 import { AllowedFields } from "../types/AllowedFields.js";
 import { AssignedShiftToUser, Shift, UserStats } from "../types/Shift.js";
@@ -46,10 +45,10 @@ export async function createUser({
   date_of_birth,
   first_name,
   last_name,
-}: CreateUserModel): Promise<UserWithPassword> {
-  const result: QueryResult<UserWithPassword> = await pool.query(
+}: CreateUserModel): Promise<UserWithoutPassword> {
+  const result: QueryResult<UserWithoutPassword> = await pool.query(
     `INSERT INTO users (
-      username, 
+      username,
       email,
       phone,
       password_hash,
@@ -57,25 +56,25 @@ export async function createUser({
       default_hourly_rate,
       date_of_birth,
       first_name,
-      last_name,
+      last_name
     )
-     VALUES ($1,$2 ,$3,$4,$5,$6,$7,$8,$9) 
-     RETURNING 
-     id,
-     username,
-     email,
-     phone,
-     user_role,
-     default_hourly_rate,
-     is_active,
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    RETURNING
+      id,
+      username,
+      email,
+      phone,
+      user_role,
+      default_hourly_rate,
+      is_active,
       date_of_birth,
       first_name,
-      last_name
-     `,
+      last_name,
+      created_at`,
     [
       username,
-      email ?? null,
-      phone ?? null,
+      email,
+      phone,
       password_hash,
       user_role,
       default_hourly_rate,

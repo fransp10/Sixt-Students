@@ -1,16 +1,16 @@
-type FirstTimeSignInOptionButtonProps = {
+type CreateStudentInputRadtioButton = {
   label: string;
   selected: boolean;
   onSelect: () => void;
   disabled?: boolean;
 };
 
-function FirstTimeSignInOptionButton({
+function CreateStudentInputRadtioButton({
   label,
   selected,
   onSelect,
   disabled = false,
-}: FirstTimeSignInOptionButtonProps) {
+}: CreateStudentInputRadtioButton) {
   return (
     <button
       type="button"
@@ -18,7 +18,7 @@ function FirstTimeSignInOptionButton({
       aria-checked={selected}
       disabled={disabled}
       onClick={onSelect}
-      className={`border-2 flex-1 h-12 rounded-lg text-xs flex items-center justify-center gap-3 transition-colors enabled:cursor-pointer disabled:opacity-50 ${
+      className={`border-2 flex-1 h-12 rounded-lg text-xs flex items-center justify-center gap-3 transition-colors enabled:cursor-pointer   ${
         selected
           ? "border-primary"
           : "border-borderDividers enabled:hover:border-secondaryText"
@@ -36,4 +36,4 @@ function FirstTimeSignInOptionButton({
   );
 }
 
-export default FirstTimeSignInOptionButton;
+export default CreateStudentInputRadtioButton;
