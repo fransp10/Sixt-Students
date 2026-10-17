@@ -5,6 +5,7 @@ type CreateStudentInput = {
   style?: string;
   value: string;
   setter?: (value: string) => void;
+  error?: string;
 };
 
 function CreateStudentInput({
@@ -14,6 +15,7 @@ function CreateStudentInput({
   style,
   value,
   setter,
+  error,
 }: CreateStudentInput) {
   return (
     <label className={`${style}`}>
@@ -26,9 +28,15 @@ function CreateStudentInput({
         required={required}
         value={value}
         onChange={(e) => setter && setter(e.target.value)}
-        className="outline-none border  w-full p-2 pl-3 text-sm rounded-lg border-borderDividers bg-surfaceSideBar"
+        aria-invalid={!!error}
+        className={`outline-none border w-full p-2 pl-3 text-sm rounded-lg bg-surfaceSideBar transition-colors ${
+          error
+            ? "border-danger focus:border-danger"
+            : "border-borderDividers focus:border-pending"
+        }`}
         placeholder={placeholder}
       />
+      {error && <p className="mt-1 text-xs text-danger">{error}</p>}
     </label>
   );
 }

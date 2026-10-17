@@ -7,6 +7,7 @@ type CreateStudentDateInputProps = {
   label: string;
   value?: Date;
   onChange: (date?: Date) => void;
+  error?: string; // from the parent form, e.g. "Date of birth is required"
 };
 
 type DateParts = { day: string; month: string; year: string };
@@ -16,7 +17,7 @@ const MONTHS = Array.from({ length: 12 }, (_, i) =>
 );
 
 const fieldClass =
-  "outline-none border p-2 text-sm rounded-lg border-borderDividers bg-surfaceSideBar focus:border-pending";
+  "outline-none border p-2 text-sm rounded-lg bg-surfaceSideBar transition-colors";
 
 function digitsOnly(value: string) {
   return value.replace(/\D/g, "");
@@ -46,6 +47,7 @@ function CreateStudentDateInput({
   label,
   value,
   onChange,
+  error,
 }: CreateStudentDateInputProps) {
   const [parts, setParts] = useState<DateParts>(() =>
     value
@@ -62,12 +64,18 @@ function CreateStudentDateInput({
   const isComplete =
     parts.day !== "" && parts.month !== "" && parts.year.length === 4;
 
-  let error: string | null = null;
+  let dateError: string | undefined;
   if (isComplete && !date) {
-    error = "Enter a valid date";
+    dateError = "Enter a valid date";
   } else if (date && date > maxDob) {
-    error = `Student must be at least ${MINIMUM_STUDENT_AGE}`;
+    dateError = `Student must be at least ${MINIMUM_STUDENT_AGE}`;
   }
+
+  // The specific message ("must be at least 18") beats the parent's generic "required"
+  const shownError = dateError ?? error;
+  const borderClass = shownError
+    ? "border-danger focus:border-danger"
+    : "border-borderDividers focus:border-pending";
 
   function update(next: Partial<DateParts>) {
     const nextParts = { ...parts, ...next };
@@ -93,14 +101,16 @@ function CreateStudentDateInput({
           maxLength={2}
           value={parts.day}
           onChange={(e) => update({ day: digitsOnly(e.target.value) })}
-          className={`${fieldClass} w-14 text-center`}
+          aria-invalid={!!shownError}
+          className={`${fieldClass} ${borderClass} w-14 text-center`}
         />
         <select
           required={required}
           aria-label="Month"
           value={parts.month}
           onChange={(e) => update({ month: e.target.value })}
-          className={`${fieldClass} flex-1 min-w-0 cursor-pointer scheme-dark [&>option]:text-primaryText ${
+          aria-invalid={!!shownError}
+          className={`${fieldClass} ${borderClass} flex-1 min-w-0 cursor-pointer scheme-dark [&>option]:text-primaryText ${
             parts.month === "" ? "text-secondaryText" : "text-primaryText"
           }`}
         >
@@ -121,10 +131,11 @@ function CreateStudentDateInput({
           maxLength={4}
           value={parts.year}
           onChange={(e) => update({ year: digitsOnly(e.target.value) })}
-          className={`${fieldClass} w-18 text-center`}
+          aria-invalid={!!shownError}
+          className={`${fieldClass} ${borderClass} w-18 text-center`}
         />
       </div>
-      {error && <p className="mt-1 text-xs text-danger">{error}</p>}
+      {shownError && <p className="mt-1 text-xs text-danger">{shownError}</p>}
     </fieldset>
   );
 }

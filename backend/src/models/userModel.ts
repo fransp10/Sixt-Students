@@ -35,6 +35,23 @@ export async function getPasswordHashById(
   return result.rows[0]?.password_hash;
 }
 
+export async function getNextUsernameNumber(username: string): Promise<number> {
+  const escapedUsername = username.replace(".", "\\.");
+  const result = await pool.query(
+    `SELECT COALESCE(MAX (
+      CASE 
+      WHEN username = $1 THEN 1
+      ELSE substring(username FROM '[0-9]+$')::int
+      END
+    ),0) + 1 AS next_index
+    FROM users
+    WHERE username = $1 OR username ~('^' || $2 || '[0-9]+$')
+    `,
+    [username, escapedUsername],
+  );
+  return result.rows[0]?.next_index;
+}
+
 export async function createUser({
   username,
   email,

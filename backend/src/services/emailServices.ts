@@ -4,7 +4,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const BRAND_COLOR = "#ff5f00";
 
-function passwordResetTemplate(link: string) {
+function passwordResetTemplate(link: string, username?: string) {
   return `<!doctype html>
 <html>
   <body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,Helvetica,sans-serif;">
@@ -23,6 +23,9 @@ function passwordResetTemplate(link: string) {
                 <p style="margin:0 0 24px;font-size:15px;line-height:1.5;color:#374151;">
                   We received a request to reset your password. Click the button below to choose a new one.
                   This link is valid for <strong>1 hour</strong>.
+                </p>
+                <p style="margin:0 0 24px;font-size:15px;line-height:1.5;color:#374151;">
+                username: <strong>${username}</strong>
                 </p>
                 <table role="presentation" cellpadding="0" cellspacing="0">
                   <tr>
@@ -54,12 +57,16 @@ function passwordResetTemplate(link: string) {
 </html>`;
 }
 
-export async function sendPasswordResetEmail(to: string, link: string) {
+export async function sendPasswordResetEmail(
+  to: string,
+  link: string,
+  username: string,
+) {
   const { error } = await resend.emails.send({
     from: "Students App <no-reply@fransipekdev.me>",
     to,
     subject: "Reset your password",
-    html: passwordResetTemplate(link),
+    html: passwordResetTemplate(link, username),
     text: `Reset your password (valid 1 hour): ${link}\n\nIf you didn't request this, ignore this email.`,
   });
   if (error) throw new Error(`Email failed: ${error.message}`);

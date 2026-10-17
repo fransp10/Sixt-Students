@@ -16,13 +16,13 @@ import { differenceInYears, isValid, parse } from "date-fns";
 import { sendPasswordResetEmail } from "./emailServices.js";
 import { isValidEmail } from "../helpers/isValidEmail.js";
 import { isValidPhone } from "../helpers/isValidPhone.js";
-import { generateUsername } from "../helpers/generateUsername.js";
 import { isUniqueViolation } from "../helpers/isUniqueViolation.js";
 import {
   DEFAULT_HOURLY_RATE,
   MAX_HOURLY_RATE,
   MINIMUM_STUDENT_AGE,
 } from "../helpers/constants.js";
+import { generateBaseUsername } from "../helpers/generateUsername.js";
 
 const SIGNIN_OPTIONS: SigninOption[] = ["email", "tempPassword"];
 const USER_ROLES: UserRoles[] = ["admin", "student"];
@@ -125,7 +125,8 @@ async function insertUserWithUniqueUsername(
   data: Omit<CreateUserModel, "username">,
 ): Promise<UserWithoutPassword> {
   for (let attempt = 1; attempt <= MAX_USERNAME_ATTEMPTS; attempt++) {
-    const username = attempt === 1 ? baseUsername : `${baseUsername}${attempt}`;
+    const next = await userModel.getNextUsernameNumber(baseUsername);
+    const username = next === 1 ? baseUsername : `${baseUsername}${next}`;
 
     try {
       return await userModel.createUser({ ...data, username });
@@ -145,19 +146,19 @@ export async function createUser(
   data: CreateUserReqBodyType,
 ): Promise<CreatedUser> {
   const { signin_option, ...userData } = validateCreateUserInput(data);
-
-  const baseUsername = generateUsername(
+  const userName = generateBaseUsername(
     userData.first_name,
     userData.last_name,
   ).slice(0, MAX_BASE_USERNAME_LENGTH);
-  if (!baseUsername) {
+
+  if (!userName) {
     throw new AppError("Name must contain at least one letter or number", 400);
   }
 
   const password = crypto.randomBytes(12).toString("base64url");
   const password_hash = await argon2.hash(password, { type: argon2.argon2id });
 
-  const user = await insertUserWithUniqueUsername(baseUsername, {
+  const user = await insertUserWithUniqueUsername(userName, {
     ...userData,
     password_hash,
   });
@@ -268,5 +269,5 @@ export async function sendPasswordResetLink(
   const link = new URL("/reset-password", process.env.FRONTEND_URL);
   link.searchParams.set("token", resetToken);
 
-  await sendPasswordResetEmail(email, link.toString());
+  await sendPasswordResetEmail(email, link.toString(), user.username);
 }
