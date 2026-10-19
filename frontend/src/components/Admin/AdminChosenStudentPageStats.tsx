@@ -36,10 +36,7 @@ function AdminChosenStudentPageStats() {
   const statsForPrevMonth = prevMonthData.data;
 
   return (
-    <div
-      className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-0 sm:gap-2
-     py-2 "
-    >
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 py-2 ">
       <AdminChosenStudentPageStatsCard
         icon={CalendarIcon}
         statName={"Shifts worked"}
