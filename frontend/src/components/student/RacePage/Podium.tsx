@@ -47,7 +47,7 @@ function Podium({
         heading="Podium"
         subheading={`Top performers ${format(new Date(currentMonth), "MMM yyyy")} `}
       />
-      <div className=" md:col-span-2 flex flex-row w-full flex-1  items-end gap-4 min-h-92">
+      <div className=" md:col-span-2 flex flex-row w-full flex-1 items-end min-h-92 overflow-hidden justify-between gap-2">
         {top3.map((racer, i) => {
           const place = i + 1;
           const style = PLACE_STYLES[i];
@@ -56,11 +56,11 @@ function Podium({
           return (
             <div
               key={racer.id}
-              className={`flex flex-1 flex-col items-center gap-2 ${style.order}`}
+              className={`flex flex-col items-center gap-1 flex-1 ${style.order}`}
             >
               <TrophyIcon className={style.trophy} />
               <span
-                className={`truncate text-sm font-bold ${isCurrentUser ? "text-primary" : ""}`}
+                className={`truncate text-sm font-bold text-wrap text-center  ${isCurrentUser ? "text-primary" : ""}`}
               >
                 {isCurrentUser
                   ? "You"
@@ -70,7 +70,7 @@ function Podium({
                 {racer.hours_worked}h
               </span>
               <div
-                className={`flex w-full justify-center rounded-t-lg pt-2 text-2xl font-bold ${style.height} ${style.block}`}
+                className={`flex w-full  justify-center rounded-t-lg pt-2 text-2xl font-bold ${style.height} ${style.block}`}
               >
                 {place}
               </div>

@@ -43,7 +43,7 @@ function RaceEarningsMonthlyGoal({
     chosenMonth === format(new Date(), "yyyy-MM");
 
   return (
-    <div className=" col-span-1 row-span-1  flex flex-col bg-cardLighterBG rounded-lg p-6 h-84">
+    <div className=" col-span-1 row-span-1  flex flex-col bg-cardLighterBG rounded-lg p-6 sm:h-84">
       <RacePageCardHeader
         heading="Monthly Goal"
         subheading={`Goal: ${goal.amount}€`}
