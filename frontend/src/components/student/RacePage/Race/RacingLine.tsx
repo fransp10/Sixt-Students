@@ -25,18 +25,19 @@ function RacingLine({
 
   const isCurrentUser = currentUser?.id === racerId;
   return (
-    <li className="flex items-center gap-3  ">
+    // mobile: position, name and value on top, track full width below; sm+: single row
+    <li className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 sm:flex sm:gap-3">
       <span
         className={`w-6 shrink-0  ${isCurrentUser ? "text-primary" : "text-secondaryText"}`}
       >
         {position}
       </span>
       <span
-        className={`w-28 shrink-0 truncate font-semibold ${isCurrentUser ? "text-primary" : ""}`}
+        className={`min-w-0 truncate font-semibold sm:w-28 sm:shrink-0 ${isCurrentUser ? "text-primary" : ""}`}
       >
         {isCurrentUser ? `You` : `${racer}`}
       </span>
-      <div className="relative h-8 flex-1 bg-headersCalendar rounded-lg overflow-hidden ">
+      <div className="relative order-last col-span-3 h-7 bg-headersCalendar rounded-lg overflow-hidden sm:order-0 sm:h-8 sm:flex-1">
         {/* middle line */}
         <div className="absolute left-0 right-3 top-1/2 border-t-2 border-dashed border-icons/50 " />
         {/* finish line */}
@@ -57,7 +58,7 @@ function RacingLine({
         />
       </div>
       <span
-        className={`w-14 shrink-0 text-right font-bold ${isCurrentUser ? "text-primary" : ""}`}
+        className={`shrink-0 text-right font-bold sm:w-14 ${isCurrentUser ? "text-primary" : ""}`}
       >
         {prefix}
         {dataValue}
