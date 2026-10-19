@@ -13,7 +13,7 @@ function AppLayout({ navItems }: AppLayoutProps) {
         <AppNav navItems={navItems} />
       </aside>
 
-      <main className="min-w-0 flex-1 overflow-y-auto scrollbar-thin p-4  lg:p-6 lg:h-screen">
+      <main className="min-w-0 flex-1 overflow-y-auto scrollbar-thin p-4  lg:p-6">
         <Outlet />
       </main>
     </div>
