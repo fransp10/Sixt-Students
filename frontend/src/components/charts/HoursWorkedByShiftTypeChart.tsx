@@ -26,7 +26,7 @@ function HoursWorkedByShiftTypeChart({ data }: { data: StatsByShiftType[] }) {
   }));
 
   return (
-    <div className="flex  flex-col h-82  p-4 rounded-xl border border-borderDividers bg-cardBG">
+    <div className="flex  flex-col sm:h-82  p-4 rounded-xl border border-borderDividers bg-cardBG">
       <div className="mb-6 shrink-0">
         <h2 className="text-lg font-semibold text-primaryText">
           Hours worked by shift type
@@ -71,7 +71,7 @@ function HoursWorkedByShiftTypeChart({ data }: { data: StatsByShiftType[] }) {
             </div>
 
             {/* Custom legend */}
-            <div className="flex md:flex-col text-xs gap-4">
+            <div className="flex flex-col text-xs gap-4 -ml-2">
               {graphData.map((item) => {
                 const percentage = Math.round((item.value / totalHours) * 100);
 
@@ -86,11 +86,11 @@ function HoursWorkedByShiftTypeChart({ data }: { data: StatsByShiftType[] }) {
                     />
 
                     <div>
-                      <p className="text-sm sm:text-medium lg:text-lg text-primaryText">
+                      <p className="text-sm sm:text-medium lg:text-sm xl:text-lg text-primaryText">
                         {item.name}
                       </p>
 
-                      <p className="text-xs sm:text-sm lg:text-base text-secondaryText">
+                      <p className="text-xs sm:text-sm xl:text-lg text-secondaryText">
                         {item.value}h ({percentage}%)
                       </p>
                     </div>
