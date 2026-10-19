@@ -28,23 +28,23 @@ function Gear({ hoursWorked }: { hoursWorked: number }) {
         subheading="Unlocks by hours worked"
       />
 
-      <div className="flex flex-row gap-4  items-center mt-12">
-        <div className="flex items-center justify-center size-20 border-3 rounded-full border-primary">
+      <div className="flex flex-row gap-4 justify-center  items-center mt-12">
+        <div className="flex items-center justify-center size-14 border-3 rounded-full border-primary shrink-0">
           <p className="text-4xl font-bold text-primary">{currentGear.gear}</p>
         </div>
         <div className="flex flex-col">
           <span className="font-bold text-xl">{currentGear.name}</span>
-          <span className="text-secondaryText font-semibold text-lg">
+          <span className="text-secondaryText font-semibold text-sm">
             {hoursToNextGear}h until {nextGear?.name} ({nextGear?.hoursRequired}
             h)
           </span>
         </div>
       </div>
-      <div className="flex flex-row gap-4 mt-10 items-center">
+      <div className="flex flex-row gap-4 mt-10 items-center overflow-hidden ">
         {array.map((gear) => (
-          <div key={gear} className="flex flex-col items-center gap-0.5">
+          <div key={gear} className="flex flex-1 flex-col items-center gap-0.5">
             <div
-              className={`p-2 px-8 rounded-lg ${gear <= currentGear.gear ? "bg-primary" : "bg-surfaceCards"}`}
+              className={`p-2 w-full rounded-lg ${gear <= currentGear.gear ? "bg-primary" : "bg-surfaceCards"}`}
             ></div>
             <p
               className={`font-bold ${gear === currentGear.gear ? "text-primary" : "text-secondaryText"}`}
