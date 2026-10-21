@@ -8,6 +8,7 @@ import StatsCard from "./StatsCard";
 import NextShiftCard from "./NextShiftCard";
 import { useGetMyStats } from "../../hooks/useGetMyStats";
 import EmptyStatsCard from "./Dashboard/EmptyStatsCard";
+import { formatStat } from "../../helpers/formatStat";
 
 function StudentStatList({ chosenMonth }: { chosenMonth: Date }) {
   const stats = useGetMyStats();
@@ -38,28 +39,32 @@ function StudentStatList({ chosenMonth }: { chosenMonth: Date }) {
             icon={BanknotesIcon}
             title="Earnings this month"
             value={currentMonthStats?.earnings ?? 0}
-            sufix="€"
-            lastMonthValue={averageMonth.earnings ?? 0}
+            format={(n) => formatStat(n, "€")}
+            previous={averageMonth.earnings}
+            comparisonLabel="average month"
           />
           <StatsCard
             icon={CalendarIcon}
             title="Shifts worked this month"
             value={currentMonthStats?.count ?? 0}
-            lastMonthValue={averageMonth.count ?? 0}
+            previous={averageMonth.count}
+            comparisonLabel="average month"
           />
           <StatsCard
             icon={ClockIcon}
             title="Total hours this month"
             value={currentMonthStats?.hours ?? 0}
-            sufix="h"
-            lastMonthValue={averageMonth.hours ?? 0}
+            format={(n) => formatStat(n, "h")}
+            previous={averageMonth.hours}
+            comparisonLabel="average month"
           />
           <StatsCard
             icon={PlusCircleIcon}
             title="Attendance rate"
             value={currentMonthStats?.attendanceRate ?? 0}
-            sufix="%"
-            lastMonthValue={averageMonth.attendanceRate ?? 0}
+            format={(n) => formatStat(n, "%")}
+            previous={averageMonth.attendanceRate}
+            comparisonLabel="average month"
           />
         </>
       )}
