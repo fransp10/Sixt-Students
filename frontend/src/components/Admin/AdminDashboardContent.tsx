@@ -6,31 +6,40 @@ import {
 import { format } from "date-fns";
 import AdminStatCard from "./AdminStatCard";
 import { formatStat } from "../../helpers/formatStat";
+import { useAdminStats } from "../../hooks/useAdminStats";
 
 function AdminDashboardContent() {
   const currentMonth = format(new Date(), "MMMM");
+  const { data: adminStats, isLoading, isError } = useAdminStats();
 
-  // TODO: replace placeholder numbers with data from the admin stats endpoint
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading admin stats</div>;
+  }
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
         <AdminStatCard
           title="Active students"
-          value={formatStat(24)}
+          value={formatStat(adminStats.activeStudents)}
           caption="Students who can sign up for shifts"
           period={currentMonth}
           icon={UsersIcon}
         />
         <AdminStatCard
           title="Shift requests"
-          value={formatStat(24)}
+          value={formatStat(adminStats.shiftRequests)}
           caption="Requests waiting for your review"
           period={currentMonth}
           icon={InboxArrowDownIcon}
         />
         <AdminStatCard
           title="Payroll"
-          value={formatStat(2703, "€")}
+          value={formatStat(adminStats.totalPayroll, "€")}
           caption="Total student earnings"
           period={currentMonth}
           icon={BanknotesIcon}
