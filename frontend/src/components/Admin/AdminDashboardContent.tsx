@@ -5,6 +5,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import AdminStatCard from "./AdminStatCard";
+import AdminTodayShifts from "./AdminTodayShifts";
 import { formatStat } from "../../helpers/formatStat";
 import { useAdminStats } from "../../hooks/useAdminStats";
 
@@ -50,10 +51,7 @@ function AdminDashboardContent() {
         <div className="p-4 bg-cardBG col-span-2 h-120 rounded-lg">
           <h2 className="text-primaryText font-bold">Pending requests</h2>
         </div>
-        {/* Today shifts */}
-        <div className="p-4 bg-cardBG col-span-2 h-120 rounded-lg">
-          <h2 className="text-primaryText font-bold">Today</h2>
-        </div>
+        <AdminTodayShifts />
         <div className="col-span-3 bg-cardBG h-120 p-4 rounded-lg">
           <h2 className="text-primaryText font-bold">Hours & payroll</h2>
         </div>
