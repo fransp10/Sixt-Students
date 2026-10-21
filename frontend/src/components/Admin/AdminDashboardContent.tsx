@@ -17,7 +17,7 @@ function AdminDashboardContent() {
         <AdminStatCard
           title="Active students"
           value={formatStat(24)}
-          caption="Students with at least one shift"
+          caption="Students who can sign up for shifts"
           period={currentMonth}
           icon={UsersIcon}
         />
@@ -52,7 +52,9 @@ function AdminDashboardContent() {
           <h2 className="text-primaryText font-bold">Top Hours</h2>
         </div>
         <div className="col-span-full bg-cardBG h-120 p-4 rounded-lg">
-          <h2 className="text-primaryText font-bold">Recently added students</h2>
+          <h2 className="text-primaryText font-bold">
+            Recently added students
+          </h2>
         </div>
       </div>
     </>
