@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import AdminStatCard from "./AdminStatCard";
 import AdminTodayShifts from "./AdminTodayShifts";
 import AdminPendingRequests from "./AdminPendingRequests";
+import AdminHoursPayrollChart from "./AdminHoursPayrollChart";
 import { formatStat } from "../../helpers/formatStat";
 import { useAdminStats } from "../../hooks/useAdminStats";
 
@@ -51,9 +52,7 @@ function AdminDashboardContent() {
         {/* Pending requests */}
         <AdminPendingRequests />
         <AdminTodayShifts />
-        <div className="col-span-3 bg-cardBG h-120 p-4 rounded-lg">
-          <h2 className="text-primaryText font-bold">Hours & payroll</h2>
-        </div>
+        <AdminHoursPayrollChart />
         <div className="col-span-1 bg-cardBG h-120 p-4 rounded-lg">
           <h2 className="text-primaryText font-bold">Top Hours</h2>
         </div>

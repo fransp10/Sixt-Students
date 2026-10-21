@@ -1,4 +1,5 @@
 import pool from "../db/db.js";
+import { monthlyTotals } from "../types/monthlyTotals.js";
 
 export async function getActiveStudentsCount(): Promise<number> {
   const numOfStudents = await pool.query(
@@ -26,4 +27,22 @@ export async function getTotalPayroll(): Promise<number> {
      WHERE date >= date_trunc('month', CURRENT_DATE) AND date < CURRENT_DATE`,
   );
   return result.rows[0].total;
+}
+
+export async function getMonthlyTotals(
+  months: number,
+): Promise<monthlyTotals[]> {
+  const result = await pool.query(
+    `SELECT to_char(date, 'YYYY-MM') AS month,
+       SUM(hours)::float AS hours,
+       SUM(hours * hourly_rate)::float AS payroll
+FROM worked_shifts
+WHERE date >= date_trunc('month', CURRENT_DATE) - ($1 - 1) * interval '1 month'
+  AND date < CURRENT_DATE
+GROUP BY 1
+ORDER BY 1`,
+    [months],
+  );
+
+  return result.rows;
 }
