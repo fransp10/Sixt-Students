@@ -6,6 +6,7 @@ import {
 import { format } from "date-fns";
 import AdminStatCard from "./AdminStatCard";
 import AdminTodayShifts from "./AdminTodayShifts";
+import AdminPendingRequests from "./AdminPendingRequests";
 import { formatStat } from "../../helpers/formatStat";
 import { useAdminStats } from "../../hooks/useAdminStats";
 
@@ -48,9 +49,7 @@ function AdminDashboardContent() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
         {/* Pending requests */}
-        <div className="p-4 bg-cardBG col-span-2 h-120 rounded-lg">
-          <h2 className="text-primaryText font-bold">Pending requests</h2>
-        </div>
+        <AdminPendingRequests />
         <AdminTodayShifts />
         <div className="col-span-3 bg-cardBG h-120 p-4 rounded-lg">
           <h2 className="text-primaryText font-bold">Hours & payroll</h2>
