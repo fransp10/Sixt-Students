@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useGetShiftsWithStudentsAndRequesters } from "../../hooks/auth/useGetShiftsWithStudentsAndRequesters";
 import { useAssignStudentToShift } from "../../hooks/auth/useAssignStudentToShift";
 import { capitalize } from "../../helpers/capitalize";
+import { getShiftTiming } from "../../helpers/shiftTiming";
 import type { ShiftWithStudentsAndRequesters } from "../../types/Shift";
 import type { StudentRequesting } from "../../types/students";
 
@@ -28,10 +29,13 @@ function AdminPendingRequests() {
   const assignMutation = useAssignStudentToShift();
 
   // shifts already come sorted by date and start time
+  // skip shifts that already started, they can't be assigned anymore
   const requests: PendingRequest[] =
-    shifts?.flatMap((shift) =>
-      shift.students_requesting.map((student) => ({ shift, student })),
-    ) ?? [];
+    shifts
+      ?.filter((shift) => getShiftTiming(shift) === "upcoming")
+      .flatMap((shift) =>
+        shift.students_requesting.map((student) => ({ shift, student })),
+      ) ?? [];
 
   function handleAssign({ shift, student }: PendingRequest) {
     assignMutation.mutate(
