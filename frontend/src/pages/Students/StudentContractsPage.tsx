@@ -9,20 +9,27 @@ import {
   getContractUploadWindow,
   isContractMonthUploadable,
 } from "../../helpers/contractUploadWindow";
-
-// placeholder data until the contracts endpoint exists
+import { useGetContracts } from "../../hooks/useGetContracts";
 
 function StudentContractsPage() {
   const [selectedMonth, setSelectedMonth] = useState(() =>
     startOfMonth(new Date()),
   );
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const { data: contracts } = useGetContracts();
+
+  if (contracts === undefined || !contracts) {
+    return <div>Loading...</div>;
+  }
 
   const { firstMonth, lastMonth } = getContractUploadWindow();
 
   function findContract(month: Date) {
-    return contracts.find((contract) =>
-      isSameMonth(parseISO(contract.contract_month), month),
+    return (
+      contracts &&
+      contracts.find((contract) =>
+        isSameMonth(parseISO(contract.contract_month), month),
+      )
     );
   }
 
@@ -35,7 +42,6 @@ function StudentContractsPage() {
     firstMonth,
     ...contracts.map((contract) => parseISO(contract.contract_month)),
   ]);
-  const selectedContract = findContract(selectedMonth);
 
   return (
     <div>
@@ -55,12 +61,14 @@ function StudentContractsPage() {
 
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <StudentContractCard
-              month={selectedMonth}
-              contract={selectedContract}
-              isUploadable={isContractMonthUploadable(selectedMonth)}
-              onUpload={() => setIsUploadModalOpen(true)}
-            />
+            {contracts && (
+              <StudentContractCard
+                month={selectedMonth}
+                contract={findContract(selectedMonth)}
+                isUploadable={isContractMonthUploadable(selectedMonth)}
+                onUpload={() => setIsUploadModalOpen(true)}
+              />
+            )}
           </div>
           <UploadWindowList
             contracts={contracts}

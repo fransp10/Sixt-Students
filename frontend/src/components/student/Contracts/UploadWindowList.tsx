@@ -1,9 +1,9 @@
 import { eachMonthOfInterval, format, isSameMonth, parseISO } from "date-fns";
 import { getContractUploadWindow } from "../../../helpers/contractUploadWindow";
-import type { StudentContract } from "../../../types/studentContract";
+import type { ContractsWithoutSignedUrl } from "../../../types/contracts";
 
 type UploadWindowListProps = {
-  contracts: StudentContract[];
+  contracts: ContractsWithoutSignedUrl[];
   selectedMonth: Date;
   onSelect: (month: Date) => void;
 };

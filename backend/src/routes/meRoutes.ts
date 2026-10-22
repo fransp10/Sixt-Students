@@ -24,4 +24,5 @@ meRouter.post(
   meController.uploadContract,
 );
 
-meRouter.get("/contract", meController.getMyContracts);
+meRouter.get("/contract", meController.getMyContract);
+meRouter.get("/contracts", meController.getMyContracts);

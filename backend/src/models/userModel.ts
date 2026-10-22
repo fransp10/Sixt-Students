@@ -7,7 +7,7 @@ import {
 } from "../types/User.js";
 import { AllowedFields } from "../types/AllowedFields.js";
 import { AssignedShiftToUser, Shift, UserStats } from "../types/Shift.js";
-import { Contract } from "../types/contract.js";
+import { Contract, ContractMetadata } from "../types/contract.js";
 
 export async function getUsers(
   role?: UserRoles,
@@ -519,13 +519,16 @@ export async function saveUploadContractToDb(
   userId: string,
   month: string,
   fileKey: string,
+  fileName: string,
+  fileSize: number,
 ): Promise<void> {
   await pool.query(
-    `INSERT INTO contracts (user_id, contract_month, file_key) 
-      VALUES ($1, ($2 || '-01')::date, $3)
-      ON CONFLICT (user_id, contract_month) 
-      DO UPDATE SET file_key = EXCLUDED.file_key, created_at = CURRENT_TIMESTAMP`,
-    [userId, month, fileKey],
+    `INSERT INTO contracts (user_id, contract_month, file_key, file_name, file_size)
+      VALUES ($1, ($2 || '-01')::date, $3, $4, $5)
+      ON CONFLICT (user_id, contract_month)
+      DO UPDATE SET file_key = EXCLUDED.file_key, file_name = EXCLUDED.file_name,
+      file_size = EXCLUDED.file_size, created_at = CURRENT_TIMESTAMP`,
+    [userId, month, fileKey, fileName, fileSize],
   );
 }
 
@@ -536,15 +539,34 @@ export async function getMyContract(
   const result = await pool.query<Contract>(
     `SELECT to_char(contract_month, 'YYYY-MM') AS month, 
     c.file_key AS s3_key, 
-    c.created_at, 
+    c.created_at AS uploaded_at, 
     c.user_id,
     c.id,
     u.first_name as user_first_name,
-    u.last_name as user_last_name
+    u.last_name as user_last_name,
+    c.file_name,
+    c.file_size
     FROM contracts c
     JOIN users u ON u.id = c.user_id 
     WHERE c.user_id = $1 AND c.contract_month = ($2 || '-01')::date`,
     [userId, month],
   );
   return result.rows[0];
+}
+
+export async function getMyContracts(
+  userId: string,
+): Promise<ContractMetadata[]> {
+  const result = await pool.query<ContractMetadata>(
+    `SELECT id,
+    to_char(contract_month, 'YYYY-MM') AS contract_month,
+    file_name,
+    file_size,
+    created_at AS uploaded_at
+    FROM contracts
+    WHERE user_id = $1
+    ORDER BY contract_month DESC`,
+    [userId],
+  );
+  return result.rows;
 }

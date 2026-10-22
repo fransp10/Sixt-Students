@@ -1,8 +1,26 @@
 import { useEffect, useState, type ChangeEvent, type DragEvent } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { uploadContractToBackend } from "../api/usersApi";
 
 export function useUploadContract(onClose: () => void) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const queryClient = useQueryClient();
+  const {
+    mutate: uploadContract,
+    isError,
+    isPending,
+    isSuccess,
+  } = useMutation({
+    mutationFn: ({ month, file }: { month: string; file: File }) =>
+      uploadContractToBackend(month, file),
+    mutationKey: ["uploadContract"],
+    onSuccess: () => {
+      setSelectedFile(null);
+      queryClient.invalidateQueries({ queryKey: ["contracts"] });
+      onClose();
+    },
+  });
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -53,5 +71,9 @@ export function useUploadContract(onClose: () => void) {
     handleDragLeave,
     handleDragOver,
     handleDrop,
+    uploadContract,
+    isError,
+    isPending,
+    isSuccess,
   };
 }

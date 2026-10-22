@@ -161,14 +161,24 @@ export async function uploadContract(
   res.status(201).json({ message: "Contract uploaded successfully" });
 }
 
-export async function getMyContracts(
+export async function getMyContract(
   req: Request<{}, {}, {}, { month: string; download?: string }>,
   res: Response,
 ): Promise<void> {
   const userId = req.user!.id;
   const { month } = req.query;
   const download = req.query.download === "true";
-  const url = await meServices.getMyContract(userId, month, download);
+  const contractData = await meServices.getMyContract(userId, month, download);
 
-  res.status(200).json({ url });
+  res.status(200).json(contractData);
+}
+
+export async function getMyContracts(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const userId = req.user!.id;
+  const contracts = await meServices.getMyContracts(userId);
+
+  res.status(200).json(contracts);
 }

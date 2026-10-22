@@ -8,11 +8,12 @@ import {
   LockClosedIcon,
 } from "@heroicons/react/24/outline";
 import { format, parseISO } from "date-fns";
-import type { StudentContract } from "../../../types/studentContract";
+import type { ContractsWithoutSignedUrl } from "../../../types/contracts";
+import { useGetContract } from "../../../hooks/useGetContract";
 
 type StudentContractCardProps = {
   month: Date;
-  contract?: StudentContract;
+  contract?: ContractsWithoutSignedUrl;
   isUploadable: boolean;
   onUpload: () => void;
 };
@@ -23,6 +24,12 @@ function StudentContractCard({
   isUploadable,
   onUpload,
 }: StudentContractCardProps) {
+  console.log(month);
+
+  const { mutate: openContract } = useGetContract(format(month, "yyyy-MM"));
+
+  console.log("contractData", openContract);
+
   return (
     <div className="flex h-full flex-col gap-5 rounded-xl border border-borderDividers bg-cardBG p-5">
       {/* HEADER */}
@@ -77,18 +84,22 @@ function StudentContractCard({
           <div className="flex flex-col gap-2 sm:flex-row">
             <button
               type="button"
+              onClick={() => openContract(true)}
               className="flex min-h-9 items-center justify-center gap-2 rounded-lg border border-borderDividers px-3 text-sm font-semibold text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary"
             >
               <ArrowDownTrayIcon className="size-4" />
               Download
             </button>
+
             <button
+              onClick={() => openContract(false)}
               type="button"
               className="flex min-h-9 items-center justify-center gap-2 rounded-lg border border-borderDividers px-3 text-sm font-semibold text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary"
             >
               <BookOpenIcon className="size-4" />
               View in browser
             </button>
+
             {isUploadable ? (
               <button
                 type="button"

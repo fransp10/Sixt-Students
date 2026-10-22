@@ -14,7 +14,11 @@ import { isPasswordRequirementsMet } from "../helpers/isPasswordRequirementsMet.
 import { randomUUID } from "crypto";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3, S3_BUCKET } from "../config/s3.js";
-import { Contract, ContractWithUrl } from "../types/contract.js";
+import {
+  Contract,
+  ContractMetadata,
+  ContractWithUrl,
+} from "../types/contract.js";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { normalizeNameWithWeirdChars } from "../helpers/normalizeWeirdNames.js";
 export async function checkMe(userId: string) {
@@ -275,7 +279,13 @@ export async function uploadContract(
       ContentType: "application/pdf",
     }),
   );
-  await userModel.saveUploadContractToDb(userId, month, fileKey);
+  await userModel.saveUploadContractToDb(
+    userId,
+    month,
+    fileKey,
+    file.originalname,
+    file.size,
+  );
 }
 
 export async function getMyContract(
@@ -324,10 +334,22 @@ export async function getMyContract(
   const contractWithUrl: ContractWithUrl = {
     month: contract.month,
     id: contract.id,
-    signedUrl,
+    signed_url: signedUrl,
     user_id: contract.user_id,
-    created_at: contract.created_at,
+    uploaded_at: contract.uploaded_at,
+    file_name: contract.file_name,
+    file_size: contract.file_size,
   };
 
   return contractWithUrl;
+}
+
+export async function getMyContracts(
+  userId: string,
+): Promise<ContractMetadata[]> {
+  if (!userId) {
+    throw new AppError("UserId is required", 400);
+  }
+
+  return userModel.getMyContracts(userId);
 }
