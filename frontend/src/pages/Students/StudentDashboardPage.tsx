@@ -27,7 +27,7 @@ function StudentDashboardPage() {
   return (
     <div>
       <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-        <DashboardHeader />
+        <DashboardHeader subheading="Here's an overview of your activities" />
         <DashBoardPageSelectMonth
           byMonth={stats?.byMonth ?? {}}
           onChange={setChosenMonth}

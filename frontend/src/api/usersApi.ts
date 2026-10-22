@@ -1,5 +1,10 @@
 import { axiosClient } from "./axios";
-import type { UserRoles } from "../types/user";
+import type {
+  CreatedUser,
+  CreateUserReqBodyType,
+  SigninOption,
+  UserRoles,
+} from "../types/user";
 import type { UserStats } from "../types/stats";
 import { format } from "date-fns";
 
@@ -159,4 +164,25 @@ export async function deactivateUser(userId: string) {
 export async function activateUser(userId: string) {
   const res = await axiosClient.patch(`/users/${userId}/activate`);
   return res.data;
+}
+
+export async function createUser({
+  first_name,
+  last_name,
+  email,
+  date_of_birth,
+  default_hourly_rate,
+  user_role,
+  signin_option,
+}: CreateUserReqBodyType & { signin_option: SigninOption }) {
+  const res = await axiosClient.post("/users/", {
+    first_name: first_name,
+    last_name: last_name,
+    email: email ? email : null,
+    date_of_birth: date_of_birth,
+    default_hourly_rate: default_hourly_rate,
+    user_role: user_role,
+    signin_option: signin_option,
+  });
+  return res.data as Promise<CreatedUser>;
 }

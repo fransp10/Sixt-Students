@@ -1,23 +1,27 @@
 import type { ComponentType, SVGProps } from "react";
-import AvgMonthStat from "../../pages/Students/AvgMonthStat";
+import StatTrend from "./StatTrend";
+import { formatStat } from "../../helpers/formatStat";
 
 type StatsCardProps = {
-  prefix?: string;
-  sufix?: string;
   title: string;
-  value: string | number;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
-  lastMonthValue?: string | number;
-  empty?: boolean;
+  value: number;
+  previous?: number; // undefined = "no data", 0 = a real zero
+  format?: (n: number) => string; // used for both the value and the change
+  detail?: string; // text after the value that isn't compared, e.g. "of 21 shifts"
+  higherIsBetter?: boolean; // defaults to true
+  comparisonLabel?: string; // "last month" / "average month", omit to hide the comparison
 };
 
 function StatsCard({
   title,
-  value,
   icon: Icon,
-  prefix,
-  sufix,
-  lastMonthValue,
+  value,
+  previous,
+  format = (n) => formatStat(n),
+  detail,
+  higherIsBetter = true,
+  comparisonLabel,
 }: StatsCardProps) {
   return (
     <div className="rounded-xl border h-32 flex items-center border-borderDividers bg-cardLighterBG p-5">
@@ -29,22 +33,27 @@ function StatsCard({
           <p className="text-sm text-secondaryText">{title}</p>
 
           <p className=" text-2xl font-semibold text-primaryText">
-            {prefix}
-            {value}
-            {sufix}
+            {format(value)}
+            {detail && (
+              <span className="ml-1 text-sm font-normal text-secondaryText">
+                {detail}
+              </span>
+            )}
           </p>
-          {lastMonthValue ? (
-            <AvgMonthStat
-              sufix={sufix}
-              prefix={prefix}
-              avgMonthValue={lastMonthValue.toString()}
-              currentValue={value.toString()}
-            />
-          ) : (
-            <div className="mt-2 text-sm text-secondaryText">
-              No data for last month
-            </div>
-          )}
+          {comparisonLabel !== undefined &&
+            (previous !== undefined ? (
+              <StatTrend
+                value={value}
+                previous={previous}
+                format={format}
+                higherIsBetter={higherIsBetter}
+                comparisonLabel={comparisonLabel}
+              />
+            ) : (
+              <div className="mt-2 text-sm text-secondaryText">
+                No data for {comparisonLabel}
+              </div>
+            ))}
         </div>
       </div>
     </div>

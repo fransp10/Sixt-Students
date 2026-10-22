@@ -15,7 +15,7 @@ export function useAssignStudentToShift() {
       shiftId: number;
       userId: number;
       startDate: string;
-      endDate: string;
+      endDate?: string;
       // only needed for students who didn't request the shift, since they aren't in students_requesting
       student?: Omit<StudentRequesting, "requested_at">;
     }) => assignStudentToShift(vars.shiftId, vars.userId),

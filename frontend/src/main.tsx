@@ -32,6 +32,7 @@ import Unauthorized from "./pages/Error/Unauthorized.tsx";
 import { AuthContextProvider } from "./context/Providers/AuthContexProvider.tsx";
 import ShiftHistoryPage from "./components/Admin/ShiftHistoryPage.tsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.tsx";
+import { StudentsProvider } from "./context/Providers/StudentsContextProvider.tsx";
 
 const router = createBrowserRouter([
   {
@@ -47,7 +48,7 @@ const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <AdminDashboardPage />,
+                element: <StudentsProvider children={<AdminDashboardPage />} />,
               },
               {
                 path: "schedule",

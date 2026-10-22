@@ -18,19 +18,36 @@ export type UserWithPassword = {
 
 export type UserWithoutPassword = Omit<UserWithPassword, "password">;
 
+export type SigninOption = "email" | "tempPassword";
+
 export type CreateUserModel = {
   username: string;
-  email?: string | null;
-  phone?: string | null;
+  email: string | null;
+  phone: string | null;
   user_role: UserRoles;
   default_hourly_rate: number;
   password_hash: string;
   first_name: string;
   last_name: string;
-  date_of_birth: Date;
+  date_of_birth: string; // "yyyy-MM-dd"
 };
 
-export type CreateUserReqBodyType = Omit<CreateUserModel, "password_hash">;
+export type CreateUserReqBodyType = {
+  signin_option: SigninOption;
+  user_role: UserRoles;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string; // "yyyy-MM-dd"
+  default_hourly_rate?: number; // only required for students
+  email?: string | null;
+  phone?: string | null;
+};
+
+// password is only returned for the "tempPassword" option, emailSent only for "email"
+export type CreatedUser = UserWithoutPassword & {
+  password?: string;
+  emailSent?: boolean;
+};
 export type UserWithHashedPasswordType = Omit<UserWithPassword, "password"> & {
   password_hash: string;
 };

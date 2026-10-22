@@ -12,3 +12,11 @@ export type StudentAssigned = StudentRequesting & {
   // false when an admin assigned the student without a shift request
   has_request: boolean;
 };
+
+export type deletableStudent = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string | null;
+  created_at: string;
+};

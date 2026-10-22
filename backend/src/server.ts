@@ -12,6 +12,7 @@ import { requireAdmin } from "./middleware/requireAdmin.js";
 import { meRouter } from "./routes/meRoutes.js";
 import { requireStudent } from "./middleware/requireStudent.js";
 import cors from "cors";
+import { adminRouter } from "./routes/adminRoutes.js";
 const app = express();
 
 // generate upcoming shifts on server start
@@ -36,6 +37,7 @@ app.use(authenticate); // Apply the authenticate middleware to all routes below 
 app.use("/api/users", requireAdmin, userRouter);
 app.use("/api/shifts", shiftsRouter);
 app.use("/api/me", meRouter);
+app.use("/api/admin", requireAdmin, adminRouter);
 // Error handling middleware
 // should be placed after all other routes and middleware
 app.use(ErrorHandler);
