@@ -7,6 +7,7 @@ import {
 } from "../types/User.js";
 import { AllowedFields } from "../types/AllowedFields.js";
 import { AssignedShiftToUser, Shift, UserStats } from "../types/Shift.js";
+import { Contract } from "../types/contract.js";
 
 export async function getUsers(
   role?: UserRoles,
@@ -512,4 +513,38 @@ export async function storePasswordResetToken(
     client.release();
   }
   // Had to use a transaction to ensure that any previous unused tokens for the user are marked as used before inserting a new token. This prevents multiple valid tokens from existing for the same user at the same time.
+}
+
+export async function saveUploadContractToDb(
+  userId: string,
+  month: string,
+  fileKey: string,
+): Promise<void> {
+  await pool.query(
+    `INSERT INTO contracts (user_id, contract_month, file_key) 
+      VALUES ($1, ($2 || '-01')::date, $3)
+      ON CONFLICT (user_id, contract_month) 
+      DO UPDATE SET file_key = EXCLUDED.file_key, created_at = CURRENT_TIMESTAMP`,
+    [userId, month, fileKey],
+  );
+}
+
+export async function getMyContract(
+  userId: string,
+  month: string,
+): Promise<Contract> {
+  const result = await pool.query<Contract>(
+    `SELECT to_char(contract_month, 'YYYY-MM') AS month, 
+    c.file_key AS s3_key, 
+    c.created_at, 
+    c.user_id,
+    c.id,
+    u.first_name as user_first_name,
+    u.last_name as user_last_name
+    FROM contracts c
+    JOIN users u ON u.id = c.user_id 
+    WHERE c.user_id = $1 AND c.contract_month = ($2 || '-01')::date`,
+    [userId, month],
+  );
+  return result.rows[0];
 }

@@ -1,5 +1,7 @@
 import express from "express";
 import * as meController from "../controllers/meController.js";
+import { multerUpload } from "../config/multer.js";
+
 export const meRouter = express.Router();
 
 meRouter.get("/", meController.checkMe);
@@ -16,3 +18,10 @@ meRouter.get("/race", meController.getRaceStats);
 meRouter.get("/race/months", meController.getRaceMonths);
 meRouter.get("/goal", meController.getMyGoal);
 meRouter.patch("/goal", meController.updateMyGoal);
+meRouter.post(
+  "/contract",
+  multerUpload.single("contract"),
+  meController.uploadContract,
+);
+
+meRouter.get("/contract", meController.getMyContracts);

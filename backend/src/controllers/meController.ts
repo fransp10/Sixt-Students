@@ -140,11 +140,35 @@ export async function getMyGoal(
 export async function updateMyGoal(
   req: Request<{}, {}, { amount: number }>,
   res: Response,
-) {
+): Promise<void> {
   const userId = req.user!.id;
   const { amount } = req.body;
 
   const updatedGoal = await meServices.updateMyGoal(userId, amount);
 
   res.status(200).json(updatedGoal);
+}
+
+export async function uploadContract(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const userId = req.user!.id;
+  const { month } = req.body;
+  const file = req.file;
+  await meServices.uploadContract(userId, month, file);
+
+  res.status(201).json({ message: "Contract uploaded successfully" });
+}
+
+export async function getMyContracts(
+  req: Request<{}, {}, {}, { month: string; download?: string }>,
+  res: Response,
+): Promise<void> {
+  const userId = req.user!.id;
+  const { month } = req.query;
+  const download = req.query.download === "true";
+  const url = await meServices.getMyContract(userId, month, download);
+
+  res.status(200).json({ url });
 }

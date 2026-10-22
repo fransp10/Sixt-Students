@@ -1,5 +1,5 @@
-import express, { type Request, type Response } from "express";
 import "dotenv/config";
+import express from "express";
 import ErrorHandler from "./middleware/errorHandler.js";
 import userRouter from "./routes/usersRoutes.js";
 import shiftsRouter from "./routes/shiftsRoutes.js";
