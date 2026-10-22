@@ -3,7 +3,6 @@ import {
   CalendarIcon,
   UsersIcon,
   BanknotesIcon,
-  ChartBarIcon,
   Cog6ToothIcon,
   DocumentTextIcon,
 } from "@heroicons/react/24/outline";
@@ -30,11 +29,6 @@ export const adminNavItems: NavItemType[] = [
     label: "Earnings",
     to: "/admin/earnings",
     icon: BanknotesIcon,
-  },
-  {
-    label: "Reports",
-    to: "/admin/reports",
-    icon: ChartBarIcon,
   },
   {
     label: "Settings",

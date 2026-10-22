@@ -13,7 +13,6 @@ import AdminDashboardPage from "./pages/Admin/AdminDashboardPage.tsx";
 import SchedulePage from "./pages/Admin/AdminSchedulePage.tsx";
 import StudentsPage from "./pages/Admin/AdminStudentsPage.tsx";
 import EarningsPage from "./pages/EarningsPage.tsx";
-import ReportsPage from "./pages/ReportsPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
 import AdminChosenStudentPage from "./components/Admin/AdminChosenStudentPage.tsx";
 import AdminStudentNoStudentSelected from "./components/Admin/AdminStudentNoStudentSelected.tsx";
@@ -94,10 +93,6 @@ const router = createBrowserRouter([
               {
                 path: "earnings",
                 element: <EarningsPage />,
-              },
-              {
-                path: "reports",
-                element: <ReportsPage />,
               },
               {
                 path: "settings",
