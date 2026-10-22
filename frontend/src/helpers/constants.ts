@@ -4,3 +4,4 @@ export const MONTHLY_GOAL_PRESETS = [400, 600, 800, 1000];
 export const MINIMUM_STUDENT_AGE = 18;
 export const MAX_HOURLY_RATE = 100; // same limit as the backend
 export const STUDENTS_SHOWN_IN_ADMIN_RECENT_STUDENTS = 10;
+export const CONTRACTS_FIRST_MONTH = new Date(2024, 0, 1); // earliest month the admin can pick
