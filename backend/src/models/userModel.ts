@@ -437,7 +437,7 @@ export async function getRaceStats(month?: string) {
     `WITH race AS (
       SELECT u.id, u.first_name, u.last_name,
              COUNT(*)::int            AS shifts_worked,
-             ROUND(SUM(ws.hours), 2)  AS hours_worked
+             ROUND(SUM(ws.hours), 2)::float  AS hours_worked
       FROM worked_shifts ws
       JOIN users u ON u.id = ws.user_id
       WHERE u.user_role = 'student'
