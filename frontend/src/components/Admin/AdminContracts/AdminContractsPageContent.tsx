@@ -9,8 +9,6 @@ function AdminContractsPageContent() {
     startOfMonth(new Date()),
   );
 
-  console.log(selectedMonth);
-
   return (
     <div className="mt-12 flex flex-col gap-4">
       <PeriodBar

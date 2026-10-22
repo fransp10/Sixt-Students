@@ -72,11 +72,13 @@ function AdminContractsTable() {
 
   // missing contracts first
   const visibleContracts = contracts
-    .filter(() => {
-      return filter === "missing" ? false : true;
+    .filter((contract) => {
+      if (filter === "all") return !!contract.uploaded_at;
+      if (filter === "missing") return !contract.uploaded_at;
+      if (filter === "uploaded") return !!contract.uploaded_at;
     })
     .sort((a, b) => Number(!!a.uploaded_at) - Number(!!b.uploaded_at));
-
+  console.log(visibleContracts);
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-borderDividers bg-cardBG p-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -97,7 +99,7 @@ function AdminContractsTable() {
 
       {visibleContracts.length === 0 ? (
         <p className="py-8 text-center text-sm text-secondaryText">
-          No students cpmtracts here
+          No students contracts here
         </p>
       ) : (
         <>
