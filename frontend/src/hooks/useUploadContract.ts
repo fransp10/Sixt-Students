@@ -66,7 +66,6 @@ export function useUploadContract(onClose: () => void) {
     selectedFile,
     setSelectedFile,
     isDragging,
-    setIsDragging,
     handleFileChange,
     handleDragLeave,
     handleDragOver,

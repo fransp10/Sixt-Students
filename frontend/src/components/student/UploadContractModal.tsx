@@ -20,6 +20,7 @@ function UploadContractModal({ onClose, month }: UploadContractModalProps) {
     handleDragOver,
     handleDrop,
     handleFileChange,
+    uploadContract,
   } = useUploadContract(onClose);
   return (
     <div
@@ -97,7 +98,15 @@ function UploadContractModal({ onClose, month }: UploadContractModalProps) {
                 </button>
               </div>
               <div className="mt-4 flex justify-end  ">
-                <button className="bg-primary rounded-xl hover:bg-primary/80 cursor-pointer w-full p-2">
+                <button
+                  onClick={() =>
+                    uploadContract({
+                      month: format(month, "yyyy-MM"),
+                      file: selectedFile,
+                    })
+                  }
+                  className="bg-primary text-primaryText rounded-xl hover:bg-primary/80 cursor-pointer w-full p-2"
+                >
                   Upload
                 </button>
               </div>

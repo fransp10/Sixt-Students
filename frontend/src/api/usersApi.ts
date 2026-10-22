@@ -191,7 +191,7 @@ export async function createUser({
 export async function uploadContractToBackend(month: string, file: File) {
   const res = await axiosClient.post(
     `/me/contract`,
-    { month, contract : file },
+    { month, contract: file },
     {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -211,4 +211,17 @@ export async function getContract(month: string, download?: boolean) {
 export async function getContracts() {
   const res = await axiosClient.get(`/me/contracts`);
   return res.data as ContractsWithoutSignedUrl[];
+}
+
+export async function uploadContract(month: string, file: File) {
+  const res = await axiosClient.post(
+    `/me/contracts`,
+    { month, contract: file },
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
+  return res.data;
 }
