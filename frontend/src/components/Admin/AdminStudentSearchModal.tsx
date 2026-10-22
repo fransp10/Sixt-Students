@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { useStudentsCtx } from "../../hooks/auth/useStudentsContext";
 import { useGetAllUsers } from "../../hooks/useGetAllUsers";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 function AdminStudentSearchModal() {
   const { closeStudentSearch } = useStudentsCtx();
@@ -46,6 +47,12 @@ function AdminStudentSearchModal() {
         onClick={(e) => e.stopPropagation()}
         className="flex h-full w-full flex-col overflow-hidden bg-cardBG md:h-[70vh] md:max-h-162.5 md:w-125 md:rounded-xl md:border md:border-borderDividers relative"
       >
+        <button
+          onClick={closeStudentSearch}
+          className="md:hidden bg-studentCard w-fit p-2 mr-4 ml-auto hover:text-danger text-secondaryText hover:bg-studentCard/40 cursor-pointer rounded-lg "
+        >
+          <XMarkIcon className="size-6" />
+        </button>
         <form className="bg-cardBG p-4 flex flex-row shrink-0 relative ">
           <button className="right-0 top-1/2 -translate-y-1/2 -translate-x-full absolute size-6 text-secondaryText cursor-pointer ">
             <MagnifyingGlassIcon />

@@ -20,7 +20,10 @@ function RaceDatePicker({
 
   return (
     <>
-      <label htmlFor="month" className="text-sm text-secondaryText">
+      <label
+        htmlFor="month"
+        className="hidden sm:block text-sm text-secondaryText"
+      >
         Month
       </label>
       <select
@@ -29,7 +32,7 @@ function RaceDatePicker({
           handleMonthChange(e.target.value);
         }}
         id="month"
-        className="h-10 w-52 cursor-pointer rounded-lg border border-borderDividers bg-cardBG px-3 text-sm text-primaryText outline-none scheme-dark  transition-colors hover:border-secondaryText focus:border-pending "
+        className="h-10 w-full sm:w-52 cursor-pointer rounded-lg border border-borderDividers bg-cardBG px-3 text-sm text-primaryText outline-none scheme-dark  transition-colors hover:border-secondaryText focus:border-pending "
       >
         {raceMonths.map((month) => (
           <option key={month} value={month}>

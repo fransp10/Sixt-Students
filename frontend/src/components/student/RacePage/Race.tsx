@@ -30,7 +30,7 @@ function Race({ raceStats }: { raceStats: RaceStats }) {
 
   return (
     <div className=" md:col-span-2 md:row-span-2 flex flex-col bg-cardLighterBG rounded-lg p-6 text-primaryText">
-      <div className="flex flex-row justify-between items-center">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
         <RaceHeader />
         <RaceModePicker handleChangeMode={setMode} mode={mode} />
       </div>

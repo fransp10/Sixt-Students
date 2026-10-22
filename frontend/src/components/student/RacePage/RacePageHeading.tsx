@@ -12,7 +12,7 @@ function RacePageHeading({
   const [year, month] = chosenMonth.split("-").map(Number);
 
   return (
-    <div className="flex flex-row justify-between items-center">
+    <div className="flex flex-col justify-between  sm:flex-row gap-4">
       <div>
         <h2 className="text-primary font-semibold uppercase -mb-1">
           Race season · {format(new Date(year, month - 1), "MMMM yyyy")}
@@ -22,7 +22,7 @@ function RacePageHeading({
           subheading="Your pay, your progress, and who's leading the pack this month."
         />
       </div>
-      <div className="mr-12 flex flex-col gap-1.5">
+      <div className="w-full sm:w-auto flex flex-col gap-1.5">
         <RaceDatePicker
           chosenMonth={chosenMonth}
           handleMonthChange={handleMonthChange}

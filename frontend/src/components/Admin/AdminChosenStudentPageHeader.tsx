@@ -58,10 +58,10 @@ function AdminChosenStudentPageHeader({
 
       <button
         onClick={openStudentSearch}
-        className="w-1/2 lg:w-auto flex flex-row items-center focus:outline-none p-4 border border-borderDividers rounded-lg hover:cursor-pointer hover:bg-borderDividers transition-all duration-300"
+        className="lg:w-auto bg-studentCard flex flex-row items-center focus:outline-none p-4 border border-borderDividers rounded-lg hover:cursor-pointer hover:bg-borderDividers transition-all duration-300 justify-center lg:justify-start"
       >
         <UserIcon className="size-4 text-primaryText mr-2" />
-        <span className=" text-primaryText">Change Student</span>
+        <span className=" text-primaryText justify-center">Change Student</span>
       </button>
     </div>
   );

@@ -39,7 +39,7 @@ function EarningsPage() {
   const top3 = raceStats.slice(0, 3);
 
   return (
-    <div className=" flex flex-col gap-4">
+    <div className=" flex flex-col gap-4 overflow-x-hidden">
       <RacePageHeading
         chosenMonth={chosenMonth}
         handleMonthChange={setChosenMonth}
