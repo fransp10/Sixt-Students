@@ -1,3 +1,5 @@
+import type { RecentStudent } from "../types/recentSudent";
+import type { DeletableStudent } from "../types/deletableStudent";
 import { axiosClient } from "./axios";
 
 export async function getAdminStats() {
@@ -20,4 +22,24 @@ export async function getMonthlyTotals(
   });
 
   return monthlyTotals.data as MonthlyTotals[];
+}
+
+export async function getRecentStudents(
+  limit: number,
+): Promise<RecentStudent[]> {
+  const recentStudents = await axiosClient.get("/admin/recent-students", {
+    params: { limit },
+  });
+
+  return recentStudents.data as RecentStudent[];
+}
+
+export async function getDeletableStudents(): Promise<DeletableStudent[]> {
+  const deletableStudents = await axiosClient.get("/admin/deletable-students");
+
+  return deletableStudents.data as DeletableStudent[];
+}
+
+export async function deleteStudent(studentId: number): Promise<void> {
+  await axiosClient.delete(`/admin/students/${studentId}`);
 }

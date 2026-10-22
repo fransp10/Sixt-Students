@@ -2,14 +2,20 @@ import { format } from "date-fns";
 import DashboardHeader from "../../components/student/Dashboard/DashboardHeader";
 
 import AdminDashboardContent from "../../components/Admin/AdminDashboardContent";
-import { MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/outline";
+import {
+  MagnifyingGlassIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import CreateStudentModal from "../../components/student/Dashboard/CreateStudentModal";
 import AdminStudentSearchModal from "../../components/Admin/AdminStudentSearchModal";
+import DeleteStudentModal from "../../components/Admin/DeleteStudentModal";
 import { useStudentsCtx } from "../../hooks/auth/useStudentsContext";
 
 function AdminDashboardPage() {
   const [createStudentModalOpen, setCreateStudentModalOpen] = useState(false);
+  const [deleteStudentModalOpen, setDeleteStudentModalOpen] = useState(false);
   const { isSearchOpen, openStudentSearch } = useStudentsCtx();
   const currentDate = format(new Date(), "EEEE, MMMM do");
 
@@ -30,7 +36,7 @@ function AdminDashboardPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="uppercase text-xl font-semibold text-secondaryText">
             {currentDate}
@@ -49,6 +55,14 @@ function AdminDashboardPage() {
               </kbd>
             </div>
           </button>
+          {/* delete student button */}
+          <button
+            onClick={() => setDeleteStudentModalOpen(true)}
+            className="text-nowrap py-2 px-4 rounded-lg border border-borderDividers bg-studentCard text-primaryText flex items-center gap-2 cursor-pointer hover:border-danger hover:text-danger"
+          >
+            <TrashIcon className="size-4" />
+            <span>Delete students</span>
+          </button>
           {/* add new student button */}
           <button
             onClick={() => setCreateStudentModalOpen(true)}
@@ -63,6 +77,12 @@ function AdminDashboardPage() {
       {createStudentModalOpen && (
         <CreateStudentModal
           handleCloseModal={() => setCreateStudentModalOpen(false)}
+        />
+      )}
+
+      {deleteStudentModalOpen && (
+        <DeleteStudentModal
+          handleCloseModal={() => setDeleteStudentModalOpen(false)}
         />
       )}
 

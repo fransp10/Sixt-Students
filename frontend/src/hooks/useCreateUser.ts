@@ -11,6 +11,7 @@ export function useCreateUser() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["recentStudents"] });
     },
   });
 

@@ -1,5 +1,7 @@
 import pool from "../db/db.js";
 import { monthlyTotals } from "../types/monthlyTotals.js";
+import { recentStudent } from "../types/recentStudent.js";
+import { deletableStudent } from "../types/Student.js";
 
 export async function getActiveStudentsCount(): Promise<number> {
   const numOfStudents = await pool.query(
@@ -45,4 +47,44 @@ ORDER BY 1`,
   );
 
   return result.rows;
+}
+
+// must_change_password stays true until the student sets their own password,
+// either through the emailed setup link or by changing the temporary one
+export async function getRecentStudents(
+  limit: number,
+): Promise<recentStudent[]> {
+  const result = await pool.query<recentStudent>(
+    `SELECT u.id, u.first_name, u.last_name, u.email, u.created_at,
+       CASE
+         WHEN NOT u.is_active THEN 'deactivated'
+         WHEN u.must_change_password THEN 'not_signed_in'
+         WHEN EXISTS (SELECT 1 FROM shift_requests sr WHERE sr.user_id = u.id)
+           OR EXISTS (SELECT 1 FROM shift_assignments sa WHERE sa.user_id = u.id)
+           THEN 'active'
+         ELSE 'no_requests'
+       END AS onboarding_status
+     FROM users u
+     WHERE u.user_role = 'student'
+     ORDER BY u.created_at DESC, u.id DESC
+     LIMIT $1`,
+    [limit],
+  );
+
+  return result.rows;
+}
+
+export async function getDeletableStudents(): Promise<deletableStudent[]> {
+  const result = await pool.query<deletableStudent>(
+    `SELECT u.id, u.first_name, u.last_name, u.email, u.created_at FROM users u WHERE u.user_role = 'student' AND NOT EXISTS (SELECT 1 FROM shift_requests sr WHERE sr.user_id = u.id) AND NOT EXISTS (SELECT 1 FROM shift_assignments sa WHERE sa.user_id = u.id) ORDER BY u.created_at DESC, u.id DESC`,
+  );
+
+  return result.rows;
+}
+
+export async function deleteStudent(id: number): Promise<void> {
+  const result = await pool.query(
+    `DELETE FROM users WHERE id = $1 AND user_role = 'student'`,
+    [id],
+  );
 }

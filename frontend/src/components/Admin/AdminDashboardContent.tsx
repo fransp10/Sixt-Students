@@ -9,6 +9,7 @@ import AdminTodayShifts from "./AdminTodayShifts";
 import AdminPendingRequests from "./AdminPendingRequests";
 import AdminHoursPayrollChart from "./AdminHoursPayrollChart";
 import AdminTopHours from "./AdminTopHours";
+import AdminRecentStudents from "./AdminRecentStudents";
 import { formatStat } from "../../helpers/formatStat";
 import { useAdminStats } from "../../hooks/useAdminStats";
 
@@ -55,11 +56,7 @@ function AdminDashboardContent() {
         <AdminTodayShifts />
         <AdminHoursPayrollChart />
         <AdminTopHours />
-        <div className="col-span-full bg-cardBG h-120 p-4 rounded-lg">
-          <h2 className="text-primaryText font-bold">
-            Recently added students
-          </h2>
-        </div>
+        <AdminRecentStudents />
       </div>
     </>
   );
