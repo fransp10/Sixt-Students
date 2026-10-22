@@ -70,11 +70,10 @@ function AdminContractsTable() {
     uploaded: uploadedCount,
   };
 
-  // missing contracts first, since those are the ones the admin has to act on
+  // missing contracts first
   const visibleContracts = contracts
     .filter(() => {
-      if (filter === "missing") return false;
-      return true;
+      return filter === "missing" ? false : true;
     })
     .sort((a, b) => Number(!!a.uploaded_at) - Number(!!b.uploaded_at));
 
@@ -98,7 +97,7 @@ function AdminContractsTable() {
 
       {visibleContracts.length === 0 ? (
         <p className="py-8 text-center text-sm text-secondaryText">
-          No students here
+          No students cpmtracts here
         </p>
       ) : (
         <>
