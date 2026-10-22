@@ -9,22 +9,27 @@ import {
   startOfMonth,
 } from "date-fns";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import { CONTRACTS_FIRST_MONTH } from "../../../helpers/constants";
 
 type MonthPickerPopoverProps = {
   selectedMonth: Date;
   onSelect: (month: Date) => void;
+  minMonth: Date;
+  maxMonth: Date;
+  isMonthSelectable: (month: Date) => boolean;
 };
 
 function MonthPickerPopover({
   selectedMonth,
   onSelect,
+  minMonth,
+  maxMonth,
+  isMonthSelectable,
 }: MonthPickerPopoverProps) {
   const [viewYear, setViewYear] = useState(getYear(selectedMonth));
 
   const currentMonth = startOfMonth(new Date());
-  const firstYear = getYear(CONTRACTS_FIRST_MONTH);
-  const lastYear = getYear(currentMonth);
+  const firstYear = getYear(minMonth);
+  const lastYear = getYear(maxMonth);
 
   const months = eachMonthOfInterval({
     start: new Date(viewYear, 0, 1),
@@ -63,8 +68,9 @@ function MonthPickerPopover({
         {months.map((month) => {
           const isSelected = isSameMonth(month, selectedMonth);
           const isDisabled =
-            isAfter(month, currentMonth) ||
-            isBefore(month, CONTRACTS_FIRST_MONTH);
+            isAfter(month, maxMonth) ||
+            isBefore(month, minMonth) ||
+            !isMonthSelectable(month);
 
           return (
             <button

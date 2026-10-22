@@ -2,7 +2,7 @@ import { useState } from "react";
 import { startOfMonth } from "date-fns";
 import AdminContractsTable from "./AdminContractsTable";
 import ContractsStatsCards from "./ContractsStatsCards";
-import PeriodBar from "./PeriodBar";
+import PeriodBar from "../../PeriodBar/PeriodBar";
 
 function AdminContractsPageContent() {
   const [selectedMonth, setSelectedMonth] = useState(() =>
