@@ -182,3 +182,15 @@ export async function getMyContracts(
 
   res.status(200).json(contracts);
 }
+
+export async function deleteContract(
+  req: Request<{ contractId: string }>,
+  res: Response,
+): Promise<void> {
+  const userId = req.user!.id;
+  const { contractId } = req.params;
+
+  await meServices.deleteContract(userId, contractId);
+
+  res.status(204).json({ message: "Contract deleted successfully" });
+}

@@ -12,7 +12,11 @@ import {
 } from "../helpers/constants.js";
 import { isPasswordRequirementsMet } from "../helpers/isPasswordRequirementsMet.js";
 import { randomUUID } from "crypto";
-import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
 import { s3, S3_BUCKET } from "../config/s3.js";
 import {
   Contract,
@@ -352,4 +356,26 @@ export async function getMyContracts(
   }
 
   return userModel.getMyContracts(userId);
+}
+
+export async function deleteContract(
+  userId: string,
+  contractId: string,
+): Promise<void> {
+  if (!userId) {
+    throw new AppError("UserId is required", 400);
+  }
+
+  if (!contractId) {
+    throw new AppError("ContractId is required", 400);
+  }
+
+  const deleted = await userModel.deleteContractById(contractId, userId);
+
+  if (!deleted) {
+    throw new AppError("Contract not found", 404);
+  }
+  await s3.send(
+    new DeleteObjectCommand({ Bucket: S3_BUCKET, Key: deleted.file_key }),
+  );
 }

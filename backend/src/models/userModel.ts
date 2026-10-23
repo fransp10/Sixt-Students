@@ -570,3 +570,38 @@ export async function getMyContracts(
   );
   return result.rows;
 }
+
+export async function getMyContractById(
+  userId: string,
+  contractId: string,
+): Promise<Contract> {
+  const result = await pool.query<Contract>(
+    `SELECT 
+    to_char(contract_month, 'YYYY-MM') AS month, 
+    c.file_key AS s3_key, 
+    c.created_at AS uploaded_at, 
+    c.user_id,
+    c.id,
+    u.first_name as user_first_name,
+    u.last_name as user_last_name,
+    c.file_name,
+    c.file_size
+    FROM contracts c
+    JOIN users u ON u.id = c.user_id 
+    WHERE c.id = $1 AND c.user_id = $2`,
+    [contractId, userId],
+  );
+
+  return result.rows[0];
+}
+
+export async function deleteContractById(
+  contractId: string,
+  userId: string,
+): Promise<{ file_key: string } | null> {
+  const res = await pool.query(
+    `DELETE FROM contracts WHERE id = $1 AND user_id = $2 RETURNING file_key`,
+    [contractId, userId],
+  );
+  return res.rows[0];
+}

@@ -26,3 +26,4 @@ meRouter.post(
 
 meRouter.get("/contract", meController.getMyContract);
 meRouter.get("/contracts", meController.getMyContracts);
+meRouter.delete("/contract/:contractId", meController.deleteContract);

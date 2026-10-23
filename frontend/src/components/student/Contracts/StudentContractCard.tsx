@@ -6,10 +6,12 @@ import {
   ClipboardDocumentIcon,
   DocumentTextIcon,
   LockClosedIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { format, parseISO } from "date-fns";
 import type { ContractsWithoutSignedUrl } from "../../../types/contracts";
 import { useGetContract } from "../../../hooks/useGetContract";
+import { useState } from "react";
 
 type StudentContractCardProps = {
   month: Date;
@@ -24,11 +26,8 @@ function StudentContractCard({
   isUploadable,
   onUpload,
 }: StudentContractCardProps) {
-  console.log(month);
-
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const { mutate: openContract } = useGetContract(format(month, "yyyy-MM"));
-
-  console.log("contractData", openContract);
 
   return (
     <div className="flex h-full flex-col gap-5 rounded-xl border border-borderDividers bg-cardBG p-5">
@@ -66,19 +65,44 @@ function StudentContractCard({
       {/* BODY */}
       {contract && (
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3 rounded-lg border border-borderDividers bg-cardLighterBG p-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-borderDividers">
-              <DocumentTextIcon className="size-5 text-secondaryText" />
+          <div className="flex flex-col sm:flex-row items-center gap-3 rounded-lg border border-borderDividers bg-cardLighterBG p-3">
+            <div className="flex flex-1 items-center gap-3 min-w-0">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-borderDividers">
+                <DocumentTextIcon className="size-5 text-secondaryText" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-primaryText">
+                  {contract.file_name}
+                </p>
+                <p className="text-xs text-secondaryText">
+                  {(contract.file_size / 1024 / 1024).toFixed(1)} MB · Uploaded{" "}
+                  {format(parseISO(contract.uploaded_at), "MMM d, HH:mm")}
+                </p>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-primaryText">
-                {contract.file_name}
-              </p>
-              <p className="text-xs text-secondaryText">
-                {(contract.file_size / 1024 / 1024).toFixed(1)} MB · Uploaded{" "}
-                {format(parseISO(contract.uploaded_at), "MMM d, HH:mm")}
-              </p>
-            </div>
+
+            {!isConfirmOpen && (
+              <button
+                onClick={() => setIsConfirmOpen(true)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-borderDividers text-secondaryText transition-colors hover:border-danger hover:text-danger cursor-pointer "
+              >
+                <XMarkIcon className="size-8 text-danger" />
+              </button>
+            )}
+
+            {isConfirmOpen && (
+              <div className="flex items-center gap-2 text-sm *:transition-colors w-full sm:w-auto  ">
+                <button className="text-primaryText p-2 rounded-lg bg-danger cursor-pointer hover:bg-danger/80 flex-1 sm:flex-none ">
+                  DELETE
+                </button>
+                <button
+                  onClick={() => setIsConfirmOpen(false)}
+                  className="text-primaryText p-2 rounded-lg border-2 border-borderDividers cursor-pointer hover:bg-surfaceCards flex-1 sm:flex-none "
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row">
