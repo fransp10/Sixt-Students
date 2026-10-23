@@ -12,6 +12,7 @@ import { format, parseISO } from "date-fns";
 import type { ContractsWithoutSignedUrl } from "../../../types/contracts";
 import { useGetContract } from "../../../hooks/useGetContract";
 import { useState } from "react";
+import { useDeleteContract } from "../../../hooks/useDeleteContract";
 
 type StudentContractCardProps = {
   month: Date;
@@ -28,6 +29,7 @@ function StudentContractCard({
 }: StudentContractCardProps) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const { mutate: openContract } = useGetContract(format(month, "yyyy-MM"));
+  const { mutate: deleteContract } = useDeleteContract();
 
   return (
     <div className="flex h-full flex-col gap-5 rounded-xl border border-borderDividers bg-cardBG p-5">
@@ -92,8 +94,11 @@ function StudentContractCard({
 
             {isConfirmOpen && (
               <div className="flex items-center gap-2 text-sm *:transition-colors w-full sm:w-auto  ">
-                <button className="text-primaryText p-2 rounded-lg bg-danger cursor-pointer hover:bg-danger/80 flex-1 sm:flex-none ">
-                  DELETE
+                <button
+                  onClick={() => deleteContract(contract.id)}
+                  className="text-primaryText p-2 rounded-lg bg-danger cursor-pointer hover:bg-danger/80 flex-1 sm:flex-none "
+                >
+                  Delete
                 </button>
                 <button
                   onClick={() => setIsConfirmOpen(false)}

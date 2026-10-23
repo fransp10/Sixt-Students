@@ -225,3 +225,8 @@ export async function uploadContract(month: string, file: File) {
   );
   return res.data;
 }
+
+export async function deleteContract(contractId: number) {
+  const res = await axiosClient.delete(`/me/contract/${contractId}`);
+  return res.data;
+}

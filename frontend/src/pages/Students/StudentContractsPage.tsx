@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { isSameMonth, min, parseISO, startOfMonth } from "date-fns";
+import { format, isSameMonth, min, parseISO, startOfMonth } from "date-fns";
 import PageHeading from "../../components/PageHeading";
 import PeriodBar from "../../components/PeriodBar/PeriodBar";
 import StudentContractCard from "../../components/student/Contracts/StudentContractCard";
@@ -63,6 +63,7 @@ function StudentContractsPage() {
           <div className="lg:col-span-2">
             {contracts && (
               <StudentContractCard
+                key={format(selectedMonth, "yyyy-MM")}
                 month={selectedMonth}
                 contract={findContract(selectedMonth)}
                 isUploadable={isContractMonthUploadable(selectedMonth)}
