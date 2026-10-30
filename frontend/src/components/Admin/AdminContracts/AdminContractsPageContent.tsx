@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { startOfMonth } from "date-fns";
 import AdminContractsTable from "./AdminContractsTable";
-import ContractsStatsCards from "./ContractsStatsCards";
 import PeriodBar from "../../PeriodBar/PeriodBar";
+import { format, startOfMonth } from "date-fns";
 
 function AdminContractsPageContent() {
   const [selectedMonth, setSelectedMonth] = useState(() =>
@@ -15,8 +14,7 @@ function AdminContractsPageContent() {
         selectedMonth={selectedMonth}
         onMonthChange={setSelectedMonth}
       />
-      <ContractsStatsCards />
-      <AdminContractsTable />
+      <AdminContractsTable selectedMonth={format(selectedMonth, "yyyy-MM")} />
     </div>
   );
 }

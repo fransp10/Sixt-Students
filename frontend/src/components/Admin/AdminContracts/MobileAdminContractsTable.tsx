@@ -1,8 +1,8 @@
-import type { AdminContractRow } from "../../../types/adminContract";
+import type { Contract } from "../../../types/contracts";
 import AdminContractsMobileCard from "./AdminContractsMobileCard";
 
 type MobileAdminContractsTable = {
-  visibleContracts: AdminContractRow[];
+  visibleContracts: Contract[];
 };
 
 function MobileAdminContractsTable({
@@ -11,10 +11,7 @@ function MobileAdminContractsTable({
   return (
     <div className="flex flex-col gap-2 md:hidden">
       {visibleContracts.map((contract) => (
-        <AdminContractsMobileCard
-          key={contract.student_id}
-          contract={contract}
-        />
+        <AdminContractsMobileCard key={contract.user_id} contract={contract} />
       ))}
     </div>
   );

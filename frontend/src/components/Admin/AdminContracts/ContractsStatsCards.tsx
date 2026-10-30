@@ -5,11 +5,19 @@ import {
 } from "@heroicons/react/24/outline";
 import ContractStatsCard from "./ContractStatsCard";
 
-const uploaded = 4;
-const totalStudents = 6;
-const missing = totalStudents - uploaded;
+type ContractsStatsCardsProps = {
+  uploaded: number;
+  totalStudents: number;
+  missing: number;
+  lastUpload: string | null;
+};
 
-function ContractsStatsCards() {
+function ContractsStatsCards({
+  uploaded,
+  totalStudents,
+  missing,
+  lastUpload,
+}: ContractsStatsCardsProps) {
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
       <ContractStatsCard
@@ -29,7 +37,7 @@ function ContractsStatsCards() {
       <ContractStatsCard
         title="Last upload"
         icon={ClockIcon}
-        value="Oct 21"
+        value={lastUpload ?? "N/A"}
         caption="October 2026"
         className="col-span-2 md:col-span-1"
       />

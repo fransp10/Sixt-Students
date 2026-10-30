@@ -1,11 +1,13 @@
 export type Contract = {
   id: string;
   user_id: string;
-  month: string;
+  contract_month: string;
+  s3_key: string;
   uploaded_at: string;
-  signed_url: string;
+  user_first_name: string;
+  user_last_name: string;
   file_name: string;
-  file_size: number; // bytes
+  file_size: number;
 };
 
 export type ContractsWithoutSignedUrl = {
@@ -14,4 +16,8 @@ export type ContractsWithoutSignedUrl = {
   file_name: string;
   file_size: number; // bytes
   uploaded_at: string;
+};
+
+export type ContractWithUrl = Omit<Contract, "s3_key"> & {
+  signed_url: string;
 };

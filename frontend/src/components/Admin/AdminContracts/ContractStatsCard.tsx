@@ -5,7 +5,6 @@ function ContractStatsCard({
   value,
   icon: Icon,
   total,
-  caption,
   progress,
   valueClassName = "text-primaryText",
   className = "",
@@ -28,14 +27,13 @@ function ContractStatsCard({
       >
         {value}
         {total && (
-          <span className="text-base font-normal text-secondaryText">
-            {" "}
+          <span className={`text-base font-normal text-secondaryText `}>
             / {total}
           </span>
         )}
       </p>
 
-      {progress && (
+      {progress !== undefined && (
         <div className="mt-3 h-1 rounded-full bg-darkBackground">
           <div
             className={`h-1 rounded-full ${progress >= 100 ? "bg-success" : "bg-primary"}`}
@@ -43,8 +41,6 @@ function ContractStatsCard({
           />
         </div>
       )}
-
-      {caption && <p className="mt-1 text-xs text-secondaryText">{caption}</p>}
     </div>
   );
 }

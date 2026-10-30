@@ -1,6 +1,7 @@
 import type { RecentStudent } from "../types/recentSudent";
 import type { DeletableStudent } from "../types/deletableStudent";
 import { axiosClient } from "./axios";
+import type { Contract, ContractWithUrl } from "../types/contracts";
 
 export async function getAdminStats() {
   const adminStats = await axiosClient.get("/admin/stats");
@@ -42,4 +43,27 @@ export async function getDeletableStudents(): Promise<DeletableStudent[]> {
 
 export async function deleteStudent(studentId: number): Promise<void> {
   await axiosClient.delete(`/admin/students/${studentId}`);
+}
+
+export async function getStudentContracts(month?: string): Promise<Contract[]> {
+  if (month) {
+    return axiosClient
+      .get(`/admin/contracts?month=${month}`)
+      .then((res) => res.data as Contract[]);
+  }
+
+  const studentContracts = await axiosClient.get(`/admin/contracts`);
+
+  return studentContracts.data as Contract[];
+}
+
+export async function getStudentContractWithSignedUrl(
+  contractId: number,
+  download: boolean = false,
+): Promise<ContractWithUrl> {
+  const contractWithSignedUrl = await axiosClient.get(
+    `/admin/contracts/${contractId}?download=${download}`,
+  );
+
+  return contractWithSignedUrl.data as ContractWithUrl;
 }

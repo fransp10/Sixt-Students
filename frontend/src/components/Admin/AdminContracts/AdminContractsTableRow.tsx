@@ -2,10 +2,10 @@ import { format, parseISO } from "date-fns";
 import InitialsIcon from "../../InitialsIcon";
 import ContractStatusBadge from "./ContractStatusBadge";
 import DownloadContractButton from "./DownloadContractButton";
-import type { AdminContractRow } from "../../../types/adminContract";
+import type { Contract } from "../../../types/contracts";
 
-function AdminContractsTableRow({ contract }: { contract: AdminContractRow }) {
-  const fullName = `${contract.first_name} ${contract.last_name}`;
+function AdminContractsTableRow({ contract }: { contract: Contract }) {
+  const fullName = `${contract.user_first_name} ${contract.user_last_name}`;
 
   return (
     <tr className="border-b border-borderDividers last:border-0">
@@ -17,7 +17,7 @@ function AdminContractsTableRow({ contract }: { contract: AdminContractRow }) {
               {fullName}
             </p>
             <p className="truncate text-xs text-secondaryText">
-              {contract.email ?? "No email"}
+              {contract.user_email ?? "No email"}
             </p>
           </div>
         </div>

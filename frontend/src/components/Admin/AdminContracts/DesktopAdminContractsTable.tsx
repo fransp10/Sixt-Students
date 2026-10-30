@@ -1,8 +1,8 @@
-import type { AdminContractRow } from "../../../types/adminContract";
+import type { Contract } from "../../../types/contracts";
 import AdminContractsTableRow from "./AdminContractsTableRow";
 
 type DesktopAdminContractsTableProps = {
-  visibleContracts: AdminContractRow[];
+  visibleContracts: Contract[];
 };
 
 function DesktopAdminContractsTable({
@@ -22,10 +22,7 @@ function DesktopAdminContractsTable({
       </thead>
       <tbody>
         {visibleContracts.map((contract) => (
-          <AdminContractsTableRow
-            key={contract.student_id}
-            contract={contract}
-          />
+          <AdminContractsTableRow key={contract.user_id} contract={contract} />
         ))}
       </tbody>
     </table>

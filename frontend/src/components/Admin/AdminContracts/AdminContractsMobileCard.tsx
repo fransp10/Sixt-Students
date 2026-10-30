@@ -2,14 +2,10 @@ import { format, parseISO } from "date-fns";
 import InitialsIcon from "../../InitialsIcon";
 import ContractStatusBadge from "./ContractStatusBadge";
 import DownloadContractButton from "./DownloadContractButton";
-import type { AdminContractRow } from "../../../types/adminContract";
+import type { Contract } from "../../../types/contracts";
 
-function AdminContractsMobileCard({
-  contract,
-}: {
-  contract: AdminContractRow;
-}) {
-  const fullName = `${contract.first_name} ${contract.last_name}`;
+function AdminContractsMobileCard({ contract }: { contract: Contract }) {
+  const fullName = `${contract.user_first_name} ${contract.user_last_name}`;
 
   return (
     <div className="flex items-center gap-3 rounded-lg border border-borderDividers bg-studentCard p-3">
