@@ -3,6 +3,7 @@ import * as adminModel from "../models/adminModel.js";
 import { monthlyTotals } from "../types/monthlyTotals.js";
 import { recentStudent } from "../types/recentStudent.js";
 import AppError from "../errors/AppError.js";
+import { format } from "date-fns";
 import { isValidMonth } from "../helpers/isValidMonth.js";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { SIGNED_URL_EXPIRES_IN } from "../helpers/constants.js";
@@ -63,7 +64,10 @@ export async function getContracts(month?: string) {
       400,
     );
   }
-  const contracts = await adminModel.getContracts(month);
+  // "missing" only means something for a single month, so default to the current one
+  const contracts = await adminModel.getContracts(
+    month ?? format(new Date(), "yyyy-MM"),
+  );
 
   return contracts;
 }

@@ -1,5 +1,6 @@
 import pool from "../db/db.js";
 import {
+  AdminContractRow,
   Contract,
   ContractMetadata,
   ContractWithUrl,
@@ -94,24 +95,28 @@ export async function deleteStudent(id: number): Promise<void> {
   );
 }
 
-export async function getContracts(month?: string): Promise<Contract[]> {
-  let query = `SELECT 
-  c.id,
-  c.user_id, 
-  to_char(c.contract_month, 'YYYY-MM') as contract_month, 
-  c.created_at AS uploaded_at, 
+export async function getContracts(month: string): Promise<AdminContractRow[]> {
+  // month filter lives in the ON clause so students without a contract keep their row (c.* = null)
+  const result = await pool.query<AdminContractRow>(
+    `SELECT
+  u.id AS user_id,
   u.first_name AS user_first_name,
-   u.last_name AS user_last_name, 
-   u.id AS user_id,
-   c.file_name, 
-   c.file_size
-     FROM contracts c
-     JOIN users u ON c.user_id = u.id`;
-
-  if (month) query += `WHERE c.contract_month = ($1 || '-01')::date`;
-
-  query += ` ORDER BY c.contract_month DESC, u.id DESC`;
-  const result = await pool.query(query, month ? [month] : []);
+  u.last_name AS user_last_name,
+  u.email AS user_email,
+  $1::text AS contract_month,
+  c.id AS contract_id,
+  c.created_at AS uploaded_at,
+  c.file_name,
+  c.file_size
+    FROM users u
+    LEFT JOIN contracts c
+      ON c.user_id = u.id
+      AND c.contract_month = ($1::text || '-01')::date
+    WHERE u.user_role = 'student'
+      AND (u.is_active OR c.id IS NOT NULL)
+    ORDER BY (c.id IS NOT NULL), u.last_name, u.first_name`,
+    [month],
+  );
 
   return result.rows;
 }
