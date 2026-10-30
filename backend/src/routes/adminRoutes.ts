@@ -10,3 +10,5 @@ adminRouter.get("/recent-students", adminController.getRecentStudents);
 
 adminRouter.get("/deletable-students", adminController.getDeletableStudents);
 adminRouter.delete("/students/:id", adminController.deleteStudent);
+adminRouter.get("/contracts", adminController.getContracts);
+adminRouter.get("/contracts/:contractId", adminController.getContract);

@@ -188,7 +188,11 @@ export async function createUser({
   return res.data as Promise<CreatedUser>;
 }
 
-export async function uploadContractToBackend(month: string, file: File) {
+export async function uploadContractToBackend(
+  month: string,
+  file: File,
+  signal?: AbortSignal,
+) {
   const res = await axiosClient.post(
     `/me/contract`,
     { month, contract: file },
@@ -196,6 +200,7 @@ export async function uploadContractToBackend(month: string, file: File) {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      signal,
     },
   );
   return res.data;

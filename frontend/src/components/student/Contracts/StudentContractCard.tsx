@@ -13,6 +13,7 @@ import type { ContractsWithoutSignedUrl } from "../../../types/contracts";
 import { useGetContract } from "../../../hooks/useGetContract";
 import { useState } from "react";
 import { useDeleteContract } from "../../../hooks/useDeleteContract";
+import LoadingSpinner from "../../LoadingSpinner";
 
 type StudentContractCardProps = {
   month: Date;
@@ -29,7 +30,8 @@ function StudentContractCard({
 }: StudentContractCardProps) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const { mutate: openContract } = useGetContract(format(month, "yyyy-MM"));
-  const { mutate: deleteContract } = useDeleteContract();
+  const { mutate: deleteContract, isPending: isPendingDelete } =
+    useDeleteContract();
 
   return (
     <div className="flex h-full flex-col gap-5 rounded-xl border border-borderDividers bg-cardBG p-5">
@@ -66,7 +68,9 @@ function StudentContractCard({
 
       {/* BODY */}
       {contract && (
-        <div className="flex flex-col gap-4">
+        <div
+          className={`flex flex-col gap-4 ${isPendingDelete ? "*:opacity-50 *:cursor-not-allowed *:pointer-events-none" : ""}`}
+        >
           <div className="flex flex-col sm:flex-row items-center gap-3 rounded-lg border border-borderDividers bg-cardLighterBG p-3">
             <div className="flex flex-1 items-center gap-3 min-w-0">
               <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-borderDividers">
@@ -92,7 +96,7 @@ function StudentContractCard({
               </button>
             )}
 
-            {isConfirmOpen && (
+            {!isPendingDelete && isConfirmOpen && (
               <div className="flex items-center gap-2 text-sm *:transition-colors w-full sm:w-auto  ">
                 <button
                   onClick={() => deleteContract(contract.id)}
@@ -108,11 +112,13 @@ function StudentContractCard({
                 </button>
               </div>
             )}
+            {isPendingDelete && <LoadingSpinner size={18} />}
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row">
             <button
               type="button"
+              disabled={isPendingDelete}
               onClick={() => openContract(true)}
               className="flex min-h-9 items-center justify-center gap-2 rounded-lg border border-borderDividers px-3 text-sm font-semibold text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary"
             >
@@ -121,6 +127,7 @@ function StudentContractCard({
             </button>
 
             <button
+              disabled={isPendingDelete}
               onClick={() => openContract(false)}
               type="button"
               className="flex min-h-9 items-center justify-center gap-2 rounded-lg border border-borderDividers px-3 text-sm font-semibold text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary"
@@ -131,6 +138,7 @@ function StudentContractCard({
 
             {isUploadable ? (
               <button
+                disabled={isPendingDelete}
                 type="button"
                 onClick={onUpload}
                 className="flex min-h-9 items-center justify-center gap-2 rounded-lg border border-borderDividers px-3 text-sm font-semibold text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary"

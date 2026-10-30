@@ -1,19 +1,34 @@
-import { useEffect, useState, type ChangeEvent, type DragEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type DragEvent,
+} from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { uploadContractToBackend } from "../api/usersApi";
 
 export function useUploadContract(onClose: () => void) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const queryClient = useQueryClient();
   const {
     mutate: uploadContract,
-    isError,
-    isPending,
-    isSuccess,
+    isError: isErrorUploading,
+    isPending: isPendingUploading,
+    isSuccess: isSuccessUploading,
+    error: uploadingError,
+    reset: resetUploading,
   } = useMutation({
-    mutationFn: ({ month, file }: { month: string; file: File }) =>
-      uploadContractToBackend(month, file),
+    mutationFn: ({ month, file }: { month: string; file: File }) => {
+      abortControllerRef.current = new AbortController();
+      return uploadContractToBackend(
+        month,
+        file,
+        abortControllerRef.current.signal,
+      );
+    },
     mutationKey: ["uploadContract"],
     onSuccess: () => {
       setSelectedFile(null);
@@ -23,11 +38,16 @@ export function useUploadContract(onClose: () => void) {
   });
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    resetUploading();
     const file = e.target.files?.[0];
 
     if (!file) return;
 
     setSelectedFile(file);
+  }
+  function handleFileRemove() {
+    resetUploading();
+    setSelectedFile(null);
   }
 
   function handleDragLeave() {
@@ -42,15 +62,31 @@ export function useUploadContract(onClose: () => void) {
   function handleDrop(e: DragEvent<HTMLDivElement>) {
     e.preventDefault();
     setIsDragging(false);
+    if (isPendingUploading) return;
     const file = e.dataTransfer.files[0];
 
     if (!file || file.type !== "application/pdf") return;
+    resetUploading();
     setSelectedFile(file);
+  }
+
+  function handleClose() {
+    if (isPendingUploading) return;
+    onClose();
+  }
+
+  function handleCancelAndClose() {
+    if (isPendingUploading) {
+      abortControllerRef.current?.abort();
+      // the server may have already saved the file before the abort reached it
+      queryClient.invalidateQueries({ queryKey: ["contracts"] });
+    }
+    onClose();
   }
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && !isPendingUploading) {
         onClose();
       }
     }
@@ -60,19 +96,23 @@ export function useUploadContract(onClose: () => void) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onClose]);
+  }, [onClose, isPendingUploading]);
 
   return {
     selectedFile,
     setSelectedFile,
     isDragging,
     handleFileChange,
+    handleFileRemove,
     handleDragLeave,
     handleDragOver,
     handleDrop,
+    handleClose,
+    handleCancelAndClose,
     uploadContract,
-    isError,
-    isPending,
-    isSuccess,
+    isErrorUploading,
+    isPendingUploading,
+    isSuccessUploading,
+    uploadingError,
   };
 }

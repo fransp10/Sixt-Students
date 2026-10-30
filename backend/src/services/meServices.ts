@@ -336,13 +336,15 @@ export async function getMyContract(
   );
 
   const contractWithUrl: ContractWithUrl = {
-    month: contract.month,
+    contract_month: contract.contract_month,
     id: contract.id,
     signed_url: signedUrl,
     user_id: contract.user_id,
     uploaded_at: contract.uploaded_at,
     file_name: contract.file_name,
     file_size: contract.file_size,
+    user_first_name: contract.user_first_name,
+    user_last_name: contract.user_last_name,
   };
 
   return contractWithUrl;

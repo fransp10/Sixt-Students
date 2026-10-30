@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Student Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+  /* Tokens copied from frontend/src/index.css + getColorForShiftType.ts */
+  :root {
+    --primary: #ff5f00;
+    --page: #08090b;
+    --sidebar: #0e1116;
+    --card: #14171c;
+    --card-raised: #1c2027;
+    --line: #22262d;
+    --text: #e5e7ea;
+    --muted: #8b9096;
+    --icon: #6b7075;
+    --success: #4acb6f;
+    --warning: #f59e0b;
+    --pending: #60a5fa;
+
+    --shift-morning: #ff5f00;
+    --shift-middle: #ff7a2f;
+    --shift-afternoon: #ff945c;
+
+    --font: "Barlow", system-ui, sans-serif;
+    --font-display: "Barlow Semi Condensed", "Barlow", system-ui, sans-serif;
+
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--page);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, p, ul, dl, dd { margin: 0; padding: 0; }
+  ul { list-style: none; }
+  a { color: inherit; text-decoration: none; }
+  svg.icon { width: 20px; height: 20px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .num { font-variant-numeric: tabular-nums; }
+  :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
+
+  /* ---------- App shell ---------- */
+  .app { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: 100vh; }
+
+  .sidebar {
+    position: sticky; top: 0; height: 100vh;
+    display: flex; flex-direction: column;
+    background: var(--sidebar);
+    border-right: 1px solid var(--line);
+    padding: 20px 12px 16px;
+  }
+  .sidebar__logo { display: block; width: 136px; margin: 0 0 24px 4px; }
+  .sidebar__logo img { display: block; width: 100%; height: auto; }
+
+  .nav { display: flex; flex-direction: column; gap: 2px; }
+  .nav__link {
+    position: relative;
+    display: flex; align-items: center; gap: 12px;
+    height: 40px; padding: 0 12px;
+    border-radius: 8px;
+    color: var(--muted);
+    font-weight: 500; font-size: 15px;
+    transition: color .15s, background-color .15s;
+  }
+  .nav__link:hover { color: var(--text); background: var(--card); }
+  .nav__link[aria-current="page"] { color: var(--text); background: var(--card-raised); }
+  .nav__link[aria-current="page"] .icon { color: var(--primary); }
+  .nav__link[aria-current="page"]::before {
+    content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px;
+    width: 3px; border-radius: 0 3px 3px 0; background: var(--primary);
+  }
+  .nav__count {
+    margin-left: auto;
+    min-width: 20px; height: 20px; padding: 0 6px;
+    display: grid; place-items: center;
+    border-radius: 10px;
+    font-size: 12px; font-weight: 600;
+  }
+  .nav__count--pending { background: color-mix(in srgb, var(--pending) 16%, transparent); color: var(--pending); }
+  .nav__count--warning { background: color-mix(in srgb, var(--warning) 16%, transparent); color: var(--warning); }
+
+  .sidebar__foot { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
+  .user {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 8px 0 8px;
+    border-top: 1px solid var(--line);
+  }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: grid; place-items: center; flex-shrink: 0;
+    background: var(--card-raised); border: 1px solid var(--line);
+    font-size: 13px; font-weight: 600; color: var(--text);
+  }
+  .user__text { min-width: 0; line-height: 1.3; }
+  .user__name { font-weight: 600; font-size: 14px; }
+  .user__rate { font-size: 13px; color: var(--muted); }
+  .icon-btn {
+    margin-left: auto;
+    width: 36px; height: 36px; display: grid; place-items: center;
+    border: 0; border-radius: 8px; background: transparent;
+    color: var(--icon); cursor: pointer;
+  }
+  .icon-btn:hover { color: var(--text); background: var(--card); }
+
+  /* Mobile chrome: hidden on desktop */
+  .topbar, .tabbar { display: none; }
+
+  /* ---------- Main ---------- */
+  .main { min-width: 0; padding: 40px 48px 64px; }
+  .content { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+  .section-head h2 { font-size: 18px; font-weight: 600; }
+  .section-head p { font-size: 14px; color: var(--muted); }
+
+  /* Next shift */
+  .next { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px 40px; flex-wrap: wrap; }
+  .next h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(32px, 4.6vw, 52px);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    max-width: 18ch;
+  }
+  .next__detail { margin-top: 10px; color: var(--muted); font-size: 17px; max-width: 56ch; }
+  .next__detail strong { color: var(--text); font-weight: 500; }
+  .next__actions { display: flex; gap: 8px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 40px; padding: 0 16px;
+    border-radius: 8px; border: 1px solid var(--line);
+    background: var(--card); color: var(--text);
+    font: 500 15px/1 var(--font);
+    cursor: pointer; white-space: nowrap;
+  }
+  .btn:hover { background: var(--card-raised); }
+  .btn--primary { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
+  .btn--primary:hover { background: #ff7a2f; }
+  .btn--small { height: 32px; padding: 0 12px; font-size: 14px; }
+
+  /* ---------- Week rail (the signature element) ---------- */
+  .rail { padding: 8px 20px 16px; }
+  .rail__row { display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: stretch; }
+  .rail__row + .rail__row { border-top: 1px solid var(--line); }
+
+  .rail__axis { height: 32px; }
+  .rail__ticks { position: relative; }
+  .rail__ticks > span {
+    position: absolute; bottom: 6px; transform: translateX(-50%);
+    font-size: 12px; color: var(--muted);
+  }
+  .rail__ticks > span:first-child { transform: none; }
+  .rail__ticks > span:last-child { transform: translateX(-100%); }
+
+  .rail__day { display: flex; flex-direction: column; justify-content: center; padding: 10px 0; line-height: 1.2; }
+  .rail__day b { font-weight: 600; font-size: 15px; }
+  .rail__day span { font-size: 13px; color: var(--muted); }
+  .rail__row.is-today .rail__day b { color: var(--primary); }
+
+  /* Gridlines at the shift boundaries 10:00, 14:00, 18:00 on a 07–22 axis */
+  .rail__track {
+    position: relative; min-height: 56px;
+    background:
+      linear-gradient(var(--line), var(--line)) 20% 0 / 1px 100% no-repeat,
+      linear-gradient(var(--line), var(--line)) 46.667% 0 / 1px 100% no-repeat,
+      linear-gradient(var(--line), var(--line)) 73.333% 0 / 1px 100% no-repeat;
+  }
+  .rail__row.is-today .rail__track { background-color: color-mix(in srgb, var(--primary) 4%, transparent); }
+
+  .bar {
+    --c: var(--shift-morning);
+    position: absolute; top: 10px; bottom: 10px;
+    left: calc((var(--start) - 7) / 15 * 100%);
+    width: calc(8 / 15 * 100%);
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 0 12px;
+    border-radius: 7px;
+    font-size: 14px; white-space: nowrap; overflow: hidden;
+    animation: draw .6s cubic-bezier(.2, .7, .2, 1) both;
+    animation-delay: calc(var(--i) * 70ms + 150ms);
+  }
+  .bar--morning { --c: var(--shift-morning); }
+  .bar--middle { --c: var(--shift-middle); }
+  .bar--afternoon { --c: var(--shift-afternoon); }
+  .bar__name { font-weight: 600; }
+  .bar__meta { opacity: .8; }
+
+  .bar--worked {
+    background: color-mix(in srgb, var(--c) 18%, var(--card));
+    box-shadow: inset 3px 0 0 var(--c);
+    color: var(--text);
+  }
+  .bar--assigned { background: var(--c); color: #fff; }
+  .bar--assigned .bar__meta { opacity: .9; }
+  .bar--requested {
+    background: color-mix(in srgb, var(--pending) 7%, transparent);
+    border: 1px dashed color-mix(in srgb, var(--pending) 70%, transparent);
+    color: var(--pending);
+  }
+  .bar:hover { filter: brightness(1.1); }
+
+  .now {
+    position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px;
+    left: calc((var(--at) - 7) / 15 * 100%);
+    background: var(--primary);
+  }
+  .now::before {
+    content: ""; position: absolute; top: -3px; left: -3px;
+    width: 8px; height: 8px; border-radius: 50%; background: var(--primary);
+  }
+
+  @keyframes draw { from { clip-path: inset(0 100% 0 0 round 7px); } to { clip-path: inset(0 0 0 0 round 7px); } }
+
+  /* ---------- This month ---------- */
+  .month { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+  .goal { padding: 24px; border-right: 1px solid var(--line); }
+  .goal__amount {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums;
+  }
+  .goal__amount small { font: 400 17px var(--font); color: var(--muted); margin-left: 6px; }
+  .progress {
+    position: relative; height: 10px; margin: 20px 0 10px;
+    border-radius: 5px; background: var(--card-raised); overflow: hidden;
+  }
+  .progress__earned, .progress__booked { position: absolute; top: 0; bottom: 0; }
+  .progress__earned { left: 0; width: 80%; background: var(--primary); border-radius: 5px 0 0 5px; }
+  .progress__booked {
+    left: 80%; width: 16%;
+    background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--primary) 55%, transparent) 0 3px, transparent 3px 6px);
+  }
+  .goal__note { font-size: 15px; color: var(--muted); }
+  .goal__note strong { color: var(--text); font-weight: 500; }
+
+  .stats { display: grid; grid-template-rows: repeat(3, 1fr); }
+  .stat { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 0 24px; }
+  .stat + .stat { border-top: 1px solid var(--line); }
+  .stat dt { color: var(--muted); font-size: 15px; }
+  .stat dd { display: flex; align-items: baseline; gap: 10px; }
+  .stat__value { font-family: var(--font-display); font-weight: 600; font-size: 24px; font-variant-numeric: tabular-nums; }
+  .stat__avg { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 64px; text-align: right; }
+  .stats .stat { align-items: center; }
+
+  /* ---------- Lower row ---------- */
+  .lower { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+
+  .chart { padding: 20px 20px 16px; }
+  .bars {
+    position: relative; height: 180px;
+    display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; align-items: end;
+    border-bottom: 1px solid var(--line);
+  }
+  .bars__goal {
+    position: absolute; left: 0; right: 0; bottom: calc(600 / 800 * 100%);
+    border-top: 1px dashed var(--icon);
+  }
+  .bars__goal span {
+    position: absolute; right: 0; bottom: 4px;
+    font-size: 12px; color: var(--muted); background: var(--card); padding-left: 6px;
+  }
+  .month-bar { position: relative; height: calc(var(--v) / 800 * 100%); background: var(--card-raised); border-radius: 4px 4px 0 0; }
+  .month-bar:hover { background: #2a2e34; }
+  .month-bar span {
+    position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+    font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .month-bar.is-current { background: var(--primary); }
+  .month-bar.is-current span { color: var(--text); font-weight: 600; }
+  .month-bar.is-empty { height: 2px; background: var(--line); }
+  .months { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; margin-top: 8px; }
+  .months span { text-align: center; font-size: 12px; color: var(--muted); }
+  .months span.is-current { color: var(--text); font-weight: 600; }
+
+  .todo { padding: 8px 20px; }
+  .todo li { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 12px; padding: 14px 0; }
+  .todo li + li { border-top: 1px solid var(--line); }
+  .todo__icon { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; }
+  .todo__icon--warning { color: var(--warning); background: color-mix(in srgb, var(--warning) 12%, transparent); }
+  .todo__icon--pending { color: var(--pending); background: color-mix(in srgb, var(--pending) 12%, transparent); }
+  .todo h3 { font-size: 15px; font-weight: 600; line-height: 1.35; }
+  .todo p { font-size: 14px; color: var(--muted); margin-top: 2px; }
+  .todo .btn { margin-top: 10px; }
+
+  /* ---------- Tablet and below ---------- */
+  @media (max-width: 1100px) {
+    .lower { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 1023px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 24px 16px calc(88px + env(safe-area-inset-bottom)); }
+    .content { gap: 32px; }
+
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+      height: 56px; padding: 0 16px;
+      background: color-mix(in srgb, var(--sidebar) 92%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar img { display: block; height: 36px; width: auto; }
+
+    .tabbar {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+      padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+      background: color-mix(in srgb, var(--sidebar) 94%, transparent);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--line);
+    }
+    .tab {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 6px 0; border-radius: 8px;
+      font-size: 12px; font-weight: 500; color: var(--muted);
+    }
+    .tab .icon { width: 24px; height: 24px; }
+    .tab[aria-current="page"] { color: var(--text); }
+    .tab[aria-current="page"] .icon { color: var(--primary); }
+    .tab__dot {
+      position: absolute; top: 4px; left: calc(50% + 8px);
+      width: 8px; height: 8px; border-radius: 50%;
+      border: 2px solid var(--sidebar); box-sizing: content-box;
+    }
+    .tab__dot--pending { background: var(--pending); }
+    .tab__dot--warning { background: var(--warning); }
+
+    .month { grid-template-columns: 1fr; }
+    .goal { border-right: 0; border-bottom: 1px solid var(--line); }
+    .stat { padding: 14px 24px; }
+  }
+
+  @media (max-width: 640px) {
+    .next__actions { width: 100%; }
+    .next__actions .btn { flex: 1; justify-content: center; }
+    .rail { padding: 4px 12px 12px; }
+    .rail__row { grid-template-columns: 44px minmax(0, 1fr); }
+    .bar { padding: 0 8px; font-size: 13px; }
+    .bar__meta { display: none; }
+    .rail__min { display: none; }
+    .goal { padding: 20px; }
+    .goal__amount { font-size: 38px; }
+    .stat { padding: 12px 20px; }
+    .chart { padding: 16px 12px 12px; }
+    .bars, .months { gap: 4px; }
+    .month-bar span { display: none; }
+    .month-bar.is-current span { display: block; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar { animation: none; }
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></symbol>
+  <symbol id="i-banknotes" viewBox="0 0 24 24"><path d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"/></symbol>
+  <symbol id="i-document" viewBox="0 0 24 24"><path d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></symbol>
+  <symbol id="i-cog" viewBox="0 0 24 24"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4.5v15m7.5-7.5h-15"/></symbol>
+</svg>
+
+<div class="app">
+
+  <!-- Desktop navigation -->
+  <aside class="sidebar">
+    <a class="sidebar__logo" href="#dashboard" aria-label="Sixt Students, dashboard">
+      <img src="../frontend/src/assets/sixtStudentsLogo.png" alt="" width="1774" height="887" />
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav">
+        <li><a class="nav__link" href="#dashboard" aria-current="page"><svg class="icon"><use href="#i-home"/></svg>Dashboard</a></li>
+        <li><a class="nav__link" href="#schedule"><svg class="icon"><use href="#i-calendar"/></svg>Schedule<span class="nav__count nav__count--pending" aria-label="1 request waiting for approval">1</span></a></li>
+        <li><a class="nav__link" href="#earnings"><svg class="icon"><use href="#i-banknotes"/></svg>Earnings</a></li>
+        <li><a class="nav__link" href="#contracts"><svg class="icon"><use href="#i-document"/></svg>Contracts<span class="nav__count nav__count--warning" aria-label="1 contract missing">1</span></a></li>
+      </ul>
+    </nav>
+    <div class="sidebar__foot">
+      <a class="nav__link" href="#settings"><svg class="icon"><use href="#i-cog"/></svg>Settings</a>
+      <div class="user">
+        <span class="avatar" aria-hidden="true">FŠ</span>
+        <div class="user__text">
+          <p class="user__name">Fran Šipek</p>
+          <p class="user__rate num">€12.00 per hour</p>
+        </div>
+        <button class="icon-btn" type="button" aria-label="Log out" title="Log out"><svg class="icon"><use href="#i-logout"/></svg></button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Mobile top bar -->
+  <header class="topbar">
+    <a href="#dashboard" aria-label="Sixt Students, dashboard"><img src="../frontend/src/assets/sixtStudentsLogo.png" alt="" width="72" height="36" /></a>
+    <a class="avatar" href="#settings" aria-label="Settings">FŠ</a>
+  </header>
+
+  <main class="main" id="dashboard">
+    <div class="content">
+
+      <!-- Next shift -->
+      <section class="next" aria-labelledby="next-h">
+        <div>
+          <h1 id="next-h">You're working tomorrow, 10:00–18:00</h1>
+          <p class="next__detail">Middle shift on Saturday 24 October, with <strong>Marko Kovač</strong> and <strong>Ana Perić</strong>.</p>
+        </div>
+        <div class="next__actions">
+          <a class="btn" href="#schedule">Open schedule</a>
+          <a class="btn btn--primary" href="#schedule"><svg class="icon"><use href="#i-plus"/></svg>Request shifts</a>
+        </div>
+      </section>
+
+      <!-- Week rail -->
+      <section aria-labelledby="week-h">
+        <div class="section-head">
+          <h2 id="week-h">This week</h2>
+          <p>19–25 October</p>
+        </div>
+        <div class="panel rail">
+          <div class="rail__row rail__axis" aria-hidden="true">
+            <span></span>
+            <div class="rail__ticks num">
+              <span style="left:0">07<span class="rail__min">:00</span></span>
+              <span style="left:20%">10<span class="rail__min">:00</span></span>
+              <span style="left:46.667%">14<span class="rail__min">:00</span></span>
+              <span style="left:73.333%">18<span class="rail__min">:00</span></span>
+              <span style="left:100%">22<span class="rail__min">:00</span></span>
+            </div>
+          </div>
+
+          <div class="rail__row">
+            <div class="rail__day"><b>Mon</b><span class="num">19</span></div>
+            <div class="rail__track">
+              <a class="bar bar--worked bar--morning" style="--start:7; --i:0" href="#schedule" aria-label="Monday 19 October, morning shift 07:00 to 15:00, worked, €96 earned"><span class="bar__name">Morning</span><span class="bar__meta num">€96</span></a>
+            </div>
+          </div>
+          <div class="rail__row">
+            <div class="rail__day"><b>Tue</b><span class="num">20</span></div>
+            <div class="rail__track"></div>
+          </div>
+          <div class="rail__row">
+            <div class="rail__day"><b>Wed</b><span class="num">21</span></div>
+            <div class="rail__track">
+              <a class="bar bar--worked bar--afternoon" style="--start:14; --i:2" href="#schedule" aria-label="Wednesday 21 October, afternoon shift 14:00 to 22:00, worked, €96 earned"><span class="bar__name">Afternoon</span><span class="bar__meta num">€96</span></a>
+            </div>
+          </div>
+          <div class="rail__row">
+            <div class="rail__day"><b>Thu</b><span class="num">22</span></div>
+            <div class="rail__track"></div>
+          </div>
+          <div class="rail__row is-today">
+            <div class="rail__day"><b>Today</b><span class="num">23</span></div>
+            <div class="rail__track">
+              <span class="now" style="--at:16.667" title="Now, 16:40"></span>
+            </div>
+          </div>
+          <div class="rail__row">
+            <div class="rail__day"><b>Sat</b><span class="num">24</span></div>
+            <div class="rail__track">
+              <a class="bar bar--assigned bar--middle" style="--start:10; --i:5" href="#schedule" aria-label="Saturday 24 October, middle shift 10:00 to 18:00, assigned"><span class="bar__name">Middle</span><span class="bar__meta num">10:00–18:00</span></a>
+            </div>
+          </div>
+          <div class="rail__row">
+            <div class="rail__day"><b>Sun</b><span class="num">25</span></div>
+            <div class="rail__track">
+              <a class="bar bar--requested bar--afternoon" style="--start:14; --i:6" href="#schedule" aria-label="Sunday 25 October, afternoon shift 14:00 to 22:00, requested, waiting for approval"><span class="bar__name">Afternoon</span><span class="bar__meta">Waiting for approval</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- This month -->
+      <section aria-labelledby="month-h">
+        <div class="section-head">
+          <h2 id="month-h">October so far</h2>
+          <p>Compared with your average month</p>
+        </div>
+        <div class="panel month">
+          <div class="goal">
+            <p class="goal__amount">€480<small>of your €600 goal</small></p>
+            <div class="progress" role="img" aria-label="€480 earned, €96 booked for Saturday, goal €600">
+              <span class="progress__earned"></span>
+              <span class="progress__booked"></span>
+            </div>
+            <p class="goal__note">Saturday's shift takes you to <strong class="num">€576</strong>. One more shift reaches your goal.</p>
+          </div>
+          <dl class="stats">
+            <div class="stat"><dt>Shifts</dt><dd><span class="stat__value">5</span><span class="stat__avg">avg 6</span></dd></div>
+            <div class="stat"><dt>Hours</dt><dd><span class="stat__value">40</span><span class="stat__avg">avg 46</span></dd></div>
+            <div class="stat"><dt>Attendance</dt><dd><span class="stat__value">100%</span><span class="stat__avg">avg 97%</span></dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- Lower row -->
+      <div class="lower">
+        <section aria-labelledby="earn-h">
+          <div class="section-head">
+            <h2 id="earn-h">Earnings by month</h2>
+            <p class="num">€5,664 in 2026</p>
+          </div>
+          <div class="panel chart">
+            <div class="bars" role="img" aria-label="Monthly earnings in 2026: January €384, February €432, March €528, April €576, May €480, June €672, July €768, August €720, September €624, October €480 so far. Goal €600.">
+              <div class="bars__goal"><span>Goal €600</span></div>
+              <div class="month-bar" style="--v:384"><span>384</span></div>
+              <div class="month-bar" style="--v:432"><span>432</span></div>
+              <div class="month-bar" style="--v:528"><span>528</span></div>
+              <div class="month-bar" style="--v:576"><span>576</span></div>
+              <div class="month-bar" style="--v:480"><span>480</span></div>
+              <div class="month-bar" style="--v:672"><span>672</span></div>
+              <div class="month-bar" style="--v:768"><span>768</span></div>
+              <div class="month-bar" style="--v:720"><span>720</span></div>
+              <div class="month-bar" style="--v:624"><span>624</span></div>
+              <div class="month-bar is-current" style="--v:480"><span>€480</span></div>
+              <div class="month-bar is-empty"></div>
+              <div class="month-bar is-empty"></div>
+            </div>
+            <div class="months" aria-hidden="true">
+              <span>J</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span><span>A</span><span>S</span><span class="is-current">O</span><span>N</span><span>D</span>
+            </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="todo-h">
+          <div class="section-head">
+            <h2 id="todo-h">To do</h2>
+            <p>2 items</p>
+          </div>
+          <ul class="panel todo">
+            <li>
+              <span class="todo__icon todo__icon--warning"><svg class="icon"><use href="#i-document"/></svg></span>
+              <div>
+                <h3>Upload your November contract</h3>
+                <p>You haven't uploaded a contract for November yet.</p>
+                <button class="btn btn--small" type="button"><svg class="icon"><use href="#i-upload"/></svg>Upload contract</button>
+              </div>
+            </li>
+            <li>
+              <span class="todo__icon todo__icon--pending"><svg class="icon"><use href="#i-calendar"/></svg></span>
+              <div>
+                <h3>Sunday's afternoon shift is waiting for approval</h3>
+                <p class="num">25 October, 14:00–22:00. You'll see it on your schedule once it's assigned.</p>
+              </div>
+            </li>
+          </ul>
+        </section>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Mobile navigation -->
+  <nav class="tabbar" aria-label="Main">
+    <a class="tab" href="#dashboard" aria-current="page"><svg class="icon"><use href="#i-home"/></svg>Dashboard</a>
+    <a class="tab" href="#schedule"><svg class="icon"><use href="#i-calendar"/></svg>Schedule<span class="tab__dot tab__dot--pending" aria-label="1 request waiting"></span></a>
+    <a class="tab" href="#earnings"><svg class="icon"><use href="#i-banknotes"/></svg>Earnings</a>
+    <a class="tab" href="#contracts"><svg class="icon"><use href="#i-document"/></svg>Contracts<span class="tab__dot tab__dot--warning" aria-label="1 contract missing"></span></a>
+    <a class="tab" href="#settings"><svg class="icon"><use href="#i-cog"/></svg>Settings</a>
+  </nav>
+
+</div>
+</body>
+</html>

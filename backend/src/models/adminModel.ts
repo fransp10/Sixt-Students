@@ -1,4 +1,9 @@
 import pool from "../db/db.js";
+import {
+  Contract,
+  ContractMetadata,
+  ContractWithUrl,
+} from "../types/contract.js";
 import { monthlyTotals } from "../types/monthlyTotals.js";
 import { recentStudent } from "../types/recentStudent.js";
 import { deletableStudent } from "../types/Student.js";
@@ -87,4 +92,48 @@ export async function deleteStudent(id: number): Promise<void> {
     `DELETE FROM users WHERE id = $1 AND user_role = 'student'`,
     [id],
   );
+}
+
+export async function getContracts(month?: string): Promise<Contract[]> {
+  let query = `SELECT 
+  c.id,
+  c.user_id, 
+  to_char(c.contract_month, 'YYYY-MM') as contract_month, 
+  c.created_at AS uploaded_at, 
+  u.first_name AS user_first_name,
+   u.last_name AS user_last_name, 
+   u.id AS user_id,
+   c.file_name, 
+   c.file_size
+     FROM contracts c
+     JOIN users u ON c.user_id = u.id`;
+
+  if (month) query += `WHERE c.contract_month = ($1 || '-01')::date`;
+
+  query += ` ORDER BY c.contract_month DESC, u.id DESC`;
+  const result = await pool.query(query, month ? [month] : []);
+
+  return result.rows;
+}
+
+export async function getContract(contractId: string): Promise<Contract> {
+  const result = await pool.query<Contract>(
+    `SELECT 
+  c.id,
+  c.user_id,
+  c.file_key as s3_key,
+  to_char(c.contract_month, 'YYYY-MM') as contract_month, 
+  c.created_at AS uploaded_at, 
+  u.first_name AS user_first_name,
+   u.last_name AS user_last_name, 
+   u.id AS user_id,
+   c.file_name, 
+   c.file_size
+     FROM contracts c
+     JOIN users u ON c.user_id = u.id
+     WHERE c.id = $1`,
+    [contractId],
+  );
+
+  return result.rows[0];
 }

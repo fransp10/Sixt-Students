@@ -1,7 +1,7 @@
 export type Contract = {
   id: string;
   user_id: string;
-  month: string;
+  contract_month: string;
   s3_key: string;
   uploaded_at: string;
   user_first_name: string;
@@ -18,9 +18,6 @@ export type ContractMetadata = {
   uploaded_at: string;
 };
 
-export type ContractWithUrl = Omit<
-  Contract,
-  "s3_key" | "user_first_name" | "user_last_name"
-> & {
+export type ContractWithUrl = Omit<Contract, "s3_key"> & {
   signed_url: string;
 };
