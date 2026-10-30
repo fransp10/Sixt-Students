@@ -112,8 +112,14 @@ export async function getContracts(month: string): Promise<AdminContractRow[]> {
     LEFT JOIN contracts c
       ON c.user_id = u.id
       AND c.contract_month = ($1::text || '-01')::date
-    WHERE u.user_role = 'student'
-      AND (u.is_active OR c.id IS NOT NULL)
+      WHERE u.user_role = 'student'
+      AND (
+        c.id IS NOT NULL
+        OR (
+          u.is_active
+          AND u.created_at < ($1::text || '-01')::date + interval '1 month'
+    )
+  )
     ORDER BY (c.id IS NOT NULL), u.last_name, u.first_name`,
     [month],
   );
