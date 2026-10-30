@@ -3,10 +3,12 @@ import AdminContractsTableRow from "./AdminContractsTableRow";
 
 type DesktopAdminContractsTableProps = {
   visibleContracts: Contract[];
+  selectedMonth: string;
 };
 
 function DesktopAdminContractsTable({
   visibleContracts,
+  selectedMonth,
 }: DesktopAdminContractsTableProps) {
   return (
     <table className="hidden w-full table-fixed text-left text-sm md:table">
@@ -15,14 +17,21 @@ function DesktopAdminContractsTable({
           <th className="w-[45%] py-2 pr-4 font-medium">Student</th>
           <th className="py-2 pr-4 font-medium">Status</th>
           <th className="py-2 pr-4 font-medium">Uploaded</th>
-          <th className="w-16 py-2 font-medium">
-            <span className="sr-only">Download</span>
+          <th className="w-24 py-2 font-medium text-center">
+            <span className="">View</span>
+          </th>
+          <th className="w-24 py-2 font-medium text-center">
+            <span className="">Download</span>
           </th>
         </tr>
       </thead>
       <tbody>
         {visibleContracts.map((contract) => (
-          <AdminContractsTableRow key={contract.user_id} contract={contract} />
+          <AdminContractsTableRow
+            key={contract.user_id}
+            contract={contract}
+            selectedMonth={selectedMonth}
+          />
         ))}
       </tbody>
     </table>

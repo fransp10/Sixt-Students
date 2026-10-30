@@ -1,12 +1,18 @@
 import { format, parseISO } from "date-fns";
 import InitialsIcon from "../../InitialsIcon";
 import ContractStatusBadge from "./ContractStatusBadge";
-import DownloadContractButton from "./DownloadContractButton";
 import type { Contract } from "../../../types/contracts";
+import ContractActionButton from "./DownloadContractButton";
+import SendReminderButton from "./SendReminderButton";
 
-function AdminContractsTableRow({ contract }: { contract: Contract }) {
+function AdminContractsTableRow({
+  contract,
+  selectedMonth,
+}: {
+  contract: Contract;
+  selectedMonth: string;
+}) {
   const fullName = `${contract.user_first_name} ${contract.user_last_name}`;
-
   return (
     <tr className="border-b border-borderDividers last:border-0">
       <td className="py-2.5 pr-4">
@@ -30,13 +36,39 @@ function AdminContractsTableRow({ contract }: { contract: Contract }) {
           ? format(parseISO(contract.uploaded_at), "MMM d, HH:mm")
           : "—"}
       </td>
-      <td className="py-2.5">
-        <div className="flex justify-end">
-          {contract.uploaded_at && (
-            <DownloadContractButton studentName={fullName} />
-          )}
-        </div>
-      </td>
+      {contract.uploaded_at ? (
+        <>
+          <td className="py-2.5">
+            <div className="flex justify-center mr-2">
+              <ContractActionButton
+                download={false}
+                studentName={fullName}
+                contractId={Number(contract.contract_id)}
+              />
+            </div>
+          </td>
+          <td className="py-2.5 ">
+            <div className="flex  justify-center ml-2">
+              <ContractActionButton
+                download={true}
+                studentName={fullName}
+                contractId={Number(contract.contract_id)}
+              />
+            </div>
+          </td>
+        </>
+      ) : (
+        // no contract to view or download, so the reminder takes both cells
+        <td colSpan={2} className="py-2.5">
+          <div className="flex justify-center">
+            <SendReminderButton
+              studentName={fullName}
+              userId={Number(contract.user_id)}
+              month={selectedMonth}
+            />
+          </div>
+        </td>
+      )}
     </tr>
   );
 }

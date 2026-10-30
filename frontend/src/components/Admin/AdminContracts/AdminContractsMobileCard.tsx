@@ -1,10 +1,17 @@
 import { format, parseISO } from "date-fns";
 import InitialsIcon from "../../InitialsIcon";
 import ContractStatusBadge from "./ContractStatusBadge";
-import DownloadContractButton from "./DownloadContractButton";
+import ContractActionButton from "./DownloadContractButton";
+import SendReminderButton from "./SendReminderButton";
 import type { Contract } from "../../../types/contracts";
 
-function AdminContractsMobileCard({ contract }: { contract: Contract }) {
+function AdminContractsMobileCard({
+  contract,
+  selectedMonth,
+}: {
+  contract: Contract;
+  selectedMonth: string;
+}) {
   const fullName = `${contract.user_first_name} ${contract.user_last_name}`;
 
   return (
@@ -25,8 +32,25 @@ function AdminContractsMobileCard({ contract }: { contract: Contract }) {
         </div>
       </div>
 
-      {contract.uploaded_at && (
-        <DownloadContractButton studentName={fullName} />
+      {contract.uploaded_at ? (
+        <div className="flex gap-2">
+          <ContractActionButton
+            download={false}
+            studentName={fullName}
+            contractId={Number(contract.contract_id)}
+          />
+          <ContractActionButton
+            download={true}
+            studentName={fullName}
+            contractId={Number(contract.contract_id)}
+          />
+        </div>
+      ) : (
+        <SendReminderButton
+          studentName={fullName}
+          userId={Number(contract.user_id)}
+          month={selectedMonth}
+        />
       )}
     </div>
   );

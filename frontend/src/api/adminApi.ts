@@ -67,3 +67,16 @@ export async function getStudentContractWithSignedUrl(
 
   return contractWithSignedUrl.data as ContractWithUrl;
 }
+
+// without userIds the backend reminds every student missing a contract for that month
+export async function sendContractReminders(
+  month: string,
+  userIds?: number[],
+): Promise<{ sent: number }> {
+  const reminders = await axiosClient.post("/admin/contracts/reminders", {
+    month,
+    userIds,
+  });
+
+  return reminders.data as { sent: number };
+}

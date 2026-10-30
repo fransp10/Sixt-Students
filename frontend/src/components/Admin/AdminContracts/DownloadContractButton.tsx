@@ -1,15 +1,31 @@
-import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon, BookOpenIcon } from "@heroicons/react/24/outline";
+import { useOpenContractAdmin } from "../../../hooks/useOpenContractAdmin";
 
-function DownloadContractButton({ studentName }: { studentName: string }) {
+function ContractActionButton({
+  studentName,
+  download,
+  contractId,
+}: {
+  studentName: string;
+  download: boolean;
+  contractId: number;
+}) {
+  const { mutate: openContract } = useOpenContractAdmin();
+  console.log("contractId in ContractActionButton:", contractId);
   return (
     <button
       type="button"
+      onClick={() => openContract({ contractId, download })}
       aria-label={`Download ${studentName}'s contract`}
-      className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-borderDividers text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary"
+      className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-borderDividers text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary w-full "
     >
-      <ArrowDownTrayIcon className="size-5" />
+      {download ? (
+        <ArrowDownTrayIcon className="size-5" />
+      ) : (
+        <BookOpenIcon className="size-5" />
+      )}
     </button>
   );
 }
 
-export default DownloadContractButton;
+export default ContractActionButton;

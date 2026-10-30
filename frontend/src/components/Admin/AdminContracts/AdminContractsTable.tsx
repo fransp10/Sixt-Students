@@ -1,74 +1,33 @@
-import { useMemo, useState } from "react";
-import { ArchiveBoxArrowDownIcon } from "@heroicons/react/24/outline";
+import { useEffect, useMemo, useState } from "react";
 import ContractsFilterTabs from "./ContractsFilterTabs";
 import type { ContractFilter } from "../../../types/adminContract";
 import DesktopAdminContractsTable from "./DesktopAdminContractsTable";
 import MobileAdminContractsTable from "./MobileAdminContractsTable";
 import { useGetAllContractsAdmin } from "../../../hooks/useGetAllContractsAdmin";
 import ContractsStatsCards from "./ContractsStatsCards";
+import { useSendContractReminders } from "../../../hooks/useSendContractReminders";
 import { format } from "date-fns";
+import ActionButtonsForTable from "./ActionButtonsForTable";
 
-// placeholder rows until the contracts endpoint exists
-// const contracts: AdminContractRow[] = [
-//   {
-//     student_id: 1,
-//     first_name: "Ana",
-//     last_name: "Horvat",
-//     email: "ana.horvat@mail.com",
-//     contract_id: 11,
-//     uploaded_at: "2026-10-21T14:02:00",
-//   },
-//   {
-//     student_id: 2,
-//     first_name: "Luka",
-//     last_name: "Babić",
-//     email: "luka.babic@mail.com",
-//     contract_id: null,
-//     uploaded_at: null,
-//   },
-//   {
-//     student_id: 3,
-//     first_name: "Marko",
-//     last_name: "Kovač",
-//     email: "marko.kovac@mail.com",
-//     contract_id: 12,
-//     uploaded_at: "2026-10-19T09:30:00",
-//   },
-//   {
-//     student_id: 4,
-//     first_name: "Ivana",
-//     last_name: "Novak",
-//     email: null,
-//     contract_id: 13,
-//     uploaded_at: "2026-10-15T18:47:00",
-//   },
-//   {
-//     student_id: 5,
-//     first_name: "Petra",
-//     last_name: "Jurić",
-//     email: "petra.juric@mail.com",
-//     contract_id: null,
-//     uploaded_at: null,
-//   },
-//   {
-//     student_id: 6,
-//     first_name: "Tomislav",
-//     last_name: "Marić",
-//     email: "tomislav.maric@mail.com",
-//     contract_id: 14,
-//     uploaded_at: "2026-10-03T11:12:00",
-//   },
-// ];
-
-function AdminContractsTable({ selectedMonth }: { selectedMonth?: string }) {
+function AdminContractsTable({ selectedMonth }: { selectedMonth: string }) {
   const [filter, setFilter] = useState<ContractFilter>("all");
+  const {
+    mutate: remindMissing,
+    isPending: isPendingReminders,
+    isSuccess: isRemindersSent,
+    reset: resetReminders,
+  } = useSendContractReminders();
+
+  // a new month has its own missing students, so the bulk button starts fresh
+  useEffect(() => {
+    resetReminders();
+  }, [selectedMonth, resetReminders]);
 
   const {
     data: contracts,
     isError,
     isLoading,
   } = useGetAllContractsAdmin(selectedMonth);
-  console.log(contracts);
 
   const lastUploadedAt = useMemo(
     () => contracts?.find((contract) => !!contract.uploaded_at)?.uploaded_at,
@@ -129,7 +88,6 @@ function AdminContractsTable({ selectedMonth }: { selectedMonth?: string }) {
       if (filter === "uploaded") return !!contract.uploaded_at;
     })
     .sort((a, b) => Number(!!a.uploaded_at) - Number(!!b.uploaded_at));
-  console.log(visibleContracts);
   return (
     <div className="flex flex-col gap-4">
       <ContractsStatsCards
@@ -146,14 +104,14 @@ function AdminContractsTable({ selectedMonth }: { selectedMonth?: string }) {
             onChange={setFilter}
             counts={counts}
           />
-          <button
-            type="button"
-            disabled={uploadedCount === 0}
-            className="flex min-h-9 items-center justify-center gap-2 rounded-lg border border-borderDividers px-3 text-sm font-semibold text-primaryText cursor-pointer hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <ArchiveBoxArrowDownIcon className="size-5" />
-            Download all ({uploadedCount})
-          </button>
+          <ActionButtonsForTable
+            numOfContractsMissing={numOfContractsMissing}
+            isPendingReminders={isPendingReminders}
+            isRemindersSent={isRemindersSent}
+            remindMissing={remindMissing}
+            selectedMonth={selectedMonth}
+            uploadedCount={uploadedCount}
+          />
         </div>
 
         {visibleContracts.length === 0 ? (
@@ -162,8 +120,14 @@ function AdminContractsTable({ selectedMonth }: { selectedMonth?: string }) {
           </p>
         ) : (
           <>
-            <DesktopAdminContractsTable visibleContracts={visibleContracts} />
-            <MobileAdminContractsTable visibleContracts={visibleContracts} />
+            <DesktopAdminContractsTable
+              visibleContracts={visibleContracts}
+              selectedMonth={selectedMonth}
+            />
+            <MobileAdminContractsTable
+              visibleContracts={visibleContracts}
+              selectedMonth={selectedMonth}
+            />
           </>
         )}
       </div>

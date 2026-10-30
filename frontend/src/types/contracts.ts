@@ -1,5 +1,5 @@
 export type Contract = {
-  id: string;
+  contract_id: string;
   user_id: string;
   contract_month: string;
   s3_key: string;
