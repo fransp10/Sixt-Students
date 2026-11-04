@@ -1,20 +1,17 @@
 import {
+  ExclamationCircleIcon,
   EyeIcon,
   EyeSlashIcon,
   LockClosedIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
-import { useState, type MouseEvent, type SubmitEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../hooks/auth/useLogin";
+import { getErrorMessage } from "../helpers/getErrorMessage";
 
 function LoginForm() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  function togglePasswordVisibility(e: MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    setShowPassword(!showPassword);
-  }
-
   const loginMutation = useLogin();
   const navigate = useNavigate();
 
@@ -35,83 +32,97 @@ function LoginForm() {
         onSuccess: (data) => {
           navigate(data.user?.user_role === "admin" ? "/admin" : "/student");
         },
-        onError: (error) => {
-          console.error(error);
-        },
       },
     );
   }
 
   return (
-    <div className="bg-cardBG text-primaryText flex flex-col gap-4 w-full max-w-2xl p-6 rounded-xl  m-auto  border-borderDividers border   ">
-      <div className="flex flex-col items-center justify-center gap-2 ">
-        <h1 className="text-3xl font-semibold">Login</h1>
-        <p className="text-l text-secondaryText">
+    <div className="bg-cardBG text-primaryText flex flex-col gap-6 w-full max-w-md p-8 rounded-xl border border-borderDividers ">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <h1 className="text-2xl sm:text-3xl font-semibold">Login</h1>
+        <p className="text-secondaryText text-base">
           Welcome back! Please log in to continue.
         </p>
       </div>
 
-      <form
-        className="flex flex-col gap-2 p-4"
-        onSubmit={(e) => handleSubmit(e)}
-      >
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-2">
-          <label htmlFor="username" className="items-start">
+          <label htmlFor="username" className="text-sm font-medium">
             Username
           </label>
-
-          <div className="flex gap-2 items-center w-full h-16 outline-1 outline-borderDividers p-2">
-            <UserIcon className="size-8 text-icons" />
+          <div className="flex items-center gap-3 h-12 px-3 rounded-lg border border-borderDividers bg-pageBackground focus-within:border-primary transition-colors">
+            <UserIcon className="size-5 shrink-0 text-icons" />
             <input
-              name="username"
-              className="w-full h-full  text-xl focus-within:outline-none"
-              placeholder="Enter your username"
-              type="text"
               id="username"
+              name="username"
+              type="text"
+              className="w-full h-full bg-transparent text-xs sm:text-base placeholder:text-icons focus:outline-none"
+              placeholder="Enter your username"
               autoComplete="username"
+              required
             />
           </div>
         </div>
+
         <div className="flex flex-col gap-2">
-          <label>Password</label>
-          <div className="flex gap-2 items-center w-full h-16 outline-1 outline-borderDividers p-2">
-            <LockClosedIcon className="size-8 text-icons" />
+          <label htmlFor="password" className="text-sm font-medium">
+            Password
+          </label>
+          <div className="flex items-center gap-3 h-12 px-3 rounded-lg border border-borderDividers bg-pageBackground focus-within:border-primary transition-colors">
+            <LockClosedIcon className="size-5 shrink-0 text-icons" />
             <input
-              name="password"
-              className="w-full h-full text-xl focus-within:outline-none "
-              placeholder="Enter your password"
-              type={showPassword ? "text" : "password"}
               id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              className="w-full h-full bg-transparent text-xs sm:text-base placeholder:text-icons focus:outline-none"
+              placeholder="Enter your password"
               autoComplete="current-password"
+              required
             />
             <button
               type="button"
-              className="hover:cursor-pointer"
-              onClick={(e) => togglePasswordVisibility(e)}
+              className="shrink-0 text-icons hover:text-primaryText hover:cursor-pointer"
+              onClick={() => setShowPassword((shown) => !shown)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
-                <EyeIcon className="size-6  " />
+                <EyeIcon className="size-5" />
               ) : (
-                <EyeSlashIcon className="size-6 " />
+                <EyeSlashIcon className="size-5" />
               )}
             </button>
           </div>
         </div>
+
+        {loginMutation.isError && (
+          <p
+            role="alert"
+            className="text-sm text-danger flex items-center gap-1"
+          >
+            <ExclamationCircleIcon className="size-4 shrink-0" />
+            {getErrorMessage(loginMutation.error, "Login failed")}
+          </p>
+        )}
+
         <button
           type="submit"
-          className=" mt-12 rounded-xl bg-primary w-full h-14 text-primaryText font-semibold hover:cursor-pointer text-2xl items-center justify-center flex gap-2 hover:bg-primaryHover"
+          disabled={loginMutation.isPending}
+          className="mt-2 h-12 w-full rounded-lg bg-primary text-lg font-semibold text-primaryText hover:bg-primaryHover hover:cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Login
+          {loginMutation.isPending ? "Logging in…" : "Login"}
         </button>
       </form>
-      <div className="flex flex-row gap-4 items-center justify-center">
-        <hr className="border-borderDividers  w-full" />
-        <p className="text-nowrap text-secondaryText">Need access?</p>
-        <hr className="border-borderDividers  w-full" />
+
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-4">
+          <hr className="w-full border-borderDividers" />
+          <p className="text-nowrap text-sm text-secondaryText">Need access?</p>
+          <hr className="w-full border-borderDividers" />
+        </div>
+        <p className="text-center text-sm text-secondaryText">
+          Contact your administrator if you need access.
+        </p>
       </div>
-      <p className="text-center text-secondaryText">
-        Contact your administrator if you need access.
-      </p>
     </div>
   );
 }
