@@ -78,12 +78,16 @@ export async function getContract(
 }
 
 export async function sendContractReminder(
-  req: Request<{ studentId: string; month: string }>,
+  req: Request<{}, unknown, { studentIds: string[]; month: string }>,
   res: Response,
 ): Promise<void> {
-  const { studentId, month } = req.params;
+  const { studentIds, month } = req.body;
   const adminId = req.user!.id;
-  await adminService.sendContractReminder(adminId, studentId, month);
+  const result = await adminService.sendContractReminder(
+    adminId,
+    studentIds,
+    month,
+  );
 
-  res.status(201).json({ message: "Contract reminder sent successfully." });
+  res.status(200).json(result);
 }

@@ -11,6 +11,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { SIGNED_URL_EXPIRES_IN } from "../helpers/constants.js";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { s3, S3_BUCKET } from "../config/s3.js";
+import { ContractReminderResult } from "../types/contract.js";
 export async function getAdminStats(): Promise<adminStats> {
   const activeStudents = await adminModel.getActiveStudentsCount();
   const shiftRequests = await adminModel.getShiftRequestsCount();
@@ -115,11 +116,11 @@ export async function getContract(
 
 export async function sendContractReminder(
   adminId: string,
-  studentId: string,
+  studentIds: string[],
   month: string,
-): Promise<void> {
-  if (!studentId || !month) {
-    throw new AppError("Student ID and month are required", 400);
+): Promise<ContractReminderResult> {
+  if (!Array.isArray(studentIds) || studentIds.length === 0 || !month) {
+    throw new AppError("Student IDs and month are required", 400);
   }
   if (!adminId) {
     throw new AppError("Admin ID is required", 400);
@@ -132,20 +133,48 @@ export async function sendContractReminder(
     );
   }
 
-  const user = await userModel.getUserById(studentId);
+  const uniqueIds = [...new Set(studentIds.map(String))];
 
-  if (!user) {
-    throw new AppError("Student not found", 404);
+  // non-numeric ids would make the ::int[] cast throw a 500
+  if (!uniqueIds.every((id) => !isNaN(Number(id)))) {
+    throw new AppError("Student IDs must be numeric", 400);
   }
 
-  if (!user.email) {
-    throw new AppError("Student does not have an email address", 400);
-  }
+  const students = await adminModel.getStudentsByIds(uniqueIds);
+  // pg returns ids as numbers, the request sends strings
+  const foundIds = new Set(students.map((student) => String(student.id)));
 
-  await emailService.sendContractReminderEmail(
-    user.email,
-    month,
-    user.first_name,
+  const result: ContractReminderResult = {
+    sent: [],
+    notFound: uniqueIds.filter((id) => !foundIds.has(id)),
+    noEmail: [],
+    failed: [],
+  };
+
+  await Promise.all(
+    students.map(async (student) => {
+      const studentId = String(student.id);
+
+      if (!student.email) {
+        result.noEmail.push(studentId);
+        return;
+      }
+
+      // catch per student so one failed email doesn't reject the whole batch
+      try {
+        await emailService.sendContractReminderEmail(
+          student.email,
+          month,
+          student.first_name,
+        );
+        await adminModel.insertContractReminder(adminId, studentId, month);
+        result.sent.push(studentId);
+      } catch (err) {
+        console.error(`Contract reminder failed for student ${studentId}`, err);
+        result.failed.push(studentId);
+      }
+    }),
   );
-  await adminModel.insertContractReminder(adminId, studentId, month);
+
+  return result;
 }

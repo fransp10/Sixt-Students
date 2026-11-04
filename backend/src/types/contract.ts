@@ -31,6 +31,14 @@ export type AdminContractRow = {
   file_size: number | null;
 };
 
+// student ids grouped by what happened to their reminder
+export type ContractReminderResult = {
+  sent: string[];
+  notFound: string[];
+  noEmail: string[];
+  failed: string[];
+};
+
 export type ContractWithUrl =Omit<Contract, "s3_key"> & {
   signed_url: string;
 };

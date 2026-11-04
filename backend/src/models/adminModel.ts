@@ -149,6 +149,18 @@ export async function getContract(contractId: string): Promise<Contract> {
   return result.rows[0];
 }
 
+export async function getStudentsByIds(
+  studentIds: string[],
+): Promise<{ id: number; email: string | null; first_name: string }[]> {
+  const result = await pool.query(
+    `SELECT id, email, first_name FROM users
+     WHERE id = ANY($1::int[]) AND user_role = 'student'`,
+    [studentIds],
+  );
+
+  return result.rows;
+}
+
 export async function insertContractReminder(
   adminId: string,
   studentId: string,

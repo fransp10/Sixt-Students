@@ -13,6 +13,6 @@ adminRouter.delete("/students/:id", adminController.deleteStudent);
 adminRouter.get("/contracts", adminController.getContracts);
 adminRouter.get("/contracts/:contractId", adminController.getContract);
 adminRouter.post(
-  "/students/:studentId/contracts/:month/remind",
+  "/students/contracts/remind",
   adminController.sendContractReminder,
 );
