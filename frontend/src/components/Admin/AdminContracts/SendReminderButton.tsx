@@ -11,7 +11,7 @@ function SendReminderButton({
   month: string;
 }) {
   const {
-    mutate: sendReminder,
+    mutate: sendReminders,
     isPending,
     isSuccess,
   } = useSendContractReminders();
@@ -20,7 +20,7 @@ function SendReminderButton({
     <button
       type="button"
       disabled={isPending || isSuccess}
-      onClick={() => sendReminder({ month, userIds: [userId] })}
+      onClick={() => sendReminders({ month, userIds: [userId] })}
       aria-label={`Send ${studentName} a contract reminder`}
       className="flex h-9 items-center justify-center gap-1.5 rounded-lg border border-borderDividers px-3 text-xs font-semibold text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 w-full"
     >

@@ -7,7 +7,7 @@ import {
 } from "../types/contract.js";
 import { monthlyTotals } from "../types/monthlyTotals.js";
 import { recentStudent } from "../types/recentStudent.js";
-import { deletableStudent } from "../types/Student.js";
+import { deletableStudent, StudentMisingContract } from "../types/Student.js";
 
 export async function getActiveStudentsCount(): Promise<number> {
   const numOfStudents = await pool.query(
@@ -171,4 +171,23 @@ export async function insertContractReminder(
      VALUES ($1, $2, ($3::text || '-01')::date)`,
     [studentId, adminId, month],
   );
+}
+
+export async function getStudentsMissingContract(
+  month: string,
+): Promise<StudentMisingContract[]> {
+  const result = await pool.query<StudentMisingContract>(
+    `SELECT u.id, u.email, u.first_name
+     FROM users u
+     WHERE u.user_role = 'student'
+       AND u.is_active
+       AND u.created_at < ($1::text || '-01')::date + interval '1 month'
+       AND NOT EXISTS (
+         SELECT 1 FROM contracts c
+         WHERE c.user_id = u.id
+           AND c.contract_month = ($1::text || '-01')::date
+       )`,
+    [month],
+  );
+  return result.rows;
 }

@@ -73,9 +73,9 @@ export async function sendContractReminders(
   month: string,
   userIds?: number[],
 ): Promise<{ sent: number }> {
-  const reminders = await axiosClient.post("/admin/contracts/reminders", {
+  const reminders = await axiosClient.post("/admin/students/contracts/remind", {
+    studentIds: userIds,
     month,
-    userIds,
   });
 
   return reminders.data as { sent: number };

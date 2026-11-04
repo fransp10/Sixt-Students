@@ -20,3 +20,9 @@ export type deletableStudent = {
   email: string | null;
   created_at: string;
 };
+
+export type StudentMisingContract = {
+  id: number;
+  email: string | null;
+  first_name: string;
+};

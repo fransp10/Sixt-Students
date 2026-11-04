@@ -116,11 +116,11 @@ export async function getContract(
 
 export async function sendContractReminder(
   adminId: string,
-  studentIds: string[],
   month: string,
+  studentIds?: string[],
 ): Promise<ContractReminderResult> {
-  if (!Array.isArray(studentIds) || studentIds.length === 0 || !month) {
-    throw new AppError("Student IDs and month are required", 400);
+  if (!month) {
+    throw new AppError("Month is required", 400);
   }
   if (!adminId) {
     throw new AppError("Admin ID is required", 400);
@@ -133,20 +133,29 @@ export async function sendContractReminder(
     );
   }
 
-  const uniqueIds = [...new Set(studentIds.map(String))];
+  const requestedIds = studentIds ? [...new Set(studentIds.map(String))] : null;
 
-  // non-numeric ids would make the ::int[] cast throw a 500
-  if (!uniqueIds.every((id) => !isNaN(Number(id)))) {
-    throw new AppError("Student IDs must be numeric", 400);
+  if (requestedIds) {
+    if (requestedIds.length === 0) {
+      throw new AppError("studentIds must not be empty", 400);
+    }
+    if (!requestedIds.every((id) => !isNaN(Number(id)))) {
+      throw new AppError("Student IDs must be numeric", 400);
+    }
   }
 
-  const students = await adminModel.getStudentsByIds(uniqueIds);
-  // pg returns ids as numbers, the request sends strings
+  const students = requestedIds
+    ? await adminModel.getStudentsByIds(requestedIds)
+    : await adminModel.getStudentsMissingContract(month);
+
   const foundIds = new Set(students.map((student) => String(student.id)));
 
   const result: ContractReminderResult = {
     sent: [],
-    notFound: uniqueIds.filter((id) => !foundIds.has(id)),
+    // only meaningful when specific ids were requested
+    notFound: requestedIds
+      ? requestedIds.filter((id) => !foundIds.has(id))
+      : [],
     noEmail: [],
     failed: [],
   };

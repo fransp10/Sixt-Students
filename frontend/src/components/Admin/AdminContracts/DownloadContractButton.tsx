@@ -11,7 +11,6 @@ function ContractActionButton({
   contractId: number;
 }) {
   const { mutate: openContract } = useOpenContractAdmin();
-  console.log("contractId in ContractActionButton:", contractId);
   return (
     <button
       type="button"
