@@ -16,7 +16,7 @@ function ContractActionButton({
       type="button"
       onClick={() => openContract({ contractId, download })}
       aria-label={`Download ${studentName}'s contract`}
-      className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-borderDividers text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary w-full "
+      className="flex flex-1 h-9  shrink-0 items-center justify-center rounded-lg border border-borderDividers text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary  "
     >
       {download ? (
         <ArrowDownTrayIcon className="size-5" />
