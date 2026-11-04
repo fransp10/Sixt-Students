@@ -19,7 +19,9 @@ function AppNav({ navItems }: AppNav) {
         border-r border-borderDividers
         bg-surfaceSideBar
         p-4
-        lg:flex"
+        lg:flex
+        fixed
+        "
     >
       <img src={sixtStudentsLogo} width={244} height={122} />
       <nav className=" mt-6 w-full flex-1   ">

@@ -19,14 +19,14 @@ function LogoutButton() {
     });
   }
   return (
-    <div className="flex flex-col items-center justify-end  h-full w-full text-2xl ">
-      <hr className="border-borderDividers border-2  w-full mb-12" />
+    <div className="flex flex-col items-center justify-end  h-full w-full text-2xl  ">
+      <hr className="border-borderDividers border-2  w-full" />
       <button
         onClick={handleLogout}
-        className="text-secondaryText  font-semibold px-8 py-4  text-center flex items-center justify-center gap-4 hover:cursor-pointer  hover:text-primaryText transition-colors rounded-lg"
+        className="text-secondaryText  font-semibold px-8 py-4 mt-2  text-center flex items-center justify-center gap-4 hover:cursor-pointer  hover:text-primaryText transition-colors rounded-lg hover:bg-cardBG w-full"
       >
-        <ArrowLeftStartOnRectangleIcon className="size-8 shrink-0" />
-        <span>Logout</span>
+        <ArrowLeftStartOnRectangleIcon className="size-6 shrink-0" />
+        <span className="text-xl">Logout</span>
       </button>
     </div>
   );
