@@ -1,0 +1,1376 @@
+openapi: 3.1.0
+info:
+  title: Sixt Students API
+  version: 1.0.0
+  description: |
+    Backend API for scheduling student shifts, tracking hours/earnings and storing monthly contracts.
+
+    **Auth:** `POST /auth/login` sets an httpOnly `accessToken` cookie (JWT). Every route except
+    `/auth/login`, `/auth/reset-password` and `/auth/reset-password/validate` requires it.
+    Routes marked *admin only* also require `user_role = admin`.
+
+    **Number formats:** Postgres `numeric` columns (`hourly_rate`, `default_hourly_rate`) are returned
+    by `pg` as strings, e.g. `"6.56"`. Values computed inside `json_build_object` (stats) are numbers.
+
+    **Times:** `TIME` columns are returned as `HH:mm`, except inside JSON-aggregated objects
+    (`GET /shifts`), where Postgres formats them as `HH:mm:ss`.
+servers:
+  - url: http://localhost:3000/api
+    description: Local dev
+
+security:
+  - cookieAuth: []
+
+tags:
+  - name: Auth
+  - name: Me
+    description: The signed-in user
+  - name: Contracts
+    description: The signed-in user's monthly contract PDFs (stored in S3)
+  - name: Shifts
+  - name: Users
+    description: User management (admin only)
+  - name: Admin
+    description: Admin dashboard (admin only)
+
+paths:
+  # ---------------------------------------------------------------- Auth
+  /auth/login:
+    post:
+      operationId: loginUser
+      tags: [Auth]
+      summary: Log in
+      description: Sets the `accessToken` cookie on success.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string, format: password }
+      responses:
+        "200":
+          description: Logged in
+          headers:
+            Set-Cookie:
+              schema: { type: string, example: accessToken=eyJ...; HttpOnly; SameSite=Lax }
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: Login successful }
+                  user: { $ref: "#/components/schemas/LoginUser" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /auth/logout:
+    post:
+      operationId: logoutUser
+      tags: [Auth]
+      summary: Log out
+      description: Clears the `accessToken` cookie.
+      responses:
+        "200": { $ref: "#/components/responses/Message" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /auth/reset-password:
+    post:
+      operationId: resetPassword
+      tags: [Auth]
+      summary: Set a new password using a reset token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, newPassword]
+              properties:
+                token: { type: string, description: Token from the emailed reset link }
+                newPassword: { type: string, format: password }
+      responses:
+        "200": { $ref: "#/components/responses/Message" }
+        "400":
+          description: Missing fields, weak password, or invalid/expired token
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /auth/reset-password/validate:
+    post:
+      operationId: validateResetToken
+      tags: [Auth]
+      summary: Check whether a reset token is still valid
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string }
+      responses:
+        "200":
+          description: Validity result (an invalid token still returns 200 with `ok = false`)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  message: { type: string, example: Token is valid }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  # ---------------------------------------------------------------- Me
+  /me:
+    get:
+      operationId: checkMe
+      tags: [Me]
+      summary: Get the signed-in user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: "#/components/schemas/User" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: updateMyInfo
+      tags: [Me]
+      summary: Update my email and/or phone
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                email: { type: string, format: email, maxLength: 254 }
+                phone: { type: string }
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409":
+          description: Email is already in use
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /me/password:
+    patch:
+      operationId: updateMyPassword
+      tags: [Me]
+      summary: Change my password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword: { type: string, format: password }
+                newPassword: { type: string, format: password }
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401":
+          description: Not signed in, or current password is incorrect
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /me/requests:
+    get:
+      operationId: getMyShiftRequests
+      tags: [Me]
+      summary: List my shift requests
+      responses:
+        "200":
+          description: My shift requests, ordered by date
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shiftRequests:
+                    type: array
+                    items: { $ref: "#/components/schemas/MyShiftRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /me/{shiftId}/request:
+    parameters:
+      - $ref: "#/components/parameters/shiftId"
+    post:
+      operationId: requestShift
+      tags: [Me]
+      summary: Request a shift
+      responses:
+        "201":
+          description: Shift request created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shiftRequest: { $ref: "#/components/schemas/ShiftRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      operationId: deleteMyShiftRequest
+      tags: [Me]
+      summary: Withdraw my request for a shift
+      responses:
+        "204": { description: Request deleted }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /me/assignments:
+    get:
+      operationId: getMyShiftAssignments
+      tags: [Me]
+      summary: List my shift assignments
+      parameters:
+        - $ref: "#/components/parameters/startDate"
+        - $ref: "#/components/parameters/endDate"
+      responses:
+        "200":
+          description: My assignments, ordered by date
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shiftAssignments:
+                    type: array
+                    items: { $ref: "#/components/schemas/MyShiftAssignment" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /me/assignments/next:
+    get:
+      operationId: getNextShift
+      tags: [Me]
+      summary: Get my next upcoming shift
+      responses:
+        "200":
+          description: The next assignment, or `null` if none is scheduled
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/NextShift"
+                  - type: "null"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /me/stats:
+    get:
+      operationId: getMyStats
+      tags: [Me]
+      summary: Get my work stats
+      parameters:
+        - $ref: "#/components/parameters/startDate"
+        - name: endDate
+          in: query
+          description: Exclusive upper bound (YYYY-MM-DD)
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: Stats for completed shifts
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserStats" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /me/race:
+    get:
+      operationId: getRaceStats
+      tags: [Me]
+      summary: Hours leaderboard across all students
+      parameters:
+        - name: month
+          in: query
+          description: Limit to one month. Omit for all time.
+          schema: { $ref: "#/components/schemas/Month" }
+      responses:
+        "200":
+          description: Standings, most hours first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/RaceStanding" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /me/race/months:
+    get:
+      operationId: getRaceMonths
+      tags: [Me]
+      summary: Months that have race data
+      responses:
+        "200":
+          description: Months with worked shifts, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Month" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /me/goal:
+    get:
+      operationId: getMyGoal
+      tags: [Me]
+      summary: Get my earnings goal for a month
+      parameters:
+        - name: month
+          in: query
+          required: true
+          schema: { $ref: "#/components/schemas/Month" }
+      responses:
+        "200":
+          description: The goal (defaults to 600 when none is set)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Goal" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    patch:
+      operationId: updateMyGoal
+      tags: [Me]
+      summary: Set my earnings goal for the current month
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount]
+              properties:
+                amount: { type: number, exclusiveMinimum: 0 }
+      responses:
+        "200":
+          description: Saved goal
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Goal" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  # ---------------------------------------------------------------- Contracts
+  /me/contract:
+    get:
+      operationId: getMyContract
+      tags: [Contracts]
+      summary: Get a signed URL for my contract for a month
+      description: The URL expires after 5 minutes.
+      parameters:
+        - name: month
+          in: query
+          required: true
+          schema: { $ref: "#/components/schemas/Month" }
+        - name: download
+          in: query
+          description: "`true` makes the URL download the file instead of opening it inline"
+          schema: { type: string, enum: ["true", "false"], default: "false" }
+      responses:
+        "200":
+          description: Contract with a pre-signed S3 URL
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ContractWithUrl" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      operationId: uploadContract
+      tags: [Contracts]
+      summary: Upload my contract for a month
+      description: Uploading again for the same month replaces the previous file.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [contract, month]
+              properties:
+                contract:
+                  type: string
+                  format: binary
+                  description: PDF file, max 10 MB (`S3_FILE_SIZE_LIMIT`)
+                month: { $ref: "#/components/schemas/Month" }
+            encoding:
+              contract:
+                contentType: application/pdf
+      responses:
+        "201": { $ref: "#/components/responses/Message" }
+        "400":
+          description: Missing/invalid month, no file, or not a PDF
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "413":
+          description: File too large
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /me/contracts:
+    get:
+      operationId: getMyContracts
+      tags: [Contracts]
+      summary: List my contracts
+      responses:
+        "200":
+          description: Contract metadata, newest month first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ContractMetadata" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /me/contract/{contractId}:
+    delete:
+      operationId: deleteContract
+      tags: [Contracts]
+      summary: Delete one of my contracts
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204": { description: Contract deleted from the database and S3 }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ---------------------------------------------------------------- Shifts
+  /shifts:
+    get:
+      operationId: getShifts
+      tags: [Shifts]
+      summary: List shifts with assigned and requesting students
+      parameters:
+        - $ref: "#/components/parameters/startDate"
+        - $ref: "#/components/parameters/endDate"
+      responses:
+        "200":
+          description: Shifts ordered by date and start time
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ShiftWithStudents" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /shifts/{shiftId}:
+    parameters:
+      - $ref: "#/components/parameters/shiftId"
+    patch:
+      operationId: modifyShift
+      tags: [Shifts]
+      summary: Change a shift's scheduled times (admin only)
+      description: |
+        Assignments whose actual times still match the old schedule are moved with the shift.
+        Adjusted and no-show assignments are left unchanged.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              additionalProperties: false
+              properties:
+                scheduled_start_time: { $ref: "#/components/schemas/Time" }
+                scheduled_end_time: { $ref: "#/components/schemas/Time" }
+      responses:
+        "200":
+          description: Updated shift
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Shift" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /shifts/{shiftId}/requests:
+    parameters:
+      - $ref: "#/components/parameters/shiftId"
+    get:
+      operationId: getRequestsForShift
+      tags: [Shifts]
+      summary: List students who requested a shift
+      responses:
+        "200":
+          description: Requests for the shift
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ShiftRequestsForShift" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      operationId: createShiftRequest
+      tags: [Shifts]
+      summary: Request a shift as the signed-in user
+      responses:
+        "201":
+          description: Shift request created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ShiftRequest" }
+        "400":
+          description: User is inactive or already requested this shift
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      operationId: deleteShiftRequest
+      tags: [Shifts]
+      summary: Withdraw the signed-in user's request for a shift
+      responses:
+        "200":
+          description: The deleted request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ShiftRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /shifts/{shiftId}/assignments:
+    parameters:
+      - $ref: "#/components/parameters/shiftId"
+    get:
+      operationId: getAssignmentsForShift
+      tags: [Shifts]
+      summary: List assignments for a shift
+      responses:
+        "200":
+          description: Assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ShiftAssignment" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      operationId: createAssignmentForShift
+      tags: [Shifts]
+      summary: Assign a student to a shift (admin only)
+      description: Actual times default to the shift's scheduled times.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId: { type: integer }
+      responses:
+        "201":
+          description: Assignment created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ShiftAssignment" }
+        "400":
+          description: User is inactive
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: User is already assigned to this shift
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+    patch:
+      operationId: modifyShiftAssignment
+      tags: [Shifts]
+      summary: Record attendance for an assignment (admin only)
+      description: |
+        With `no_show: true` both actual times are cleared and `arrivedAt`/`leftAt` are ignored.
+        Otherwise both times are required and must fall within the scheduled shift hours.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, no_show]
+              properties:
+                userId: { type: integer }
+                no_show: { type: boolean }
+                arrivedAt: { $ref: "#/components/schemas/Time" }
+                leftAt: { $ref: "#/components/schemas/Time" }
+      responses:
+        "200":
+          description: Updated assignment
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ShiftAssignment" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      operationId: deleteShiftAssignment
+      tags: [Shifts]
+      summary: Remove a student from a shift (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId: { type: integer }
+      responses:
+        "200":
+          description: The deleted assignment
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ShiftAssignment" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  # ---------------------------------------------------------------- Users
+  /users:
+    get:
+      operationId: getUsers
+      tags: [Users]
+      summary: List users
+      parameters:
+        - name: role
+          in: query
+          schema: { $ref: "#/components/schemas/UserRole" }
+      responses:
+        "200":
+          description: Users
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/UserWithCreatedAt" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      operationId: createUser
+      tags: [Users]
+      summary: Create a user
+      description: |
+        The username is generated from the name. With `signin_option: tempPassword` the response
+        includes a generated `password`; with `email` a setup link is emailed and `emailSent` reports
+        whether that worked.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateUserRequest" }
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CreatedUser" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409":
+          description: Email already in use
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /users/{userId}:
+    parameters:
+      - $ref: "#/components/parameters/userId"
+    get:
+      operationId: getUserById
+      tags: [Users]
+      summary: Get a user
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: updateUser
+      tags: [Users]
+      summary: Update a user
+      description: Unknown fields are ignored. At least one known field is required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateUserRequest" }
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /users/{userId}/deactivate:
+    parameters:
+      - $ref: "#/components/parameters/userId"
+    patch:
+      operationId: deactivateUser
+      tags: [Users]
+      summary: Deactivate a user
+      responses:
+        "200": { $ref: "#/components/responses/Message" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /users/{userId}/activate:
+    parameters:
+      - $ref: "#/components/parameters/userId"
+    patch:
+      operationId: activateUser
+      tags: [Users]
+      summary: Reactivate a user
+      responses:
+        "200": { $ref: "#/components/responses/Message" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /users/{userId}/stats:
+    parameters:
+      - $ref: "#/components/parameters/userId"
+    get:
+      operationId: getStatsForUser
+      tags: [Users]
+      summary: Get a user's work stats
+      parameters:
+        - $ref: "#/components/parameters/startDate"
+        - name: endDate
+          in: query
+          description: Exclusive upper bound (YYYY-MM-DD)
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: Stats for completed shifts
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserStats" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /users/{userId}/shift-assignments:
+    parameters:
+      - $ref: "#/components/parameters/userId"
+    get:
+      operationId: getShiftAssignmentsByUserId
+      tags: [Users]
+      summary: List a user's shift assignments
+      parameters:
+        - $ref: "#/components/parameters/startDate"
+        - $ref: "#/components/parameters/endDate"
+        - name: period
+          in: query
+          description: Only shifts that have not ended yet (`upcoming`) or already ended (`past`)
+          schema: { type: string, enum: [upcoming, past] }
+      responses:
+        "200":
+          description: Assignments, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/UserShiftAssignment" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /users/{userId}/password-reset:
+    parameters:
+      - $ref: "#/components/parameters/userId"
+    post:
+      operationId: sendPasswordResetLink
+      tags: [Users]
+      summary: Email a password reset link to a user
+      description: The link is valid for 1 hour and invalidates any earlier unused links.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        "200": { $ref: "#/components/responses/Message" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ---------------------------------------------------------------- Admin
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [Admin]
+      summary: Dashboard headline numbers
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminStats" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /admin/monthly-totals:
+    get:
+      operationId: getMonthlyTotals
+      tags: [Admin]
+      summary: Hours and payroll per month
+      parameters:
+        - name: months
+          in: query
+          required: true
+          description: How many months back to include, counting the current month
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: One row per month that has worked shifts, oldest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/MonthlyTotal" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /admin/recent-students:
+    get:
+      operationId: getRecentStudents
+      tags: [Admin]
+      summary: Newest students with their onboarding status
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+      responses:
+        "200":
+          description: Students, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/RecentStudent" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /admin/deletable-students:
+    get:
+      operationId: getDeletableStudents
+      tags: [Admin]
+      summary: Students with no requests or assignments
+      description: Only these students can be hard-deleted.
+      responses:
+        "200":
+          description: Deletable students, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/DeletableStudent" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /admin/students/{id}:
+    delete:
+      operationId: deleteStudent
+      tags: [Admin]
+      summary: Permanently delete a student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204": { description: Student deleted }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404":
+          description: Student not found, or has requests/assignments and cannot be deleted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+
+  parameters:
+    shiftId:
+      name: shiftId
+      in: path
+      required: true
+      schema: { type: integer }
+    userId:
+      name: userId
+      in: path
+      required: true
+      schema: { type: integer }
+    startDate:
+      name: startDate
+      in: query
+      description: Inclusive lower bound (YYYY-MM-DD)
+      schema: { type: string, format: date }
+    endDate:
+      name: endDate
+      in: query
+      description: Inclusive upper bound (YYYY-MM-DD)
+      schema: { type: string, format: date }
+
+  responses:
+    Message:
+      description: Success message
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Message" }
+    BadRequest:
+      description: Validation failed
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unauthorized:
+      description: Missing or invalid access token (or wrong credentials on login)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Forbidden:
+      description: User is inactive, or the route needs admin privileges
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    # ---------- primitives
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string, example: Shift with ID 42 not found }
+    Message:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+    Month:
+      type: string
+      pattern: "^\\d{4}-(0[1-9]|1[0-2])$"
+      example: "2026-10"
+    Time:
+      type: string
+      pattern: "^([01]\\d|2[0-3]):[0-5]\\d$"
+      example: "08:00"
+    Decimal:
+      type: string
+      description: Postgres numeric, serialized as a string
+      pattern: "^\\d+\\.\\d{2}$"
+      example: "6.56"
+    UserRole:
+      type: string
+      enum: [admin, student]
+    ShiftType:
+      type: string
+      enum: [morning, middle, afternoon]
+
+    # ---------- users
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        email: { type: [string, "null"], format: email }
+        phone: { type: [string, "null"] }
+        user_role: { $ref: "#/components/schemas/UserRole" }
+        default_hourly_rate: { $ref: "#/components/schemas/Decimal" }
+        is_active: { type: boolean }
+        first_name: { type: string }
+        last_name: { type: string }
+        date_of_birth: { type: string, format: date }
+    UserWithCreatedAt:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - type: object
+          properties:
+            created_at: { type: string, format: date-time }
+    LoginUser:
+      type: object
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        user_role: { $ref: "#/components/schemas/UserRole" }
+        is_active: { type: boolean }
+        first_name: { type: string }
+        last_name: { type: string }
+        date_of_birth: { type: string, format: date }
+    CreateUserRequest:
+      type: object
+      required: [signin_option, user_role, first_name, last_name, date_of_birth]
+      properties:
+        signin_option: { type: string, enum: [email, tempPassword] }
+        user_role: { $ref: "#/components/schemas/UserRole" }
+        first_name: { type: string }
+        last_name: { type: string }
+        date_of_birth:
+          type: string
+          format: date
+          description: Students must be at least 18
+        default_hourly_rate:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 100
+          description: Required for students, ignored for admins
+        email:
+          type: [string, "null"]
+          format: email
+          description: Required when `signin_option` is `email`
+        phone: { type: [string, "null"] }
+    CreatedUser:
+      allOf:
+        - $ref: "#/components/schemas/UserWithCreatedAt"
+        - type: object
+          properties:
+            password:
+              type: string
+              description: Temporary password, only for `signin_option = tempPassword`
+            emailSent:
+              type: boolean
+              description: Only for `signin_option = email`
+    UpdateUserRequest:
+      type: object
+      minProperties: 1
+      properties:
+        email: { type: [string, "null"], format: email }
+        phone: { type: [string, "null"] }
+        user_role: { $ref: "#/components/schemas/UserRole" }
+        default_hourly_rate: { type: number }
+        first_name: { type: string }
+        last_name: { type: string }
+        date_of_birth: { type: string, format: date }
+
+    # ---------- shifts
+    Shift:
+      type: object
+      properties:
+        id: { type: integer }
+        date: { type: string, format: date }
+        shift_type_id: { type: integer }
+        scheduled_start_time: { $ref: "#/components/schemas/Time" }
+        scheduled_end_time: { $ref: "#/components/schemas/Time" }
+    StudentRequesting:
+      type: object
+      properties:
+        id: { type: integer }
+        first_name: { type: string }
+        last_name: { type: string }
+        username: { type: string }
+        requested_at: { type: string, format: date-time }
+    StudentAssigned:
+      allOf:
+        - $ref: "#/components/schemas/StudentRequesting"
+        - type: object
+          properties:
+            actual_start_time: { type: [string, "null"], example: "08:00:00" }
+            actual_end_time: { type: [string, "null"], example: "14:00:00" }
+            no_show: { type: boolean }
+            has_request:
+              type: boolean
+              description: false when an admin assigned the student without a request
+    ShiftWithStudents:
+      type: object
+      properties:
+        shift_id: { type: integer }
+        date: { type: string, format: date }
+        shift_type: { $ref: "#/components/schemas/ShiftType" }
+        scheduled_start_time: { $ref: "#/components/schemas/Time" }
+        scheduled_end_time: { $ref: "#/components/schemas/Time" }
+        students_assigned:
+          type: array
+          items: { $ref: "#/components/schemas/StudentAssigned" }
+        students_requesting:
+          type: array
+          description: Requesters who are not assigned yet
+          items: { $ref: "#/components/schemas/StudentRequesting" }
+    ShiftRequest:
+      type: object
+      properties:
+        id: { type: integer }
+        shift_id: { type: integer }
+        user_id: { type: integer }
+        hourly_rate: { $ref: "#/components/schemas/Decimal" }
+        created_at: { type: string, format: date-time }
+    ShiftRequestsForShift:
+      type: object
+      properties:
+        shift_id: { type: string, description: Echoed from the path }
+        students:
+          type: array
+          items:
+            type: object
+            properties:
+              user_id: { type: integer }
+              username: { type: string }
+              first_name: { type: string }
+              last_name: { type: string }
+              request_created_at: { type: string, format: date-time }
+    ShiftAssignment:
+      type: object
+      properties:
+        id: { type: integer }
+        shift_id: { type: integer }
+        user_id: { type: integer }
+        hourly_rate: { $ref: "#/components/schemas/Decimal" }
+        actual_start_time:
+          oneOf: [{ $ref: "#/components/schemas/Time" }, { type: "null" }]
+        actual_end_time:
+          oneOf: [{ $ref: "#/components/schemas/Time" }, { type: "null" }]
+        requested_at: { type: [string, "null"], format: date-time }
+        no_show: { type: boolean }
+    MyShiftRequest:
+      type: object
+      properties:
+        shift_requestid:
+          type: integer
+          description: Lowercase because the SQL alias `shift_requestId` is unquoted
+        shift_id: { type: integer }
+        user_id: { type: integer }
+        hourly_rate: { $ref: "#/components/schemas/Decimal" }
+        date: { type: string, format: date }
+        shift_name: { $ref: "#/components/schemas/ShiftType" }
+        scheduled_start_time: { $ref: "#/components/schemas/Time" }
+        scheduled_end_time: { $ref: "#/components/schemas/Time" }
+    MyShiftAssignment:
+      type: object
+      properties:
+        shift_assignmentid:
+          type: integer
+          description: Lowercase because the SQL alias `shift_assignmentId` is unquoted
+        shift_id: { type: integer }
+        user_id: { type: integer }
+        actual_start_time:
+          oneOf: [{ $ref: "#/components/schemas/Time" }, { type: "null" }]
+        actual_end_time:
+          oneOf: [{ $ref: "#/components/schemas/Time" }, { type: "null" }]
+        date: { type: string, format: date }
+        shift_name: { $ref: "#/components/schemas/ShiftType" }
+        scheduled_start_time: { $ref: "#/components/schemas/Time" }
+        scheduled_end_time: { $ref: "#/components/schemas/Time" }
+        hourly_rate: { $ref: "#/components/schemas/Decimal" }
+        no_show: { type: boolean }
+    UserShiftAssignment:
+      type: object
+      properties:
+        assigned_shift_id: { type: integer, description: The shift's id }
+        date: { type: string, format: date }
+        shift_type: { $ref: "#/components/schemas/ShiftType" }
+        scheduled_start_time: { $ref: "#/components/schemas/Time" }
+        scheduled_end_time: { $ref: "#/components/schemas/Time" }
+        hourly_rate: { $ref: "#/components/schemas/Decimal" }
+        actual_start_time:
+          oneOf: [{ $ref: "#/components/schemas/Time" }, { type: "null" }]
+        actual_end_time:
+          oneOf: [{ $ref: "#/components/schemas/Time" }, { type: "null" }]
+        requested_at: { type: [string, "null"], format: date-time }
+        no_show: { type: boolean }
+        hours_worked: { type: number }
+    NextShift:
+      type: object
+      properties:
+        assigned_shift_id: { type: integer, description: The assignment's id }
+        date: { type: string, format: date }
+        shift_type: { $ref: "#/components/schemas/ShiftType" }
+        scheduled_start_time: { $ref: "#/components/schemas/Time" }
+        scheduled_end_time: { $ref: "#/components/schemas/Time" }
+        hourly_rate: { $ref: "#/components/schemas/Decimal" }
+        actual_start_time:
+          oneOf: [{ $ref: "#/components/schemas/Time" }, { type: "null" }]
+        actual_end_time:
+          oneOf: [{ $ref: "#/components/schemas/Time" }, { type: "null" }]
+        requested_at: { type: [string, "null"], format: date-time }
+
+    # ---------- stats
+    UserStats:
+      type: object
+      properties:
+        totalShifts: { type: number }
+        totalHours: { type: number }
+        totalEarnings: { type: number }
+        averageMonth:
+          type: object
+          description: Values are null when there are no worked shifts in range
+          properties:
+            count: { type: [number, "null"] }
+            hours: { type: [number, "null"] }
+            earnings: { type: [number, "null"] }
+            attendanceRate: { type: [number, "null"] }
+        attendance:
+          type: object
+          properties:
+            total: { type: number }
+            noShows: { type: number }
+            rate: { type: number, description: Percentage 0-100 }
+        acceptance:
+          type: object
+          properties:
+            requested: { type: number }
+            assigned: { type: number }
+            rate: { type: number, description: Percentage 0-100 }
+        byShiftTypes:
+          type: array
+          items:
+            type: object
+            properties:
+              shift_name: { $ref: "#/components/schemas/ShiftType" }
+              count: { type: number }
+              hours: { type: number }
+              earnings: { type: number }
+        byWeekday:
+          type: array
+          description: Always 7 entries, Monday first
+          items:
+            type: object
+            properties:
+              day: { type: string, example: Monday }
+              count: { type: number }
+              hours: { type: number }
+              earnings: { type: number }
+        byMonth:
+          type: object
+          description: Keyed by year, e.g. `"2026"`
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              properties:
+                month: { type: string, example: October }
+                monthNumber: { type: integer, minimum: 1, maximum: 12 }
+                count: { type: number }
+                hours: { type: number }
+                earnings: { type: number }
+                attendanceRate: { type: number }
+                assigned: { type: integer }
+                noShows: { type: integer }
+    RaceStanding:
+      type: object
+      properties:
+        id: { type: integer }
+        first_name: { type: string }
+        last_name: { type: string }
+        shifts_worked: { type: integer }
+        hours_worked: { type: number }
+    Goal:
+      type: object
+      properties:
+        amount: { type: number, example: 600 }
+
+    # ---------- contracts
+    ContractMetadata:
+      type: object
+      properties:
+        id: { type: integer }
+        contract_month: { $ref: "#/components/schemas/Month" }
+        file_name: { type: string }
+        file_size: { type: integer, description: Bytes }
+        uploaded_at: { type: string, format: date-time }
+    ContractWithUrl:
+      type: object
+      properties:
+        id: { type: integer }
+        month: { $ref: "#/components/schemas/Month" }
+        user_id: { type: integer }
+        uploaded_at: { type: string, format: date-time }
+        file_name: { type: string }
+        file_size: { type: integer, description: Bytes }
+        signed_url: { type: string, format: uri, description: "Pre-signed S3 URL, valid 5 minutes" }
+
+    # ---------- admin
+    AdminStats:
+      type: object
+      properties:
+        activeStudents: { type: integer }
+        shiftRequests: { type: integer, description: Pending requests for upcoming shifts }
+        totalPayroll: { type: number, description: Payroll so far this month }
+    MonthlyTotal:
+      type: object
+      properties:
+        month: { $ref: "#/components/schemas/Month" }
+        hours: { type: number }
+        payroll: { type: number }
+    RecentStudent:
+      type: object
+      properties:
+        id: { type: integer }
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: [string, "null"] }
+        created_at: { type: string, format: date-time }
+        onboarding_status:
+          type: string
+          enum: [deactivated, not_signed_in, no_requests, active]
+    DeletableStudent:
+      type: object
+      properties:
+        id: { type: integer }
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: [string, "null"] }
+        created_at: { type: string, format: date-time }

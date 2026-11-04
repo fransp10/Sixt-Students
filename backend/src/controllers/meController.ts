@@ -140,11 +140,57 @@ export async function getMyGoal(
 export async function updateMyGoal(
   req: Request<{}, {}, { amount: number }>,
   res: Response,
-) {
+): Promise<void> {
   const userId = req.user!.id;
   const { amount } = req.body;
 
   const updatedGoal = await meServices.updateMyGoal(userId, amount);
 
   res.status(200).json(updatedGoal);
+}
+
+export async function uploadContract(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const userId = req.user!.id;
+  const { month } = req.body;
+  const file = req.file;
+  await meServices.uploadContract(userId, month, file);
+
+  res.status(201).json({ message: "Contract uploaded successfully" });
+}
+
+export async function getMyContract(
+  req: Request<{}, {}, {}, { month: string; download?: string }>,
+  res: Response,
+): Promise<void> {
+  const userId = req.user!.id;
+  const { month } = req.query;
+  const download = req.query.download === "true";
+  const contractData = await meServices.getMyContract(userId, month, download);
+
+  res.status(200).json(contractData);
+}
+
+export async function getMyContracts(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const userId = req.user!.id;
+  const contracts = await meServices.getMyContracts(userId);
+
+  res.status(200).json(contracts);
+}
+
+export async function deleteContract(
+  req: Request<{ contractId: string }>,
+  res: Response,
+): Promise<void> {
+  const userId = req.user!.id;
+  const { contractId } = req.params;
+
+  await meServices.deleteContract(userId, contractId);
+
+  res.status(204).json({ message: "Contract deleted successfully" });
 }

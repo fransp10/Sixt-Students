@@ -35,6 +35,11 @@ export const adminNavItems: NavItemType[] = [
     to: "/admin/settings",
     icon: Cog6ToothIcon,
   },
+  {
+    label: "Contracts",
+    to: "/admin/contracts",
+    icon: DocumentTextIcon,
+  },
 ];
 
 export const studentNavItems: NavItemType[] = [

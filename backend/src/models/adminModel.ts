@@ -1,7 +1,13 @@
 import pool from "../db/db.js";
+import {
+  AdminContractRow,
+  Contract,
+  ContractMetadata,
+  ContractWithUrl,
+} from "../types/contract.js";
 import { monthlyTotals } from "../types/monthlyTotals.js";
 import { recentStudent } from "../types/recentStudent.js";
-import { deletableStudent } from "../types/Student.js";
+import { deletableStudent, StudentMisingContract } from "../types/Student.js";
 
 export async function getActiveStudentsCount(): Promise<number> {
   const numOfStudents = await pool.query(
@@ -87,4 +93,101 @@ export async function deleteStudent(id: number): Promise<void> {
     `DELETE FROM users WHERE id = $1 AND user_role = 'student'`,
     [id],
   );
+}
+
+export async function getContracts(month: string): Promise<AdminContractRow[]> {
+  // month filter lives in the ON clause so students without a contract keep their row (c.* = null)
+  const result = await pool.query<AdminContractRow>(
+    `SELECT
+  u.id AS user_id,
+  u.first_name AS user_first_name,
+  u.last_name AS user_last_name,
+  u.email AS user_email,
+  $1::text AS contract_month,
+  c.id AS contract_id,
+  c.created_at AS uploaded_at,
+  c.file_name,
+  c.file_size
+    FROM users u
+    LEFT JOIN contracts c
+      ON c.user_id = u.id
+      AND c.contract_month = ($1::text || '-01')::date
+      WHERE u.user_role = 'student'
+      AND (
+        c.id IS NOT NULL
+        OR (
+          u.is_active
+          AND u.created_at < ($1::text || '-01')::date + interval '1 month'
+    )
+  )
+    ORDER BY (c.id IS NOT NULL), u.last_name, u.first_name`,
+    [month],
+  );
+
+  return result.rows;
+}
+
+export async function getContract(contractId: string): Promise<Contract> {
+  const result = await pool.query<Contract>(
+    `SELECT 
+  c.id,
+  c.user_id,
+  c.file_key as s3_key,
+  to_char(c.contract_month, 'YYYY-MM') as contract_month, 
+  c.created_at AS uploaded_at, 
+  u.first_name AS user_first_name,
+   u.last_name AS user_last_name, 
+   u.id AS user_id,
+   c.file_name, 
+   c.file_size
+     FROM contracts c
+     JOIN users u ON c.user_id = u.id
+     WHERE c.id = $1`,
+    [contractId],
+  );
+
+  return result.rows[0];
+}
+
+export async function getStudentsByIds(
+  studentIds: string[],
+): Promise<{ id: number; email: string | null; first_name: string }[]> {
+  const result = await pool.query(
+    `SELECT id, email, first_name FROM users
+     WHERE id = ANY($1::int[]) AND user_role = 'student'`,
+    [studentIds],
+  );
+
+  return result.rows;
+}
+
+export async function insertContractReminder(
+  adminId: string,
+  studentId: string,
+  month: string,
+): Promise<void> {
+  await pool.query(
+    `INSERT INTO contract_reminders (student_id, sent_by_admin_id, contract_month)
+     VALUES ($1, $2, ($3::text || '-01')::date)`,
+    [studentId, adminId, month],
+  );
+}
+
+export async function getStudentsMissingContract(
+  month: string,
+): Promise<StudentMisingContract[]> {
+  const result = await pool.query<StudentMisingContract>(
+    `SELECT u.id, u.email, u.first_name
+     FROM users u
+     WHERE u.user_role = 'student'
+       AND u.is_active
+       AND u.created_at < ($1::text || '-01')::date + interval '1 month'
+       AND NOT EXISTS (
+         SELECT 1 FROM contracts c
+         WHERE c.user_id = u.id
+           AND c.contract_month = ($1::text || '-01')::date
+       )`,
+    [month],
+  );
+  return result.rows;
 }

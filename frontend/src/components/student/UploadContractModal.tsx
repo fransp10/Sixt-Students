@@ -4,7 +4,8 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
-import { useEffect, useState, type ChangeEvent, type DragEvent } from "react";
+import { useUploadContract } from "../../hooks/useUploadContract";
+import { getErrorMessage } from "../../helpers/getErrorMessage";
 
 type UploadContractModalProps = {
   onClose: () => void;
@@ -12,75 +13,59 @@ type UploadContractModalProps = {
 };
 
 function UploadContractModal({ onClose, month }: UploadContractModalProps) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-
-    if (!file) return;
-
-    setSelectedFile(file);
-  }
-
-  function handleDragLeave() {
-    setIsDragging(false);
-  }
-
-  function handleDragOver(e: DragEvent<HTMLDivElement>) {
-    e.preventDefault();
-    setIsDragging(true);
-  }
-
-  function handleDrop(e: DragEvent<HTMLDivElement>) {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-
-    if (!file || file.type !== "application/pdf") return;
-    setSelectedFile(file);
-  }
-
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [onClose]);
+  const {
+    selectedFile,
+    isDragging,
+    handleDragLeave,
+    handleDragOver,
+    handleDrop,
+    handleFileChange,
+    uploadContract,
+    isErrorUploading,
+    isPendingUploading,
+    uploadingError,
+    handleFileRemove,
+    handleClose,
+    handleCancelAndClose,
+  } = useUploadContract(onClose);
 
   return (
     <div
-      onClick={onClose}
+      onClick={handleClose}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className=" w-72 sm:w-102 lg:w-140 m-6  bg-cardBG rounded-xl border  border-borderDividers p-4 text-center"
+        className={` w-72 sm:w-102 lg:w-140 m-6  bg-cardBG rounded-xl border  border-borderDividers p-4 text-center`}
       >
-        <div className="flex items-center justify-between border-b border-borderDividers p-2 ">
+        <div className="flex items-center justify-between p-2 ">
           <p className=" font-medium text-primaryText">
-            Upload Contract for {format(month, "MMMM Y")}
+            Upload Contract for {format(month, "MMMM y")}
           </p>
+
           <button
-            onClick={onClose}
-            className="p-1 border border-borderDividers rounded-lg hover:bg-white/5 transition-colors size-8"
+            onClick={handleCancelAndClose}
+            title={isPendingUploading ? "Cancel upload" : "Close"}
+            className="group p-1 border border-borderDividers rounded-lg hover:bg-white/5 transition-colors size-8 cursor-pointer"
           >
-            <XMarkIcon className="size-6 shrink-0 text-secondaryText hover:text-red-500 cursor-pointer " />
+            <XMarkIcon className="size-6 shrink-0 text-secondaryText group-hover:text-red-500" />
           </button>
         </div>
+        {isErrorUploading && (
+          <p className=" bg-danger/10 p-4 text-xs sm:text-sm text-danger rounded-lg mt-2">
+            {getErrorMessage(
+              uploadingError,
+              "Upload failed. Please try again.",
+            )}
+          </p>
+        )}
         <div
           onDragOver={handleDragOver}
           onDrop={handleDrop}
           onDragLeave={handleDragLeave}
           className={`rounded-xl border border-dashed flex flex-col gap-4  p-8 text-center transition-colors ${
             isDragging ? "border-primary bg-primary/5" : "border-borderDividers"
-          }`}
+          } ${isPendingUploading ? "pointer-events-none opacity-50" : ""}`}
         >
           <div className="flex flex-col items-center ">
             <DocumentArrowUpIcon className="mx-auto size-10 text-secondaryText" />
@@ -102,6 +87,7 @@ function UploadContractModal({ onClose, month }: UploadContractModalProps) {
             id="contract-file"
             type="file"
             accept=".pdf"
+            disabled={isPendingUploading}
             onChange={handleFileChange}
             className="hidden"
           />
@@ -123,15 +109,32 @@ function UploadContractModal({ onClose, month }: UploadContractModalProps) {
                   </p>
                 </div>
                 <button
-                  onClick={() => setSelectedFile(null)}
-                  className="text-secondaryText hover:text-red-500 cursor-pointer "
+                  disabled={isPendingUploading}
+                  onClick={() => handleFileRemove()}
+                  className="text-secondaryText enabled:hover:text-red-500 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <XMarkIcon className="size-5" />
                 </button>
               </div>
               <div className="mt-4 flex justify-end  ">
-                <button className="bg-primary rounded-xl hover:bg-primary/80 cursor-pointer w-full p-2">
-                  Upload
+                <button
+                  disabled={isPendingUploading}
+                  onClick={() =>
+                    uploadContract({
+                      month: format(month, "yyyy-MM"),
+                      file: selectedFile,
+                    })
+                  }
+                  className="flex items-center justify-center gap-2 bg-primary text-primaryText rounded-xl enabled:hover:bg-primary/80 cursor-pointer w-full p-2 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isPendingUploading ? (
+                    <>
+                      <span className="size-4 rounded-full border-2 border-primaryText border-t-transparent animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    "Upload"
+                  )}
                 </button>
               </div>
             </div>

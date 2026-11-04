@@ -55,3 +55,39 @@ export async function deleteStudent(
 
   res.status(204).send();
 }
+
+export async function getContracts(
+  req: Request<{}, unknown, unknown, { month?: string }>,
+  res: Response,
+): Promise<void> {
+  const { month } = req.query;
+  const contracts = await adminService.getContracts(month);
+
+  res.status(200).json(contracts);
+}
+
+export async function getContract(
+  req: Request<{ contractId: string }, unknown, unknown, { download?: string }>,
+  res: Response,
+): Promise<void> {
+  const { contractId } = req.params;
+  const download = req.query.download === "true";
+  const contract = await adminService.getContract(contractId, download);
+
+  res.status(200).json(contract);
+}
+
+export async function sendContractReminder(
+  req: Request<{}, unknown, { studentIds?: string[]; month: string }>,
+  res: Response,
+): Promise<void> {
+  const { studentIds, month } = req.body;
+  const adminId = req.user!.id;
+  const result = await adminService.sendContractReminder(
+    adminId,
+    month,
+    studentIds,
+  );
+
+  res.status(200).json(result);
+}

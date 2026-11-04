@@ -6,8 +6,25 @@ import { isValidEmail } from "../helpers/isValidEmail.js";
 import { isValidPhone } from "../helpers/isValidPhone.js";
 import argon2 from "argon2";
 import { isValidMonth } from "../helpers/isValidMonth.js";
-import { DEFAULT_GOAL_AMOUNT } from "../helpers/constants.js";
+import {
+  DEFAULT_GOAL_AMOUNT,
+  SIGNED_URL_EXPIRES_IN,
+} from "../helpers/constants.js";
 import { isPasswordRequirementsMet } from "../helpers/isPasswordRequirementsMet.js";
+import { randomUUID } from "crypto";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
+import { s3, S3_BUCKET } from "../config/s3.js";
+import {
+  Contract,
+  ContractMetadata,
+  ContractWithUrl,
+} from "../types/contract.js";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { normalizeNameWithWeirdChars } from "../helpers/normalizeWeirdNames.js";
 export async function checkMe(userId: string) {
   const user = await getUserById(userId);
 
@@ -233,4 +250,134 @@ export async function updateMyGoal(userId: string, amount: number) {
   const updatedGoal = await userModel.updateMyGoal(userId, amount);
 
   return updatedGoal;
+}
+
+export async function uploadContract(
+  userId: string,
+  month: string,
+  file: Express.Multer.File | undefined,
+): Promise<void> {
+  if (!userId) {
+    throw new AppError("UserId is required", 400);
+  }
+
+  if (!month) {
+    throw new AppError("Month is required", 400);
+  }
+
+  if (!isValidMonth(month)) {
+    throw new AppError("Invalid month format. Expected format: YYYY-MM", 400);
+  }
+
+  if (!file) {
+    throw new AppError("No file uploaded", 400);
+  }
+
+  const fileKey = `contracts/${userId}/${month}.pdf`;
+
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: S3_BUCKET,
+      Key: fileKey,
+      Body: file.buffer,
+      ContentType: "application/pdf",
+    }),
+  );
+  await userModel.saveUploadContractToDb(
+    userId,
+    month,
+    fileKey,
+    file.originalname,
+    file.size,
+  );
+}
+
+export async function getMyContract(
+  userId: string,
+  month: string,
+  download: boolean = false,
+): Promise<ContractWithUrl> {
+  if (!userId) {
+    throw new AppError("UserId is required", 400);
+  }
+  if (!month) {
+    throw new AppError("Month is required", 400);
+  }
+
+  if (month && !isValidMonth(month)) {
+    throw new AppError("Invalid month format. Expected format: YYYY-MM", 400);
+  }
+
+  const contract = await userModel.getMyContract(userId, month);
+
+  if (!contract) {
+    throw new AppError("Contract not found", 404);
+  }
+
+  const { s3_key } = contract;
+
+  const username = normalizeNameWithWeirdChars(
+    contract.user_first_name.toLowerCase() +
+      "-" +
+      contract.user_last_name.toLowerCase(),
+  );
+
+  const signedUrl = await getSignedUrl(
+    s3,
+    new GetObjectCommand({
+      Bucket: S3_BUCKET,
+      Key: s3_key,
+      ResponseContentType: "application/pdf",
+      ResponseContentDisposition: download
+        ? `attachment; filename="contract-${username}-${month}.pdf"`
+        : "inline",
+    }),
+    { expiresIn: SIGNED_URL_EXPIRES_IN },
+  );
+
+  const contractWithUrl: ContractWithUrl = {
+    contract_month: contract.contract_month,
+    id: contract.id,
+    signed_url: signedUrl,
+    user_id: contract.user_id,
+    uploaded_at: contract.uploaded_at,
+    file_name: contract.file_name,
+    file_size: contract.file_size,
+    user_first_name: contract.user_first_name,
+    user_last_name: contract.user_last_name,
+  };
+
+  return contractWithUrl;
+}
+
+export async function getMyContracts(
+  userId: string,
+): Promise<ContractMetadata[]> {
+  if (!userId) {
+    throw new AppError("UserId is required", 400);
+  }
+
+  return userModel.getMyContracts(userId);
+}
+
+export async function deleteContract(
+  userId: string,
+  contractId: string,
+): Promise<void> {
+  if (!userId) {
+    throw new AppError("UserId is required", 400);
+  }
+
+  if (!contractId) {
+    throw new AppError("ContractId is required", 400);
+  }
+
+  const deleted = await userModel.deleteContractById(contractId, userId);
+
+  if (!deleted) {
+    throw new AppError("Contract not found", 404);
+  }
+  await s3.send(
+    new DeleteObjectCommand({ Bucket: S3_BUCKET, Key: deleted.file_key }),
+  );
 }

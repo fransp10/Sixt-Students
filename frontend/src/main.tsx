@@ -32,6 +32,7 @@ import { AuthContextProvider } from "./context/Providers/AuthContexProvider.tsx"
 import ShiftHistoryPage from "./components/Admin/ShiftHistoryPage.tsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.tsx";
 import { StudentsProvider } from "./context/Providers/StudentsContextProvider.tsx";
+import AdminContractsPage from "./pages/Admin/AdminContractsPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -97,6 +98,11 @@ const router = createBrowserRouter([
               {
                 path: "settings",
                 element: <SettingsPage />,
+              },
+              {
+                path: "contracts",
+                index: true,
+                element: <AdminContractsPage />,
               },
             ],
           },

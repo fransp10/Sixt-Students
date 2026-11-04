@@ -1,5 +1,5 @@
-import express, { type Request, type Response } from "express";
 import "dotenv/config";
+import express from "express";
 import ErrorHandler from "./middleware/errorHandler.js";
 import userRouter from "./routes/usersRoutes.js";
 import shiftsRouter from "./routes/shiftsRoutes.js";
@@ -41,3 +41,8 @@ app.use("/api/admin", requireAdmin, adminRouter);
 // Error handling middleware
 // should be placed after all other routes and middleware
 app.use(ErrorHandler);
+app.use((req, res) => {
+  res
+    .status(404)
+    .json({ error: `Route not found: ${req.method} ${req.originalUrl}` });
+});

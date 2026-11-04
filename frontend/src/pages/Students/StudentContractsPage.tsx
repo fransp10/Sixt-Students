@@ -1,39 +1,47 @@
-import {
-  addMonths,
-  eachMonthOfInterval,
-  endOfYear,
-  startOfMonth,
-} from "date-fns";
-import StudentContractsTable from "../../components/student/StudentContractsTable";
 import { useState } from "react";
-import StudentContractYearPicker from "../../components/student/StudentContractYearPicker";
+import { format, isSameMonth, min, parseISO, startOfMonth } from "date-fns";
 import PageHeading from "../../components/PageHeading";
+import PeriodBar from "../../components/PeriodBar/PeriodBar";
+import StudentContractCard from "../../components/student/Contracts/StudentContractCard";
+import UploadWindowList from "../../components/student/Contracts/UploadWindowList";
+import UploadContractModal from "../../components/student/UploadContractModal";
+import {
+  getContractUploadWindow,
+  isContractMonthUploadable,
+} from "../../helpers/contractUploadWindow";
+import { useGetContracts } from "../../hooks/useGetContracts";
 
 function StudentContractsPage() {
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const currentYear = new Date().getFullYear();
-  const currentDate = new Date();
-  const dateStudentStartedWork = new Date(2024, 2, 22); // January 1, 2024
-  const lastMonthOfSelectedYear = endOfYear(new Date(selectedYear, 0, 1));
+  const [selectedMonth, setSelectedMonth] = useState(() =>
+    startOfMonth(new Date()),
+  );
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const { data: contracts } = useGetContracts();
 
-  const startDate =
-    selectedYear === dateStudentStartedWork.getFullYear()
-      ? startOfMonth(dateStudentStartedWork)
-      : new Date(selectedYear, 0, 1);
-
-  const endDate =
-    selectedYear === currentYear
-      ? startOfMonth(addMonths(currentDate, 2))
-      : lastMonthOfSelectedYear;
-
-  const monthsToDisplay = eachMonthOfInterval({
-    start: startDate,
-    end: endDate,
-  }).reverse();
-
-  function onYearChange(year: number) {
-    setSelectedYear(year);
+  if (contracts === undefined || !contracts) {
+    return <div>Loading...</div>;
   }
+
+  const { firstMonth, lastMonth } = getContractUploadWindow();
+
+  function findContract(month: Date) {
+    return (
+      contracts &&
+      contracts.find((contract) =>
+        isSameMonth(parseISO(contract.contract_month), month),
+      )
+    );
+  }
+
+  // a month can be opened if it's still uploadable, or if a contract was uploaded for it
+  function isMonthSelectable(month: Date) {
+    return isContractMonthUploadable(month) || !!findContract(month);
+  }
+
+  const earliestMonth = min([
+    firstMonth,
+    ...contracts.map((contract) => parseISO(contract.contract_month)),
+  ]);
 
   return (
     <div>
@@ -41,15 +49,42 @@ function StudentContractsPage() {
         heading="Contracts"
         subheading="Upload and manage your monthly work contracts."
       />
-      {/* Date picker */}
-      <StudentContractYearPicker
-        selectedYear={selectedYear}
-        onYearChange={onYearChange}
-        firstYearToDisplay={dateStudentStartedWork.getFullYear()}
-      />
-      <div className=" text-primaryText w-full h-full">
-        <StudentContractsTable monthsToDispaly={monthsToDisplay} />
+
+      <div className="mt-8 flex flex-col gap-4">
+        <PeriodBar
+          selectedMonth={selectedMonth}
+          onMonthChange={setSelectedMonth}
+          minMonth={earliestMonth}
+          maxMonth={lastMonth}
+          isMonthSelectable={isMonthSelectable}
+        />
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            {contracts && (
+              <StudentContractCard
+                key={format(selectedMonth, "yyyy-MM")}
+                month={selectedMonth}
+                contract={findContract(selectedMonth)}
+                isUploadable={isContractMonthUploadable(selectedMonth)}
+                onUpload={() => setIsUploadModalOpen(true)}
+              />
+            )}
+          </div>
+          <UploadWindowList
+            contracts={contracts}
+            selectedMonth={selectedMonth}
+            onSelect={setSelectedMonth}
+          />
+        </div>
       </div>
+
+      {isUploadModalOpen && (
+        <UploadContractModal
+          month={selectedMonth}
+          onClose={() => setIsUploadModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
