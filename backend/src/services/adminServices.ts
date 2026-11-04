@@ -1,5 +1,7 @@
 import { adminStats } from "../types/adminStats.js";
 import * as adminModel from "../models/adminModel.js";
+import * as userModel from "../models/userModel.js";
+import * as emailService from "./emailServices.js";
 import { monthlyTotals } from "../types/monthlyTotals.js";
 import { recentStudent } from "../types/recentStudent.js";
 import AppError from "../errors/AppError.js";
@@ -109,4 +111,41 @@ export async function getContract(
   };
 
   return contractWithUrl;
+}
+
+export async function sendContractReminder(
+  adminId: string,
+  studentId: string,
+  month: string,
+): Promise<void> {
+  if (!studentId || !month) {
+    throw new AppError("Student ID and month are required", 400);
+  }
+  if (!adminId) {
+    throw new AppError("Admin ID is required", 400);
+  }
+
+  if (!isValidMonth(month)) {
+    throw new AppError(
+      "Invalid month format. Expected format is YYYY-MM.",
+      400,
+    );
+  }
+
+  const user = await userModel.getUserById(studentId);
+
+  if (!user) {
+    throw new AppError("Student not found", 404);
+  }
+
+  if (!user.email) {
+    throw new AppError("Student does not have an email address", 400);
+  }
+
+  await emailService.sendContractReminderEmail(
+    user.email,
+    month,
+    user.first_name,
+  );
+  await adminModel.insertContractReminder(adminId, studentId, month);
 }

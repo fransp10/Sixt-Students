@@ -148,3 +148,15 @@ export async function getContract(contractId: string): Promise<Contract> {
 
   return result.rows[0];
 }
+
+export async function insertContractReminder(
+  adminId: string,
+  studentId: string,
+  month: string,
+): Promise<void> {
+  await pool.query(
+    `INSERT INTO contract_reminders (student_id, sent_by_admin_id, contract_month)
+     VALUES ($1, $2, ($3::text || '-01')::date)`,
+    [studentId, adminId, month],
+  );
+}
