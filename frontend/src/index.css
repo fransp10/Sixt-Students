@@ -70,3 +70,6 @@ input:-webkit-autofill:focus {
     background: transparent;
   }
 }
+html:has(dialog[open]) {
+  overflow: hidden;
+}

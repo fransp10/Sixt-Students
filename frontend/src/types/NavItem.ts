@@ -5,4 +5,5 @@ export type NavItemType = {
   to: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   end?: boolean;
+  closeNav?: () => void;
 };
