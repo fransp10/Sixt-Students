@@ -1,4 +1,4 @@
-import loginBackground from "../assets/loginBackgroundImage.png";
+import loginBackground from "../assets/loginBackgroundImage-compressed.png";
 import sixtStudentsLogo from "../assets/sixtStudentsLogo.png";
 import LoginForm from "../components/LoginForm";
 
