@@ -86,18 +86,21 @@ function StudentScheduleCalendarModal({
 
   return (
     <div
-      className="fixed inset-0 z-10 flex items-center justify-center bg-black/80 p-4"
+      className="fixed inset-0 z-60 lg:z-10 flex items-center justify-center bg-black/80 lg:p-4"
       onClick={onClose}
     >
+      {/* below lg the modal is full-screen (and above the z-50 mobile nav); lg classes keep the desktop layout */}
       <div
+        role="dialog"
+        aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-5xl max-h-[85vh] rounded-2xl border border-borderDividers 
-        bg-cardBG p-6 relative overflow-y-auto md:overflow-hidden  flex flex-col gap-4"
+        className="w-full h-dvh lg:h-auto lg:max-w-5xl lg:max-h-[85vh] lg:rounded-2xl lg:border border-borderDividers
+        bg-cardBG p-4 lg:p-6 relative overflow-y-auto lg:overflow-hidden  flex flex-col gap-4"
       >
         {/* Heading */}
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 p-6">
-          <div className="flex flex-row items-center gap-4">
-            <CalendarDateRangeIcon className="size-12 text-primary" />
+        <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 p-0 lg:p-6">
+          <div className="flex flex-row items-center gap-4 pr-14 lg:pr-0">
+            <CalendarDateRangeIcon className="hidden lg:block size-12 text-primary" />
             <div className="flex flex-col gap-2">
               <p className="text-secondaryText text-sm uppercase">
                 {formattedDate}
@@ -109,7 +112,7 @@ function StudentScheduleCalendarModal({
             </div>
           </div>
           {shiftStatus === "passed" && (
-            <div className="flex items-center gap-3 w-full sm:w-auto px-4 py-3 rounded-lg border border-warning/30 bg-warning/10 text-primaryText">
+            <div className="flex items-center gap-3 w-full lg:w-auto px-4 py-3 rounded-lg border border-warning/30 bg-warning/10 text-primaryText">
               <ClockIcon className="size-6 shrink-0 text-warning" />
               <div className="flex flex-col">
                 <p className="text-base font-semibold text-warning">
@@ -123,7 +126,7 @@ function StudentScheduleCalendarModal({
             </div>
           )}
           {shiftStatus === "requested" && (
-            <div className="flex items-center gap-3 w-full sm:w-auto px-4 py-3 mr-8 rounded-lg border border-success/30 bg-success/10 text-primaryText">
+            <div className="flex items-center gap-3 w-full lg:w-auto px-4 py-3 lg:mr-8 rounded-lg border border-success/30 bg-success/10 text-primaryText">
               <CheckCircleIcon className="size-6 shrink-0 text-success" />
               <div className="flex flex-col">
                 <p className="text-base font-semibold text-success">
@@ -140,10 +143,10 @@ function StudentScheduleCalendarModal({
         <div className="w-full h-px bg-borderDividers" />
 
         {/* Students lists */}
-        <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x divide-borderDividers">
+        <div className="grid grid-cols-1 shrink-0 lg:shrink lg:grid-cols-2 lg:divide-x divide-borderDividers">
           {/* Students list heading */}
 
-          <div className="flex flex-col p-4 pr-6">
+          <div className="flex flex-col p-0 lg:p-4 lg:pr-6">
             <div className="flex flex-row items-center gap-2 p-2">
               <CheckCircleIcon className="size-5 shrink-0 text-success" />
               <span className="text-base lg:text-xl font-semibold text-primaryText">
@@ -157,7 +160,7 @@ function StudentScheduleCalendarModal({
             <StudentsInTheShiftList students={studentsAssignedShift} />
           </div>
           {/* Students requesting this shift */}
-          <div className="flex flex-col p-4 pl-6  ">
+          <div className="flex flex-col p-0 pt-4 lg:p-4 lg:pl-6  ">
             <div className="flex flex-row items-center gap-2 p-2">
               <ClockIcon className="size-5 shrink-0 text-pending" />
               <span className="text-base lg:text-xl font-semibold text-primaryText">
@@ -173,7 +176,7 @@ function StudentScheduleCalendarModal({
           </div>
         </div>
         {/* Footer */}
-        <div className="flex  flex-col gap-2  sm:flex-row items-center justify-between p-0">
+        <div className="flex  flex-col gap-2  lg:flex-row items-center justify-between p-0 mt-auto lg:mt-0">
           <p className="text-sm text-secondaryText">Want to work this shift?</p>
 
           {shiftStatus === "requested" ? (
@@ -181,7 +184,7 @@ function StudentScheduleCalendarModal({
               type="button"
               onClick={handleDeleteShiftRequest}
               disabled={shiftDeleteRequestMutation.isPending}
-              className="rounded-lg w-full sm:w-auto bg-danger px-6 py-2.5 text-sm font-medium text-primaryText transition-opacity hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg w-full lg:w-auto bg-danger px-6 py-3.5 lg:py-2.5 text-sm font-medium text-primaryText transition-opacity hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Delete shift request
             </button>
@@ -193,7 +196,7 @@ function StudentScheduleCalendarModal({
                 type="button"
                 onClick={handleRequestShift}
                 disabled={shiftRequestMutation.isPending}
-                className="rounded-lg  w-full sm:w-auto bg-primary px-6 py-2.5 text-sm font-medium text-primaryText transition-opacity hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg  w-full lg:w-auto bg-primary px-6 py-3.5 lg:py-2.5 text-sm font-medium text-primaryText transition-opacity hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Request this shift
               </button>

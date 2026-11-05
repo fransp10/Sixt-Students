@@ -22,7 +22,6 @@ function AdminScheduleCalendarModal({
   onClose,
 }: scheduleCalendarModalProps) {
   const [tab, setTab] = useState<"staffing" | "attendance">("staffing");
-  // Close the modal when the Escape key is pressed
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
@@ -55,11 +54,13 @@ function AdminScheduleCalendarModal({
   const shiftTiming = getShiftTiming(shift);
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 lg:p-4"
       onClick={onClose}
     >
       <div
-        className="w-8/12 h-10/12 overflow-y-auto  scrollbar-thin scrollbar-thumb-surfaceCards  rounded-2xl border border-borderDividers bg-cardBG p-8 text-primaryText relative flex flex-col"
+        className="w-full h-dvh lg:w-8/12 lg:h-10/12 overflow-y-auto  scrollbar-thin scrollbar-thumb-surfaceCards  lg:rounded-2xl lg:border border-borderDividers bg-cardBG p-4 lg:p-8 text-primaryText relative flex flex-col"
+        role="dialog"
+        aria-modal="true"
         onClick={(e) => e.stopPropagation()}
       >
         {/* HEADER */}

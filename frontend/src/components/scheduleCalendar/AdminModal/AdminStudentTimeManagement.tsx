@@ -200,12 +200,12 @@ function AdminStudentTimeManagement({
       <div className="flex items-center justify-between gap-3">
         <div
           role="radiogroup"
-          className="flex gap-1 rounded-lg border border-borderDividers bg-cardBG p-1"
+          className="flex flex-1 lg:flex-initial gap-1 rounded-lg border border-borderDividers bg-cardBG p-1"
         >
           {ATTENDANCE_OPTIONS.map((option) => (
             <label
               key={option.value}
-              className={`cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold transition-colors has-focus-visible:ring-2 has-focus-visible:ring-primary ${
+              className={`flex-1 lg:flex-initial text-center lg:text-start cursor-pointer rounded-md px-3 py-2.5 lg:py-1.5 text-xs font-semibold transition-colors has-focus-visible:ring-2 has-focus-visible:ring-primary ${
                 attendance === option.value
                   ? option.activeClassName
                   : "text-secondaryText hover:text-primaryText"

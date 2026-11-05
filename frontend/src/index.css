@@ -70,6 +70,7 @@ input:-webkit-autofill:focus {
     background: transparent;
   }
 }
-html:has(dialog[open]) {
+/* lock page scroll while a <dialog> or any aria-modal modal is in the page */
+html:has(dialog[open], [aria-modal="true"]) {
   overflow: hidden;
 }

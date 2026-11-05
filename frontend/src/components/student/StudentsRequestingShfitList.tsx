@@ -9,8 +9,8 @@ function StudentsRequestingShfitList({
   studentsRequestingThisShift,
 }: StudentsRequestingShfitListProps) {
   return (
-    <div className="overflow-auto scrollbar-thin scrollbar-thumb-cardLighterBG h-96 text-primaryText">
-      <ul className="flex flex-col gap-2 p-4 w-full">
+    <div className="overflow-auto scrollbar-thin scrollbar-thumb-cardLighterBG lg:h-96 text-primaryText">
+      <ul className="flex flex-col gap-2 p-2 lg:p-4 w-full">
         {studentsRequestingThisShift &&
         studentsRequestingThisShift.length > 0 ? (
           studentsRequestingThisShift.map((student: StudentRequesting) => (

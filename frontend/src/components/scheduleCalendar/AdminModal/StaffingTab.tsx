@@ -54,7 +54,8 @@ function StaffingTab({ shift }: { shift: ShiftWithStudentsAndRequesters }) {
   return (
     <>
       {/* basis-0 so the lists' content doesn't stretch the modal; min-h-72 is how far they can shrink before the modal scrolls instead */}
-      <div className="flex basis-0 min-h-102  gap-4 mb-4">
+      {/* below lg the lists stack and keep their full height; the modal scrolls instead */}
+      <div className="flex flex-col shrink-0 lg:flex-row lg:shrink lg:basis-0 lg:min-h-102  gap-4 mb-4">
         <AdminModalAssignedSutdents
           students={shift.students_assigned}
           scheduledStart={shift.scheduled_start_time}

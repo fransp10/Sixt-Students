@@ -15,15 +15,15 @@ function AdminModalRequestingSutdentsList({
   return (
     <div className="min-w-0 flex-1 flex flex-col rounded-lg  border border-borderDividers">
       {/* Sticky header */}
-      <div className="items-center  gap-2 p-4 font-semibold border-b border-pending/30 bg-pending/10 ">
-        <div className="flex items-center gap-6  ">
-          <UserPlusIcon className="size-12 text-pending" />
+      <div className="items-center  gap-2 p-3 lg:p-4 font-semibold border-b border-pending/30 bg-pending/10 ">
+        <div className="flex items-center gap-3 lg:gap-6  ">
+          <UserPlusIcon className="size-8 lg:size-12 text-pending" />
           <div className="flex flex-col gap-1 ">
             <div className="flex items-center gap-2">
-              <h1 className="text-lg">Students requesting this shift</h1>
+              <h1 className="text-base lg:text-lg">Students requesting this shift</h1>
               <span
                 className={
-                  "flex size-8 items-center justify-center rounded-full bg-pending/20 text-pending text-lg font-semibold"
+                  "flex size-7 lg:size-8 items-center justify-center rounded-full bg-pending/20 text-pending text-sm lg:text-lg font-semibold"
                 }
               >
                 {numberOfAssignedStudents}
@@ -36,7 +36,7 @@ function AdminModalRequestingSutdentsList({
         </div>
       </div>
       {/* Students */}
-      <div className="flex flex-col gap-2  p-4 flex-1 overflow-y-auto scrollbar-thin  scrollbar-track-transparent scrollbar-thumb-borderDividers hover:scrollbar-thumb-borderDividers">
+      <div className="flex flex-col gap-2  p-3 lg:p-4 flex-1 overflow-y-auto scrollbar-thin  scrollbar-track-transparent scrollbar-thumb-borderDividers hover:scrollbar-thumb-borderDividers">
         {students && students.length > 0 ? (
           students.map((student) => (
             <RequestingStudentScheduleCard
@@ -46,7 +46,7 @@ function AdminModalRequestingSutdentsList({
             />
           ))
         ) : (
-          <p className="text-secondaryText text-base font-semibold flex items-center justify-center h-full">
+          <p className="text-secondaryText text-sm lg:text-base font-semibold flex items-center justify-center h-full py-6 lg:py-0 text-center lg:text-start">
             No students are currently requesting this shift.
           </p>
         )}

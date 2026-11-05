@@ -18,8 +18,8 @@ function RequestingStudentScheduleCard({
       >
         {getInitials(studentName)}
       </span>
-      <div className="flex flex-col">
-        <span className="text-lg truncate">{studentName}</span>
+      <div className="flex min-w-0 lg:min-w-auto flex-col">
+        <span className="text-base lg:text-lg truncate">{studentName}</span>
         <span className="text-xs text-secondaryText">
           {format(student.requested_at, "MMM dd, yyyy 'at' hh:mm a")}
         </span>
@@ -29,7 +29,7 @@ function RequestingStudentScheduleCard({
         onClick={() => {
           if (onClick) onClick(student.id);
         }}
-        className={`ml-auto mr-2 border border-borderDividers rounded-xl p-2 hover:cursor-pointer transition-all duration-300 text-success hover:bg-success hover:text-primaryText`}
+        className={`ml-auto mr-2 border border-borderDividers rounded-xl p-3 lg:p-2 hover:cursor-pointer transition-all duration-300 text-success hover:bg-success hover:text-primaryText`}
       >
         <PlusIcon className="size-5" />
       </button>
