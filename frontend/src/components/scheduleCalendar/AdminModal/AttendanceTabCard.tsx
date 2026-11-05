@@ -11,7 +11,7 @@ function AttendanceTabCard({
   shift: ShiftWithStudentsAndRequesters;
 }) {
   return (
-    <div className="flex flex-row justify-between p-3 bg-studentCard border rounded-xl border-borderDividers">
+    <div className="flex flex-col gap-3 lg:flex-row lg:gap-0 justify-between p-3 bg-studentCard border rounded-xl border-borderDividers">
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 gap-3 items-center">
           <span

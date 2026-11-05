@@ -21,13 +21,13 @@ function AdminModalAssignedSutdents({
 
   return (
     <div className="min-w-0 flex-1  rounded-lg flex flex-col border border-borderDividers">
-      <div className="items-center gap-2 p-4 font-semibold border-b border-success/30 bg-success/10">
-        <div className="flex items-center gap-6  ">
-          <UserCircleIcon className="size-12 text-success text-succes" />
+      <div className="items-center gap-2 p-3 lg:p-4 font-semibold border-b border-success/30 bg-success/10">
+        <div className="flex items-center gap-3 lg:gap-6  ">
+          <UserCircleIcon className="size-8 lg:size-12 text-success text-succes" />
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <h1 className="text-lg">Assigned Students</h1>
-              <span className="flex size-8 items-center justify-center rounded-full bg-success/20 text-success text-lg font-semibold">
+              <h1 className="text-base lg:text-lg">Assigned Students</h1>
+              <span className="flex size-7 lg:size-8 items-center justify-center rounded-full bg-success/20 text-success text-sm lg:text-lg font-semibold">
                 {numberOfAssignedStudents}
               </span>
             </div>
@@ -38,7 +38,7 @@ function AdminModalAssignedSutdents({
         </div>
       </div>
       {/* Students */}
-      <div className="flex flex-col gap-2 p-4 flex-1 overflow-y-auto scrollbar-thin  scrollbar-track-transparent scrollbar-thumb-borderDividers hover:scrollbar-thumb-borderDividers">
+      <div className="flex flex-col gap-2 p-3 lg:p-4 flex-1 overflow-y-auto scrollbar-thin  scrollbar-track-transparent scrollbar-thumb-borderDividers hover:scrollbar-thumb-borderDividers">
         {students && students.length > 0 ? (
           students.map((student) => (
             <AssignedStudentScheduleCard
@@ -51,7 +51,7 @@ function AdminModalAssignedSutdents({
             />
           ))
         ) : (
-          <p className="text-secondaryText text-base font-semibold flex items-center justify-center h-full">
+          <p className="text-secondaryText text-sm lg:text-base font-semibold flex items-center justify-center h-full py-6 lg:py-0 text-center lg:text-start">
             No students are currently assigned to this shift.{" "}
           </p>
         )}

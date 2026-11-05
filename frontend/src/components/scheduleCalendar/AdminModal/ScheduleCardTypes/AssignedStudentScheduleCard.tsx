@@ -22,7 +22,7 @@ function AssignedStudentScheduleCard({
         >
           {getInitials(student.first_name + " " + student.last_name)}
         </span>
-        <span className="text-lg">
+        <span className="text-base lg:text-lg">
           {student.first_name + " " + student.last_name}
         </span>
       </div>
@@ -32,7 +32,7 @@ function AssignedStudentScheduleCard({
           if (onClick) onClick(student.id);
         }}
         aria-label={`Remove ${student.first_name} from this shift`}
-        className="shrink-0 border border-borderDividers rounded-lg p-2 hover:cursor-pointer transition-all duration-300 text-danger hover:bg-danger hover:text-primaryText"
+        className="shrink-0 border border-borderDividers rounded-lg p-3 lg:p-2 hover:cursor-pointer transition-all duration-300 text-danger hover:bg-danger hover:text-primaryText"
       >
         <TrashIcon className="size-5" />
       </button>
