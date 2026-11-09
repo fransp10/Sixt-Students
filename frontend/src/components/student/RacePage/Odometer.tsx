@@ -32,7 +32,7 @@ function Odometer({
   const firstRealDigit = wholeDigits.findIndex((d) => d !== "0");
 
   return (
-    <div className="col-span-1 flex flex-col rounded-lg bg-cardLighterBG p-6 text-primaryText">
+    <div className="col-span-1 md:order-last md:col-span-2 2xl:order-0 2xl:col-span-1 flex flex-col rounded-lg bg-cardLighterBG p-6 text-primaryText">
       <RacePageCardHeader heading="Odometer" subheading="All-time earnings" />
 
       <div className="flex flex-1 flex-col justify-center gap-6 mt-4">

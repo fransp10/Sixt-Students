@@ -45,17 +45,21 @@ function EarningsPage() {
         handleMonthChange={setChosenMonth}
       />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <RaceEarningsMonthlyGoal
-          chosenMonth={chosenMonth}
-          earned={currentMonthEarnings ?? 0}
-        />
-        <Odometer
-          earnings={myStats?.totalEarnings ?? 0}
-          hoursWorked={myStats?.totalHours ?? 0}
-          shifts={myStats?.totalShifts ?? 0}
-          hourlyRate={me?.default_hourly_rate ?? 0}
-        />
-        <Gear hoursWorked={myStats?.totalHours ?? 0} />
+        {/* the odometer drums only fit a third of the width on 2xl screens,
+            below that it gets its own row under the goal and gear */}
+        <div className="grid grid-cols-1 gap-4 md:col-span-3 md:grid-cols-2 2xl:grid-cols-3">
+          <RaceEarningsMonthlyGoal
+            chosenMonth={chosenMonth}
+            earned={currentMonthEarnings ?? 0}
+          />
+          <Odometer
+            earnings={myStats?.totalEarnings ?? 0}
+            hoursWorked={myStats?.totalHours ?? 0}
+            shifts={myStats?.totalShifts ?? 0}
+            hourlyRate={me?.default_hourly_rate ?? 0}
+          />
+          <Gear hoursWorked={myStats?.totalHours ?? 0} />
+        </div>
         <Race raceStats={raceStats} />
         <Podium top3={top3} currentMonth={chosenMonth} />
         <Turbo

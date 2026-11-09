@@ -19,7 +19,7 @@ function RaceEarningsMonthlyGoal({
 
   if (isLoading) {
     return (
-      <div className=" col-span-1 row-span-1  flex flex-col items-center justify-center bg-cardLighterBG rounded-lg p-6 h-84">
+      <div className=" col-span-1   flex flex-col items-center justify-center bg-cardLighterBG rounded-lg p-6 h-84">
         <LoadingSpinner />;
       </div>
     );
