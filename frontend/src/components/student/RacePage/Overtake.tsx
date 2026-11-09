@@ -15,7 +15,7 @@ function Overtake({ raceStats }: { raceStats: RaceStats }) {
   );
   if (meIndex === -1) {
     return (
-      <div className="md:col-span-2 md:row-span-2 flex flex-col bg-cardLighterBG rounded-lg p-6 text-primaryText ">
+      <div className="col-span-1 md:col-span-2 md:row-span-2 flex flex-col bg-cardLighterBG rounded-lg p-6 text-primaryText ">
         <RacePageCardHeader heading="Overtake" subheading="No data" />
         <p className="text-sm text-secondaryText h-full items-center justify-center flex">
           No data found for this month's race. Start working to see overtake
@@ -49,13 +49,14 @@ function Overtake({ raceStats }: { raceStats: RaceStats }) {
   const fmt = (n: number) => Math.round(n * 10) / 10;
 
   return (
-    <div className="col-span-2 flex flex-col bg-cardLighterBG rounded-lg p-6 text-primaryText ">
+    <div className="md:col-span-2 row-span-2 flex flex-col bg-cardLighterBG rounded-lg p-6 text-primaryText ">
       <RacePageCardHeader
         heading="Overtake"
         subheading={`You're in P${position}`}
       />
-      <div className="flex flex-row gap-2 mt-4 items-center">
-        <div className="flex flex-col gap-1 text-sm flex-1 p-4">
+      <div className="flex flex-col xl:flex-row   w-full mt-4 items-center">
+        {/* TEXT */}
+        <div className="flex flex-col gap-1 text-sm  text-left w-full flex-1 p-4">
           <div>
             <p className="text-xl font-bold text-primary">P{position}</p>
             <span className="text-xl font-bold">You're </span>
@@ -91,7 +92,8 @@ function Overtake({ raceStats }: { raceStats: RaceStats }) {
             </span>
           )}
         </div>
-        <div className="flex-2 h-16 bg-headersCalendar justify-center relative rounded-lg  ">
+        {/* GAP */}
+        <div className="w-full h-16 bg-headersCalendar justify-center relative rounded-lg  ">
           <div className="absolute left-0 right-0 top-1/2 border-t-2 border-dashed border-icons/50 " />
           {cars.map((car) => (
             <CarIcon
