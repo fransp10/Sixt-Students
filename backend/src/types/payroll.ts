@@ -3,7 +3,8 @@ export type PayrollStatus =
   | "in_progress" // the month hasn't ended yet
   | "waiting_on_contracts" // ended, but someone who worked has no contract
   | "ready" // ended and every contract is in
-  | "paid";
+  | "paid"
+  | "partly_paid";
 
 // one row per student who worked in the month (hours > 0)
 export type PayrollRow = {
@@ -13,6 +14,8 @@ export type PayrollRow = {
   hours: number;
   amount: number;
   has_contract: boolean;
+  paid_at: string | null; // null if not paid yet
+  paid_amount: number | null; // null if not paid yet
 };
 
 // approved shifts from today to the end of the month, 0 for past months
@@ -33,7 +36,6 @@ export type Payroll = {
   rows: PayrollRow[];
   scheduled: PayrollScheduled;
   budget: number | null; // null until the admin sets one
-  payment: PayrollPayment | null;
 };
 
 // payroll_payments table

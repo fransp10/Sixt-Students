@@ -16,3 +16,5 @@ adminRouter.post(
   "/students/contracts/remind",
   adminController.sendContractReminder,
 );
+
+adminRouter.get("/payroll", adminController.getPayroll);

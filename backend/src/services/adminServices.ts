@@ -12,6 +12,8 @@ import { SIGNED_URL_EXPIRES_IN } from "../helpers/constants.js";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { s3, S3_BUCKET } from "../config/s3.js";
 import { ContractReminderResult } from "../types/contract.js";
+import { Payroll } from "../types/payroll.js";
+import { getPayrollStatus } from "../helpers/getPayrollStatys.js";
 export async function getAdminStats(): Promise<adminStats> {
   const activeStudents = await adminModel.getActiveStudentsCount();
   const shiftRequests = await adminModel.getShiftRequestsCount();
@@ -186,4 +188,31 @@ export async function sendContractReminder(
   );
 
   return result;
+}
+
+export async function getPayroll(month?: string): Promise<Payroll> {
+  if (month && !isValidMonth(month)) {
+    throw new AppError(
+      "Invalid month format. Expected format is YYYY-MM.",
+      400,
+    );
+  }
+
+  const selectedMonth = month ?? format(new Date(), "yyyy-MM");
+
+  const [rows, scheduled, budget] = await Promise.all([
+    adminModel.getPayrollRows(selectedMonth),
+    adminModel.getScheduledPayroll(selectedMonth),
+    adminModel.getPayrollBudget(selectedMonth),
+  ]);
+
+  const payroll: Payroll = {
+    month: selectedMonth,
+    status: getPayrollStatus(selectedMonth, rows),
+    rows,
+    scheduled,
+    budget,
+  };
+
+  return payroll;
 }

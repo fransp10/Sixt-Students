@@ -6,6 +6,7 @@ import {
   ContractWithUrl,
 } from "../types/contract.js";
 import { monthlyTotals } from "../types/monthlyTotals.js";
+import { PayrollRow, PayrollScheduled } from "../types/payroll.js";
 import { recentStudent } from "../types/recentStudent.js";
 import { deletableStudent, StudentMisingContract } from "../types/Student.js";
 
@@ -190,4 +191,67 @@ export async function getStudentsMissingContract(
     [month],
   );
   return result.rows;
+}
+
+export async function getPayrollRows(month: string): Promise<PayrollRow[]> {
+  const result = await pool.query<PayrollRow>(
+    `WITH totals AS (
+       SELECT user_id,
+              SUM(hours) AS hours,
+              SUM(hours * hourly_rate) AS amount
+       FROM worked_shifts
+       WHERE date >= $1::date
+         AND date < $1::date + interval '1 month'
+         AND date < CURRENT_DATE
+       GROUP BY user_id
+       HAVING SUM(hours) > 0
+     )
+     SELECT u.id AS user_id,
+            u.first_name,
+            u.last_name,
+            t.hours::float AS hours,
+            ROUND(t.amount, 2)::float AS amount,
+            c.id IS NOT NULL AS has_contract,
+            p.paid_at,
+            p.paid_amount::float AS paid_amount
+     FROM totals t
+     JOIN users u ON u.id = t.user_id
+     LEFT JOIN contracts c
+       ON c.user_id = t.user_id AND c.contract_month = $1::date
+     LEFT JOIN payroll_payments p
+       ON p.user_id = t.user_id AND p.month = $1::date
+     ORDER BY u.first_name, u.last_name`,
+    [`${month}-01`],
+  );
+
+  return result.rows;
+}
+
+export async function getScheduledPayroll(
+  month: string,
+): Promise<PayrollScheduled> {
+  return await pool
+    .query<PayrollScheduled>(
+      `SELECT COALESCE(SUM(hours * hourly_rate),0)::float AS amount,
+    COUNT(*)::int AS shifts
+    FROM worked_shifts
+    WHERE date >= $1::date
+    AND date < $1::date + interval '1 month'
+    AND date >= CURRENT_DATE`,
+      [`${month}-01`],
+    )
+    .then((result) => result.rows[0]);
+}
+
+export async function getPayrollBudget(month: string): Promise<number | null> {
+  return await pool
+    .query(
+      `SELECT amount::float
+     FROM payroll_budgets
+     WHERE month = $1::date
+     ORDER BY month DESC
+     LIMIT 1`,
+      [`${month}-01`],
+    )
+    .then((result) => result.rows[0]?.amount ?? null);
 }

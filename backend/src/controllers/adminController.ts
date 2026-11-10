@@ -91,3 +91,14 @@ export async function sendContractReminder(
 
   res.status(200).json(result);
 }
+
+export async function getPayroll(
+  req: Request<{}, unknown, unknown, { month?: string }>,
+  res: Response,
+): Promise<void> {
+  const { month } = req.query;
+
+  const payrollData = await adminService.getPayroll(month);
+
+  res.status(200).json(payrollData);
+}
