@@ -4,6 +4,7 @@ import type { NavItemType } from "../types/NavItem";
 import LogoutButton from "./LogoutButton";
 import NavItem from "./NavItem";
 import sixtStudentsLogo from "../assets/sixtStudentsLogo.png";
+import CurrentUserBadge from "./CurrentUserBadge";
 
 type MobileAppNavProps = {
   navItems: NavItemType[];
@@ -16,18 +17,21 @@ type TopBarProps = {
 
 function TopBar({ icon, handleToggleNav }: TopBarProps) {
   return (
-    <div className="flex h-18 items-center justify-between border-b border-borderDividers px-4">
+    <div className="flex h-18 items-center justify-between border-b border-borderDividers px-4 ">
       <img
         src={sixtStudentsLogo}
         alt="Sixt Students App"
         className="h-auto w-33"
       />
-      <button
-        onClick={handleToggleNav}
-        className="flex size-11 items-center justify-center rounded-lg border border-borderDividers bg-cardBG text-primaryText"
-      >
-        {icon}
-      </button>
+      <div className="flex items-center gap-2">
+        <CurrentUserBadge size="small" />
+        <button
+          onClick={handleToggleNav}
+          className="flex size-11 items-center justify-center rounded-lg border border-borderDividers bg-cardBG text-secondaryText cursor-pointer hover:bg-cardBGHover hover:text-primaryText hover:border-primaryText transition-colors duration-200"
+        >
+          {icon}
+        </button>
+      </div>
     </div>
   );
 }
