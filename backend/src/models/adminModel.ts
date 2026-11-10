@@ -248,7 +248,7 @@ export async function getPayrollBudget(month: string): Promise<number | null> {
     .query(
       `SELECT amount::float
      FROM payroll_budgets
-     WHERE month = $1::date
+     WHERE month <= $1::date
      ORDER BY month DESC
      LIMIT 1`,
       [`${month}-01`],
