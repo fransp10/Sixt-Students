@@ -210,7 +210,7 @@ export async function getPayrollRows(month: string): Promise<PayrollRow[]> {
             u.first_name,
             u.last_name,
             t.hours::float AS hours,
-            ROUND(t.amount, 2)::float AS amount,
+            CASE WHEN c.id IS NOT NULL THEN ROUND(t.amount, 2)::float END AS amount,
             c.id IS NOT NULL AS has_contract,
             p.paid_at,
             p.paid_amount::float AS paid_amount
@@ -220,7 +220,7 @@ export async function getPayrollRows(month: string): Promise<PayrollRow[]> {
        ON c.user_id = t.user_id AND c.contract_month = $1::date
      LEFT JOIN payroll_payments p
        ON p.user_id = t.user_id AND p.month = $1::date
-     ORDER BY u.first_name, u.last_name`,
+     ORDER BY c.id IS NULL, u.first_name, u.last_name`,
     [`${month}-01`],
   );
 
@@ -266,4 +266,30 @@ export async function setPayrollBudget(
      ON CONFLICT (month) DO UPDATE SET amount = EXCLUDED.amount`,
     [`${month}-01`, amount],
   );
+}
+
+export async function markPayrollPaid(
+  month: string,
+  paidByAdminId: string,
+): Promise<number> {
+  const result = await pool.query(
+    `INSERT INTO payroll_payments (month, user_id, paid_amount, paid_by_admin_id)
+     SELECT $1::date,
+            ws.user_id,
+            ROUND(SUM(ws.hours * ws.hourly_rate), 2),
+            $2::int
+     FROM worked_shifts ws
+     JOIN contracts c
+       ON c.user_id = ws.user_id AND c.contract_month = $1::date
+     WHERE ws.date >= $1::date
+       AND ws.date < $1::date + interval '1 month'
+       AND ws.date < CURRENT_DATE
+     GROUP BY ws.user_id
+     HAVING SUM(ws.hours) > 0
+     ON CONFLICT (month, user_id) DO NOTHING`,
+    [`${month}-01`, paidByAdminId],
+  );
+
+  // number of workers newly marked as paid
+  return result.rowCount ?? 0;
 }

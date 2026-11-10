@@ -6,14 +6,15 @@ export function getPayrollStatus(
   rows: PayrollRow[],
 ): PayrollStatus {
   if (month >= format(new Date(), "yyyy-MM")) return "in_progress";
-  if (rows.length === 0) return "ready";
 
-  const paidCount = rows.filter((row) => row.paid_at !== null).length;
+  // students without a contract for the month are not owed anything,
+  // so only the ones with a contract decide the status
+  const payableRows = rows.filter((row) => row.has_contract);
+  if (payableRows.length === 0) return "nothing_to_pay";
 
-  if (paidCount === rows.length) return "paid";
+  const paidCount = payableRows.filter((row) => row.paid_at !== null).length;
+
+  if (paidCount === payableRows.length) return "paid";
   if (paidCount > 0) return "partly_paid";
-
-  const hasMissingContract = rows.some((row) => !row.has_contract);
-  if (hasMissingContract) return "waiting_on_contracts";
   return "ready";
 }

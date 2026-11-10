@@ -236,3 +236,33 @@ export async function setPayrollBudget(
 
   await adminModel.setPayrollBudget(month, amount);
 }
+
+export async function markPayrollPaid(
+  month: string,
+  paidByAdminId: string,
+): Promise<void> {
+  if (!isValidMonth(month)) {
+    throw new AppError("Invalid month format, use YYYY-mm", 400);
+  }
+
+  if (!paidByAdminId) {
+    throw new AppError("Admin id is required", 400);
+  }
+
+  // same rule as the "in_progress" status: paying mid-month would store
+  // partial amounts, and those payments can't be overwritten afterwards
+  if (month >= format(new Date(), "yyyy-MM")) {
+    throw new AppError("This month hasn't ended yet", 409);
+  }
+
+  const markedCount = await adminModel.markPayrollPaid(month, paidByAdminId);
+
+  // only workers with worked hours and a contract for the month get paid,
+  // so nothing inserted means there was nobody left to pay
+  if (markedCount === 0) {
+    throw new AppError(
+      "No unpaid workers with a contract for this month",
+      409,
+    );
+  }
+}
