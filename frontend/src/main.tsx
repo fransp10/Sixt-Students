@@ -33,6 +33,7 @@ import ShiftHistoryPage from "./components/Admin/ShiftHistoryPage.tsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.tsx";
 import { StudentsProvider } from "./context/Providers/StudentsContextProvider.tsx";
 import AdminContractsPage from "./pages/Admin/AdminContractsPage.tsx";
+import AdminEarningsPage from "./pages/Admin/AdminEarningsPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -93,16 +94,16 @@ const router = createBrowserRouter([
 
               {
                 path: "earnings",
-                element: <EarningsPage />,
-              },
-              {
-                path: "settings",
-                element: <SettingsPage />,
+                element: <AdminEarningsPage />,
               },
               {
                 path: "contracts",
                 index: true,
                 element: <AdminContractsPage />,
+              },
+              {
+                path: "settings",
+                element: <SettingsPage />,
               },
             ],
           },

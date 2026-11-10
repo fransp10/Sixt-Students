@@ -17,6 +17,7 @@ import MonthPickerPopover from "./MonthPickerPopover";
 import { CONTRACTS_FIRST_MONTH } from "../../helpers/constants";
 
 type PeriodBarProps = {
+  label?: string;
   selectedMonth: Date;
   onMonthChange: (month: Date) => void;
   minMonth?: Date;
@@ -25,6 +26,7 @@ type PeriodBarProps = {
 };
 
 function PeriodBar({
+  label = "Showing contracts for",
   selectedMonth,
   onMonthChange,
   minMonth = CONTRACTS_FIRST_MONTH,
@@ -83,7 +85,7 @@ function PeriodBar({
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-borderDividers bg-cardBG px-3 py-2.5">
       <div className="flex items-center gap-2 text-sm text-secondaryText">
-        <span>Showing contracts for</span>
+        <span>{label}</span>
         {isCurrentMonth && (
           <span className="rounded-full border border-success/30 bg-success/10 px-2 py-0.5 text-xs text-success">
             Current month
