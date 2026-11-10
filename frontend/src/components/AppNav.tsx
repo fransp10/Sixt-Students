@@ -1,5 +1,6 @@
 import sixtStudentsLogo from "../assets/sixtStudentsLogo.png";
 import type { NavItemType } from "../types/NavItem";
+import CurrentUserBadge from "./CurrentUserBadge";
 import LogoutButton from "./LogoutButton";
 import NavItem from "./NavItem";
 
@@ -24,6 +25,7 @@ function AppNav({ navItems }: AppNav) {
         "
     >
       <img src={sixtStudentsLogo} width={244} height={122} />
+      <CurrentUserBadge />
       <nav className=" mt-6 w-full flex-1   ">
         <ul className="flex flex-col text-primaryText font-semibold">
           {navItems.map((item) => (
@@ -37,6 +39,7 @@ function AppNav({ navItems }: AppNav) {
           ))}
         </ul>
       </nav>
+
       <LogoutButton />
     </div>
   );
