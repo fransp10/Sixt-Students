@@ -137,3 +137,23 @@ export async function markStudentPaid(
 
   res.status(204).send();
 }
+
+export async function unmarkPayrollPaid(
+  req: Request<{ month: string }>,
+  res: Response,
+): Promise<void> {
+  const { month } = req.params;
+  await adminService.unmarkPayrollPaid(month);
+
+  res.status(204).send();
+}
+
+export async function unmarkStudentPaid(
+  req: Request<{ month: string; userId: string }>,
+  res: Response,
+): Promise<void> {
+  const { month, userId } = req.params;
+  await adminService.unmarkStudentPaid(month, Number(userId));
+
+  res.status(204).send();
+}

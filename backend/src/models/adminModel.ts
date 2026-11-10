@@ -296,3 +296,19 @@ export async function markPayrollPaid(
   // number of workers newly marked as paid
   return result.rowCount ?? 0;
 }
+
+// removes the payments of the whole month, or only userId's when it's given
+export async function unmarkPayrollPaid(
+  month: string,
+  userId: number | null = null,
+): Promise<number> {
+  const result = await pool.query(
+    `DELETE FROM payroll_payments
+     WHERE month = $1::date
+       AND ($2::int IS NULL OR user_id = $2::int)`,
+    [`${month}-01`, userId],
+  );
+
+  // number of workers marked as unpaid
+  return result.rowCount ?? 0;
+}

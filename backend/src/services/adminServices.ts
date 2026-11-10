@@ -296,3 +296,34 @@ export async function markStudentPaid(
     );
   }
 }
+
+export async function unmarkPayrollPaid(month: string): Promise<void> {
+  if (!isValidMonth(month)) {
+    throw new AppError("Invalid month format, use YYYY-mm", 400);
+  }
+
+  const unmarkedCount = await adminModel.unmarkPayrollPaid(month);
+
+  if (unmarkedCount === 0) {
+    throw new AppError("Nobody is marked as paid for this month", 409);
+  }
+}
+
+export async function unmarkStudentPaid(
+  month: string,
+  userId: number,
+): Promise<void> {
+  if (!isValidMonth(month)) {
+    throw new AppError("Invalid month format, use YYYY-mm", 400);
+  }
+
+  if (!Number.isInteger(userId) || userId <= 0) {
+    throw new AppError("Invalid student id", 400);
+  }
+
+  const unmarkedCount = await adminModel.unmarkPayrollPaid(month, userId);
+
+  if (unmarkedCount === 0) {
+    throw new AppError("This student isn't marked as paid for this month", 409);
+  }
+}

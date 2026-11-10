@@ -24,4 +24,8 @@ adminRouter.post(
   "/payroll/:month/students/:userId/paid",
   adminController.markStudentPaid,
 );
-// adminRouter.post("/payroll/:month/unpaid", adminController.unmarkPayrollPaid);
+adminRouter.delete("/payroll/:month/paid", adminController.unmarkPayrollPaid);
+adminRouter.delete(
+  "/payroll/:month/students/:userId/paid",
+  adminController.unmarkStudentPaid,
+);
