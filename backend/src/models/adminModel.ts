@@ -6,6 +6,7 @@ import {
   ContractWithUrl,
 } from "../types/contract.js";
 import { monthlyTotals } from "../types/monthlyTotals.js";
+import { PayrollRow, PayrollScheduled } from "../types/payroll.js";
 import { recentStudent } from "../types/recentStudent.js";
 import { deletableStudent, StudentMisingContract } from "../types/Student.js";
 
@@ -190,4 +191,124 @@ export async function getStudentsMissingContract(
     [month],
   );
   return result.rows;
+}
+
+export async function getPayrollRows(month: string): Promise<PayrollRow[]> {
+  const result = await pool.query<PayrollRow>(
+    `WITH totals AS (
+       SELECT user_id,
+              SUM(hours) AS hours,
+              SUM(hours * hourly_rate) AS amount
+       FROM worked_shifts
+       WHERE date >= $1::date
+         AND date < $1::date + interval '1 month'
+         AND date < CURRENT_DATE
+       GROUP BY user_id
+       HAVING SUM(hours) > 0
+     )
+     SELECT u.id AS user_id,
+            u.first_name,
+            u.last_name,
+            t.hours::float AS hours,
+            ROUND(t.amount, 2)::float AS amount,
+            c.id IS NOT NULL AS has_contract,
+            p.paid_at,
+            p.paid_amount::float AS paid_amount
+     FROM totals t
+     JOIN users u ON u.id = t.user_id
+     LEFT JOIN contracts c
+       ON c.user_id = t.user_id AND c.contract_month = $1::date
+     LEFT JOIN payroll_payments p
+       ON p.user_id = t.user_id AND p.month = $1::date
+     ORDER BY c.id IS NULL, u.first_name, u.last_name`,
+    [`${month}-01`],
+  );
+
+  return result.rows;
+}
+
+export async function getScheduledPayroll(
+  month: string,
+): Promise<PayrollScheduled> {
+  return await pool
+    .query<PayrollScheduled>(
+      `SELECT COALESCE(SUM(hours * hourly_rate),0)::float AS amount,
+    COUNT(*)::int AS shifts
+    FROM worked_shifts
+    WHERE date >= $1::date
+    AND date < $1::date + interval '1 month'
+    AND date >= CURRENT_DATE`,
+      [`${month}-01`],
+    )
+    .then((result) => result.rows[0]);
+}
+
+export async function getPayrollBudget(month: string): Promise<number | null> {
+  return await pool
+    .query(
+      `SELECT amount::float
+     FROM payroll_budgets
+     WHERE month <= $1::date
+     ORDER BY month DESC
+     LIMIT 1`,
+      [`${month}-01`],
+    )
+    .then((result) => result.rows[0]?.amount ?? null);
+}
+
+export async function setPayrollBudget(
+  month: string,
+  amount: number,
+): Promise<void> {
+  await pool.query(
+    `INSERT INTO payroll_budgets (month, amount)
+     VALUES ($1::date, $2)
+     ON CONFLICT (month) DO UPDATE SET amount = EXCLUDED.amount`,
+    [`${month}-01`, amount],
+  );
+}
+
+// pays everyone with a contract for the month, or only userId when it's given
+export async function markPayrollPaid(
+  month: string,
+  paidByAdminId: string,
+  userId: number | null = null,
+): Promise<number> {
+  const result = await pool.query(
+    `INSERT INTO payroll_payments (month, user_id, paid_amount, paid_by_admin_id)
+     SELECT $1::date,
+            ws.user_id,
+            ROUND(SUM(ws.hours * ws.hourly_rate), 2),
+            $2::int
+     FROM worked_shifts ws
+     JOIN contracts c
+       ON c.user_id = ws.user_id AND c.contract_month = $1::date
+     WHERE ws.date >= $1::date
+       AND ws.date < $1::date + interval '1 month'
+       AND ws.date < CURRENT_DATE
+       AND ($3::int IS NULL OR ws.user_id = $3::int)
+     GROUP BY ws.user_id
+     HAVING SUM(ws.hours) > 0
+     ON CONFLICT (month, user_id) DO NOTHING`,
+    [`${month}-01`, paidByAdminId, userId],
+  );
+
+  // number of workers newly marked as paid
+  return result.rowCount ?? 0;
+}
+
+// removes the payments of the whole month, or only userId's when it's given
+export async function unmarkPayrollPaid(
+  month: string,
+  userId: number | null = null,
+): Promise<number> {
+  const result = await pool.query(
+    `DELETE FROM payroll_payments
+     WHERE month = $1::date
+       AND ($2::int IS NULL OR user_id = $2::int)`,
+    [`${month}-01`, userId],
+  );
+
+  // number of workers marked as unpaid
+  return result.rowCount ?? 0;
 }

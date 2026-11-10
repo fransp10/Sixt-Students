@@ -91,3 +91,69 @@ export async function sendContractReminder(
 
   res.status(200).json(result);
 }
+
+export async function getPayroll(
+  req: Request<{}, unknown, unknown, { month?: string }>,
+  res: Response,
+): Promise<void> {
+  const { month } = req.query;
+
+  const payrollData = await adminService.getPayroll(month);
+
+  res.status(200).json(payrollData);
+}
+
+export async function setPayrollBudget(
+  req: Request<{ month: string }, unknown, { amount: number }>,
+  res: Response,
+): Promise<void> {
+  const { month } = req.params;
+  const { amount } = req.body;
+
+  await adminService.setPayrollBudget(month, amount);
+
+  res.status(204).send();
+}
+
+export async function markPayrollPaid(
+  req: Request<{ month: string }>,
+  res: Response,
+): Promise<void> {
+  const { month } = req.params;
+  const paidByAdminId = req.user?.id!;
+  console.log(paidByAdminId);
+  await adminService.markPayrollPaid(month, paidByAdminId);
+
+  res.status(204).send();
+}
+
+export async function markStudentPaid(
+  req: Request<{ month: string; userId: string }>,
+  res: Response,
+): Promise<void> {
+  const { month, userId } = req.params;
+  const paidByAdminId = req.user?.id!;
+  await adminService.markStudentPaid(month, Number(userId), paidByAdminId);
+
+  res.status(204).send();
+}
+
+export async function unmarkPayrollPaid(
+  req: Request<{ month: string }>,
+  res: Response,
+): Promise<void> {
+  const { month } = req.params;
+  await adminService.unmarkPayrollPaid(month);
+
+  res.status(204).send();
+}
+
+export async function unmarkStudentPaid(
+  req: Request<{ month: string; userId: string }>,
+  res: Response,
+): Promise<void> {
+  const { month, userId } = req.params;
+  await adminService.unmarkStudentPaid(month, Number(userId));
+
+  res.status(204).send();
+}

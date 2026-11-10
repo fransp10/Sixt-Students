@@ -16,3 +16,16 @@ adminRouter.post(
   "/students/contracts/remind",
   adminController.sendContractReminder,
 );
+
+adminRouter.get("/payroll", adminController.getPayroll);
+adminRouter.put("/payroll/:month/budget", adminController.setPayrollBudget);
+adminRouter.post("/payroll/:month/paid", adminController.markPayrollPaid);
+adminRouter.post(
+  "/payroll/:month/students/:userId/paid",
+  adminController.markStudentPaid,
+);
+adminRouter.delete("/payroll/:month/paid", adminController.unmarkPayrollPaid);
+adminRouter.delete(
+  "/payroll/:month/students/:userId/paid",
+  adminController.unmarkStudentPaid,
+);

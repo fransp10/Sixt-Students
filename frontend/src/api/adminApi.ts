@@ -2,6 +2,7 @@ import type { RecentStudent } from "../types/recentSudent";
 import type { DeletableStudent } from "../types/deletableStudent";
 import { axiosClient } from "./axios";
 import type { Contract, ContractWithUrl } from "../types/contracts";
+import type { Payroll } from "../types/payroll";
 
 export async function getAdminStats() {
   const adminStats = await axiosClient.get("/admin/stats");
@@ -66,6 +67,44 @@ export async function getStudentContractWithSignedUrl(
   );
 
   return contractWithSignedUrl.data as ContractWithUrl;
+}
+
+export async function getPayroll(month: string): Promise<Payroll> {
+  const payroll = await axiosClient.get("/admin/payroll", {
+    params: { month },
+  });
+
+  return payroll.data as Payroll;
+}
+
+// the budget carries over to the following months until it's changed again
+export async function updatePayrollBudget(
+  month: string,
+  amount: number,
+): Promise<void> {
+  await axiosClient.put(`/admin/payroll/${month}/budget`, { amount });
+}
+
+export async function markPayrollPaid(month: string): Promise<void> {
+  await axiosClient.post(`/admin/payroll/${month}/paid`);
+}
+
+export async function markStudentPaid(
+  month: string,
+  userId: number,
+): Promise<void> {
+  await axiosClient.post(`/admin/payroll/${month}/students/${userId}/paid`);
+}
+
+export async function unmarkStudentPaid(
+  month: string,
+  userId: number,
+): Promise<void> {
+  await axiosClient.delete(`/admin/payroll/${month}/students/${userId}/paid`);
+}
+
+export async function unmarkPayrollPaid(month: string): Promise<void> {
+  await axiosClient.delete(`/admin/payroll/${month}/paid`);
 }
 
 // without userIds the backend reminds every student missing a contract for that month
