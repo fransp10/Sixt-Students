@@ -41,7 +41,7 @@ function DesktopPayrollTable({
           <th scope="col" className="py-3 pr-4 text-right font-medium">
             Amount
           </th>
-          <th scope="col" className="py-3 pl-8 pr-5 font-medium">
+          <th scope="col" className="py-3 pl-8  font-medium text-right pr-8">
             Contract
           </th>
         </tr>
@@ -49,7 +49,7 @@ function DesktopPayrollTable({
       <tbody>
         {rows.map((row) => (
           <tr key={row.user_id} className="border-b border-borderDividers">
-            <th className="py-3.5 pl-5 pr-4 text-left font-semibold">
+            <th className="py-3.5 pl-5 pr-4 text-left font-normal text-primaryText">
               <Link
                 to={`/admin/students/${row.user_id}`}
                 className="hover:text-primary"
@@ -68,7 +68,7 @@ function DesktopPayrollTable({
             >
               {formatStat(row.amount, "€")}
             </td>
-            <td className="py-3.5 pl-8 pr-5">
+            <td className="py-3.5 pl-8 pr-5 ">
               <PayrollContractCell
                 row={row}
                 month={month}
@@ -78,9 +78,9 @@ function DesktopPayrollTable({
           </tr>
         ))}
       </tbody>
-      <tfoot>
+      <tfoot className=" border-borderDividers border-t-4 text-sm ">
         <tr className="font-semibold">
-          <th className="py-4 pl-5 pr-4 text-left">
+          <th className="py-4 pl-5 pr-4 text-left text-primaryText">
             {uploadedCount < rows.length ? "Total with contract" : "Total"}
           </th>
           <td className="py-4 pr-4 text-right tabular-nums">
@@ -90,7 +90,7 @@ function DesktopPayrollTable({
           <td className="py-4 pr-4 text-right tabular-nums">
             {formatStat(payableAmount, "€")}
           </td>
-          <td className="py-4 pl-8 pr-5 text-sm font-normal text-secondaryText">
+          <td className="py-4 pl-8 pr-5 text-sm font-normal text-secondaryText text-right">
             {uploadedCount} of {rows.length} uploaded
           </td>
         </tr>
