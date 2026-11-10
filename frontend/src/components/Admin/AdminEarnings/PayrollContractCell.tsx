@@ -1,21 +1,28 @@
 import { CheckIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import SendReminderButton from "../AdminContracts/SendReminderButton";
+import PayrollRowPayment from "./PayrollRowPayment";
 import type { PayrollRow } from "../../../types/payroll";
 
-// the normal case stays quiet, only a missing contract gets colour
+// the normal case stays quiet, only a missing contract gets colour.
+// A student with a contract gets "Mark as paid" where a missing one gets "Remind"
 function PayrollContractCell({
   row,
   month,
+  canPay,
 }: {
   row: PayrollRow;
   month: string;
+  canPay: boolean; // false until the month has ended
 }) {
   if (row.has_contract) {
     return (
-      <span className="inline-flex items-center gap-1.5 text-sm text-secondaryText">
-        <CheckIcon className="size-4 text-success" />
-        Uploaded
-      </span>
+      <div className="flex items-center gap-3">
+        <span className="inline-flex items-center gap-1.5 text-sm text-secondaryText">
+          <CheckIcon className="size-4 text-success" />
+          Uploaded
+        </span>
+        {canPay && <PayrollRowPayment row={row} month={month} />}
+      </div>
     );
   }
 

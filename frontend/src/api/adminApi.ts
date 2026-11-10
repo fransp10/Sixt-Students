@@ -89,6 +89,13 @@ export async function markPayrollPaid(month: string): Promise<void> {
   await axiosClient.post(`/admin/payroll/${month}/paid`);
 }
 
+export async function markStudentPaid(
+  month: string,
+  userId: number,
+): Promise<void> {
+  await axiosClient.post(`/admin/payroll/${month}/students/${userId}/paid`);
+}
+
 export async function unmarkPayrollPaid(month: string): Promise<void> {
   await axiosClient.delete(`/admin/payroll/${month}/paid`);
 }

@@ -45,10 +45,10 @@ function PayrollPanel({ month }: { month: string }) {
   const missing = rows.filter((row) => !row.has_contract);
 
   const payableHours = payable.reduce((sum, row) => sum + row.hours, 0);
-  const payableAmount = payable.reduce((sum, row) => sum + (row.amount ?? 0), 0);
+  const payableAmount = payable.reduce((sum, row) => sum + row.amount, 0);
   const unpaidAmount = payable
     .filter((row) => row.paid_at === null)
-    .reduce((sum, row) => sum + (row.amount ?? 0), 0);
+    .reduce((sum, row) => sum + row.amount, 0);
   const paidAmount = payable.reduce((sum, row) => sum + (row.paid_amount ?? 0), 0);
   const paidAt = payable.reduce<string | null>(
     (latest, row) =>
@@ -123,11 +123,13 @@ function PayrollPanel({ month }: { month: string }) {
             month={payroll.month}
             payableHours={payableHours}
             payableAmount={payableAmount}
+            isMonthOver={status !== "in_progress"}
           />
           <MobilePayrollList
             rows={rows}
             month={payroll.month}
             payableAmount={payableAmount}
+            isMonthOver={status !== "in_progress"}
           />
         </>
       )}

@@ -10,6 +10,7 @@ type DesktopPayrollTableProps = {
   // totals only cover students with a contract, nothing is owed to the others
   payableHours: number;
   payableAmount: number;
+  isMonthOver: boolean; // students can only be paid once the month has ended
 };
 
 function DesktopPayrollTable({
@@ -17,6 +18,7 @@ function DesktopPayrollTable({
   month,
   payableHours,
   payableAmount,
+  isMonthOver,
 }: DesktopPayrollTableProps) {
   const uploadedCount = rows.filter((row) => row.has_contract).length;
 
@@ -59,19 +61,19 @@ function DesktopPayrollTable({
               {formatStat(row.hours, "h")}
             </td>
             <td className="py-3.5 pr-4 text-right tabular-nums text-secondaryText">
-              {row.amount === null
-                ? "—"
-                : `${formatStat(row.amount / row.hours, "€")}/h`}
+              {formatStat(row.amount / row.hours, "€")}/h
             </td>
-            <td className="py-3.5 pr-4 text-right font-semibold tabular-nums">
-              {row.amount === null ? (
-                <span className="font-normal text-secondaryText">—</span>
-              ) : (
-                formatStat(row.amount, "€")
-              )}
+            <td
+              className={`py-3.5 pr-4 text-right tabular-nums ${row.has_contract ? "font-semibold" : "text-secondaryText"}`}
+            >
+              {formatStat(row.amount, "€")}
             </td>
             <td className="py-3.5 pl-8 pr-5">
-              <PayrollContractCell row={row} month={month} />
+              <PayrollContractCell
+                row={row}
+                month={month}
+                canPay={isMonthOver}
+              />
             </td>
           </tr>
         ))}

@@ -1,16 +1,24 @@
 import { Link } from "react-router-dom";
 import { formatStat } from "../../../helpers/formatStat";
 import PayrollContractCell from "./PayrollContractCell";
+import PayrollRowPayment from "./PayrollRowPayment";
 import type { PayrollRow } from "../../../types/payroll";
 
 type MobilePayrollListProps = {
   rows: PayrollRow[];
   month: string;
   payableAmount: number; // only students with a contract, nothing is owed to the others
+  isMonthOver: boolean; // students can only be paid once the month has ended
 };
 
-// amount on the right, the contract only shows up when it's missing
-function MobilePayrollList({ rows, month, payableAmount }: MobilePayrollListProps) {
+// amount on the right, the contract only shows up when it's missing,
+// a student with a contract gets the pay button where a missing one gets the reminder
+function MobilePayrollList({
+  rows,
+  month,
+  payableAmount,
+  isMonthOver,
+}: MobilePayrollListProps) {
   const missingCount = rows.filter((row) => !row.has_contract).length;
 
   return (
@@ -28,22 +36,24 @@ function MobilePayrollList({ rows, month, payableAmount }: MobilePayrollListProp
               {row.first_name} {row.last_name}
             </Link>
             <p className="text-sm text-secondaryText tabular-nums">
-              {row.amount === null
-                ? formatStat(row.hours, "h")
-                : `${formatStat(row.hours, "h")} × ${formatStat(row.amount / row.hours, "€")}/h`}
+              {formatStat(row.hours, "h")} ×{" "}
+              {formatStat(row.amount / row.hours, "€")}/h
             </p>
             {!row.has_contract && (
               <div className="mt-2">
-                <PayrollContractCell row={row} month={month} />
+                <PayrollContractCell row={row} month={month} canPay={false} />
+              </div>
+            )}
+            {row.has_contract && isMonthOver && (
+              <div className="mt-2">
+                <PayrollRowPayment row={row} month={month} />
               </div>
             )}
           </div>
-          <p className="font-semibold tabular-nums">
-            {row.amount === null ? (
-              <span className="font-normal text-secondaryText">—</span>
-            ) : (
-              formatStat(row.amount, "€")
-            )}
+          <p
+            className={`tabular-nums ${row.has_contract ? "font-semibold" : "text-secondaryText"}`}
+          >
+            {formatStat(row.amount, "€")}
           </p>
         </li>
       ))}
