@@ -10,8 +10,6 @@ function PayrollRowPayment({ row, month }: { row: PayrollRow; month: string }) {
   const markPaid = useMarkStudentPaid();
   const unmarkPaid = useUnmarkStudentPaid();
 
-  const studentName = `${row.first_name} ${row.last_name}`;
-
   if (row.paid_at) {
     return (
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -23,8 +21,7 @@ function PayrollRowPayment({ row, month }: { row: PayrollRow; month: string }) {
           type="button"
           disabled={unmarkPaid.isPending}
           onClick={() => unmarkPaid.mutate({ month, userId: row.user_id })}
-          aria-label={`Mark ${studentName} as unpaid`}
-          className="text-xs font-semibold text-secondaryText cursor-pointer hover:text-primaryText disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-9 items-center justify-center gap-1.5 rounded-lg border border-borderDividers px-3 text-xs font-semibold text-secondaryText cursor-pointer transition-colors hover:border-primary hover:text-primaryText disabled:cursor-not-allowed disabled:opacity-50"
         >
           {unmarkPaid.isPending ? "Saving…" : "Mark as unpaid"}
         </button>
@@ -43,7 +40,6 @@ function PayrollRowPayment({ row, month }: { row: PayrollRow; month: string }) {
         type="button"
         disabled={markPaid.isPending}
         onClick={() => markPaid.mutate({ month, userId: row.user_id })}
-        aria-label={`Mark ${studentName} as paid`}
         className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-borderDividers px-3 text-xs font-semibold text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
       >
         <CheckIcon className="size-4" />

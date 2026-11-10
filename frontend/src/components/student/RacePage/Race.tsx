@@ -6,7 +6,13 @@ import type { RaceStats, RaceStatsStudent } from "../../../types/raceStats";
 import { RACE_MAX_STUDENTS_TO_DISPLAY } from "../../../helpers/constants";
 import { useAuthContext } from "../../../hooks/auth/useAuthContext";
 
-function Race({ raceStats }: { raceStats: RaceStats }) {
+function Race({
+  raceStats,
+  surface = "bg-cardLighterBG rounded-lg",
+}: {
+  raceStats: RaceStats;
+  surface?: string;
+}) {
   const [mode, setMode] = useState<"hours" | "shifts">("hours");
 
   const { currentUser } = useAuthContext();
@@ -29,7 +35,7 @@ function Race({ raceStats }: { raceStats: RaceStats }) {
   );
 
   return (
-    <div className=" md:col-span-2 md:row-span-2 flex flex-col bg-cardLighterBG rounded-lg p-6 text-primaryText">
+    <div className={` md:col-span-2 md:row-span-2 flex flex-col p-6 text-primaryText ${surface}`}>
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
         <RaceHeader />
         <RaceModePicker handleChangeMode={setMode} mode={mode} />

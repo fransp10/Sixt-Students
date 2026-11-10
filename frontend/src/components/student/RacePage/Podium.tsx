@@ -28,21 +28,23 @@ const PLACE_STYLES = [
 function Podium({
   currentMonth,
   top3,
+  surface = "bg-cardLighterBG rounded-lg",
 }: {
   currentMonth: string;
   top3: RaceStatsStudent[];
+  surface?: string;
 }) {
   const currentUser = useAuthContext();
   if (top3.length === 0) {
     return (
-      <div className=" col-span-1 row-span-2  flex flex-col bg-cardLighterBG rounded-lg p-6 text-primaryText">
+      <div className={` col-span-1 row-span-2  flex flex-col p-6 text-primaryText ${surface}`}>
         <p>No data this month yet</p>
       </div>
     );
   }
 
   return (
-    <div className=" col-span-1 row-span-2  flex flex-col bg-cardLighterBG rounded-lg p-6 text-primaryText">
+    <div className={` col-span-1 row-span-2  flex flex-col p-6 text-primaryText ${surface}`}>
       <RacePageCardHeader
         heading="Podium"
         subheading={`Top performers ${format(new Date(currentMonth), "MMM yyyy")} `}

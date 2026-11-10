@@ -1,4 +1,7 @@
-import { CheckIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import {
+  CheckIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
 import SendReminderButton from "../AdminContracts/SendReminderButton";
 import PayrollRowPayment from "./PayrollRowPayment";
 import type { PayrollRow } from "../../../types/payroll";
@@ -16,7 +19,7 @@ function PayrollContractCell({
 }) {
   if (row.has_contract) {
     return (
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-end  gap-3">
         <span className="inline-flex items-center gap-1.5 text-sm text-secondaryText">
           <CheckIcon className="size-4 text-success" />
           Uploaded
@@ -27,7 +30,7 @@ function PayrollContractCell({
   }
 
   return (
-    <div className="flex items-center gap-3 text-sm">
+    <div className="flex items-center justify-end  gap-3 text-sm">
       <span className="inline-flex items-center gap-1.5 font-semibold text-warning">
         <ExclamationTriangleIcon className="size-4" />
         Missing
