@@ -9,7 +9,9 @@ function PayrollActions({ payroll }: { payroll: Payroll }) {
   const markPaid = useMarkPayrollPaid();
   const unmarkPaid = useUnmarkPayrollPaid();
 
-  const isPaid = payroll.status === "paid";
+  // some students may be paid while others aren't, that can be undone too
+  const hasPayments =
+    payroll.status === "paid" || payroll.status === "partly_paid";
   // partly paid stays payable, a student may have uploaded a contract since
   const canMarkPaid =
     payroll.status === "ready" || payroll.status === "partly_paid";
@@ -18,14 +20,14 @@ function PayrollActions({ payroll }: { payroll: Payroll }) {
   return (
     <div className="flex flex-col gap-2 md:items-end">
       <div className="flex gap-2 [&>button]:flex-1 md:[&>button]:flex-none">
-        {isPaid && (
+        {hasPayments && (
           <button
             type="button"
             disabled={unmarkPaid.isPending}
             onClick={() => unmarkPaid.mutate(payroll.month)}
             className="h-10 px-2 text-sm font-semibold text-secondaryText cursor-pointer hover:text-primaryText disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {unmarkPaid.isPending ? "Undoing…" : "Undo"}
+            {unmarkPaid.isPending ? "Saving…" : "Mark as unpaid"}
           </button>
         )}
         <button

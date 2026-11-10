@@ -1,23 +1,41 @@
 import { format, parseISO } from "date-fns";
 import { CheckIcon } from "@heroicons/react/24/outline";
 import { useMarkStudentPaid } from "../../../hooks/useMarkStudentPaid";
+import { useUnmarkStudentPaid } from "../../../hooks/useUnmarkStudentPaid";
 import { getErrorMessage } from "../../../helpers/getErrorMessage";
 import type { PayrollRow } from "../../../types/payroll";
 
 // only for students with a contract, they are the only ones who can be paid
 function PayrollRowPayment({ row, month }: { row: PayrollRow; month: string }) {
   const markPaid = useMarkStudentPaid();
+  const unmarkPaid = useUnmarkStudentPaid();
+
+  const studentName = `${row.first_name} ${row.last_name}`;
 
   if (row.paid_at) {
     return (
-      <span className="inline-flex items-center gap-1.5 text-sm text-secondaryText">
-        <CheckIcon className="size-4 text-success" />
-        Paid {format(parseISO(row.paid_at), "d MMM")}
-      </span>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="inline-flex items-center gap-1.5 text-sm text-secondaryText">
+          <CheckIcon className="size-4 text-success" />
+          Paid {format(parseISO(row.paid_at), "d MMM")}
+        </span>
+        <button
+          type="button"
+          disabled={unmarkPaid.isPending}
+          onClick={() => unmarkPaid.mutate({ month, userId: row.user_id })}
+          aria-label={`Mark ${studentName} as unpaid`}
+          className="text-xs font-semibold text-secondaryText cursor-pointer hover:text-primaryText disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {unmarkPaid.isPending ? "Saving…" : "Mark as unpaid"}
+        </button>
+        {unmarkPaid.error && (
+          <p className="w-full text-xs text-danger">
+            {getErrorMessage(unmarkPaid.error, "Couldn't mark as unpaid.")}
+          </p>
+        )}
+      </div>
     );
   }
-
-  const studentName = `${row.first_name} ${row.last_name}`;
 
   return (
     <div className="w-32">
