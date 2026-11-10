@@ -4,6 +4,7 @@ import type { NavItemType } from "../types/NavItem";
 import LogoutButton from "./LogoutButton";
 import NavItem from "./NavItem";
 import sixtStudentsLogo from "../assets/sixtStudentsLogo.png";
+import CurrentUserBadge from "./CurrentUserBadge";
 
 type MobileAppNavProps = {
   navItems: NavItemType[];
@@ -76,6 +77,7 @@ function MobileAppNav({ navItems }: MobileAppNavProps) {
               ))}
             </ul>
           </nav>
+          <CurrentUserBadge />
           <div className="shrink-0 ">
             <LogoutButton />
           </div>
