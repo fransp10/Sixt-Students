@@ -4,10 +4,10 @@ import type { Payroll } from "../../../types/payroll";
 // one neutral pill for every status, only the dot carries colour
 function PayrollStatusChip({
   payroll,
-  missingCount,
+  paidAt,
 }: {
   payroll: Payroll;
-  missingCount: number;
+  paidAt: string | null; // latest payment date among the paid students
 }) {
   const today = new Date();
   const daysLeft = differenceInCalendarDays(endOfMonth(today), today);
@@ -15,18 +15,21 @@ function PayrollStatusChip({
   let dot = "bg-primary";
   let text = "Ready to pay";
 
-  if (payroll.status === "paid" && payroll.payment) {
+  if (payroll.status === "paid") {
     dot = "bg-success";
-    text = `Paid on ${format(parseISO(payroll.payment.paid_at), "d MMM")}`;
+    text = paidAt ? `Paid on ${format(parseISO(paidAt), "d MMM")}` : "Paid";
+  } else if (payroll.status === "partly_paid") {
+    dot = "bg-warning";
+    text = "Partly paid";
+  } else if (payroll.status === "nothing_to_pay") {
+    dot = "bg-secondaryText";
+    text = "Nothing to pay";
   } else if (payroll.status === "in_progress") {
     dot = "bg-pending";
     text =
       daysLeft === 0
         ? "In progress · last day"
         : `In progress · ${daysLeft} ${daysLeft === 1 ? "day" : "days"} left`;
-  } else if (payroll.status === "waiting_on_contracts") {
-    dot = "bg-warning";
-    text = `Waiting on ${missingCount} ${missingCount === 1 ? "contract" : "contracts"}`;
   }
 
   return (

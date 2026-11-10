@@ -10,8 +10,9 @@ function PayrollActions({ payroll }: { payroll: Payroll }) {
   const unmarkPaid = useUnmarkPayrollPaid();
 
   const isPaid = payroll.status === "paid";
+  // partly paid stays payable, a student may have uploaded a contract since
   const canMarkPaid =
-    payroll.status === "ready" || payroll.status === "waiting_on_contracts";
+    payroll.status === "ready" || payroll.status === "partly_paid";
   const error = markPaid.error ?? unmarkPaid.error;
 
   return (

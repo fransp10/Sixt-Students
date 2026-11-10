@@ -11,8 +11,9 @@ import type { PayrollStatus } from "../../../types/payroll";
 
 const TOTAL_LABELS: Record<PayrollStatus, string> = {
   in_progress: "Earned so far",
-  waiting_on_contracts: "To pay",
+  nothing_to_pay: "To pay",
   ready: "To pay",
+  partly_paid: "Left to pay",
   paid: "Paid",
 };
 
@@ -32,18 +33,38 @@ function PayrollPanel({ month }: { month: string }) {
   if (isError || !payroll) return <PanelMessage>Error loading payroll</PanelMessage>;
 
   const monthName = format(parseISO(payroll.month), "MMMM");
-  const { rows, status, payment } = payroll;
+  const { rows, status } = payroll;
 
   if (rows.length === 0 && status !== "in_progress") {
     return <PanelMessage>{`No hours were worked in ${monthName}.`}</PanelMessage>;
   }
 
-  const totalHours = rows.reduce((sum, row) => sum + row.hours, 0);
-  const totalAmount = rows.reduce((sum, row) => sum + row.amount, 0);
+  // only students with a contract for the month can be paid, the rest are
+  // listed so the admin sees who is missing one, but nothing is owed to them
+  const payable = rows.filter((row) => row.has_contract);
   const missing = rows.filter((row) => !row.has_contract);
+
+  const payableHours = payable.reduce((sum, row) => sum + row.hours, 0);
+  const payableAmount = payable.reduce((sum, row) => sum + (row.amount ?? 0), 0);
+  const unpaidAmount = payable
+    .filter((row) => row.paid_at === null)
+    .reduce((sum, row) => sum + (row.amount ?? 0), 0);
+  const paidAmount = payable.reduce((sum, row) => sum + (row.paid_amount ?? 0), 0);
+  const paidAt = payable.reduce<string | null>(
+    (latest, row) =>
+      row.paid_at && (!latest || row.paid_at > latest) ? row.paid_at : latest,
+    null,
+  );
+
+  const headlineAmount =
+    status === "paid"
+      ? paidAmount
+      : status === "partly_paid"
+        ? unpaidAmount
+        : payableAmount;
   // hours can still be edited after a month is paid
   const changedSincePaid =
-    payment && Math.abs(payment.paid_amount - totalAmount) >= 0.01;
+    status === "paid" && Math.abs(paidAmount - payableAmount) >= 0.01;
 
   return (
     // keyed by month so reminder and payment buttons start fresh on every month
@@ -58,31 +79,36 @@ function PayrollPanel({ month }: { month: string }) {
               <h2 className="text-sm font-medium text-secondaryText">
                 {TOTAL_LABELS[status]}
               </h2>
-              <PayrollStatusChip payroll={payroll} missingCount={missing.length} />
+              <PayrollStatusChip payroll={payroll} paidAt={paidAt} />
             </div>
             <p className="mt-1 text-4xl font-semibold tabular-nums">
-              {formatStat(totalAmount, "€")}
+              {formatStat(headlineAmount, "€")}
             </p>
             <p className="mt-1 text-sm text-secondaryText tabular-nums">
-              {formatStat(totalHours, " hours")} · {rows.length}{" "}
-              {rows.length === 1 ? "student" : "students"}
+              {formatStat(payableHours, " hours")} · {payable.length}{" "}
+              {payable.length === 1 ? "student" : "students"} with a contract
+              {missing.length > 0 && ` · ${missing.length} without`}
             </p>
             {status === "in_progress" && (
               <p className="mt-1 text-sm text-secondaryText">
                 You can mark {monthName} as paid once the month ends.
               </p>
             )}
+            {status === "nothing_to_pay" && (
+              <p className="mt-1 text-sm text-secondaryText">
+                Nobody has a {monthName} contract, so there is nothing to pay.
+              </p>
+            )}
             {changedSincePaid && (
               <p className="mt-1 text-sm text-warning">
-                Hours changed after you paid{" "}
-                {formatStat(payment.paid_amount, "€")}.
+                Hours changed after you paid {formatStat(paidAmount, "€")}.
               </p>
             )}
           </div>
           <PayrollActions payroll={payroll} />
         </div>
 
-        <PayrollBudgetBar payroll={payroll} earned={totalAmount} />
+        <PayrollBudgetBar payroll={payroll} earned={payableAmount} />
         <MissingContractsNotice payroll={payroll} missing={missing} />
       </div>
 
@@ -95,13 +121,13 @@ function PayrollPanel({ month }: { month: string }) {
           <DesktopPayrollTable
             rows={rows}
             month={payroll.month}
-            totalHours={totalHours}
-            totalAmount={totalAmount}
+            payableHours={payableHours}
+            payableAmount={payableAmount}
           />
           <MobilePayrollList
             rows={rows}
             month={payroll.month}
-            totalAmount={totalAmount}
+            payableAmount={payableAmount}
           />
         </>
       )}

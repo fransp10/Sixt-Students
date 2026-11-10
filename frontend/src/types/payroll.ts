@@ -1,17 +1,21 @@
 // what GET /admin/payroll?month=YYYY-MM returns, keep in sync with backend/src/types/payroll.ts
 export type PayrollStatus =
   | "in_progress" // the month hasn't ended yet
-  | "waiting_on_contracts" // ended, but someone who worked has no contract
-  | "ready" // ended and every contract is in
-  | "paid";
+  | "nothing_to_pay" // ended, but nobody who worked has a contract
+  | "ready" // ended, students with a contract are waiting to be paid
+  | "paid" // every student with a contract is paid
+  | "partly_paid"; // some students with a contract are paid, others not yet
 
+// one row per student who worked in the month (hours > 0)
 export type PayrollRow = {
   user_id: number;
   first_name: string;
   last_name: string;
   hours: number;
-  amount: number;
+  amount: number | null; // null without a contract, nothing is owed then
   has_contract: boolean;
+  paid_at: string | null; // null if not paid yet
+  paid_amount: number | null; // null if not paid yet
 };
 
 export type Payroll = {
@@ -20,5 +24,4 @@ export type Payroll = {
   rows: PayrollRow[];
   scheduled: { amount: number; shifts: number }; // approved shifts still to come, 0 for past months
   budget: number | null; // null until the admin sets one
-  payment: { paid_at: string; paid_amount: number } | null;
 };

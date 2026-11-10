@@ -31,7 +31,7 @@ function MissingContractsNotice({
     isError,
   } = useSendContractReminders();
 
-  if (missing.length === 0 || payroll.status === "paid") return null;
+  if (missing.length === 0) return null;
 
   const count = missing.length;
   const monthName = format(parseISO(payroll.month), "MMMM");
@@ -48,7 +48,8 @@ function MissingContractsNotice({
           </span>{" "}
           {listNames(missing)} {count === 1 ? "hasn't" : "haven't"} uploaded
           their {monthName} contract yet.
-          {payroll.status !== "in_progress" && " Remind them before you pay."}
+          {payroll.status !== "in_progress" &&
+            " They can't be paid until they do."}
           {isError && (
             <span className="block text-danger">
               Couldn't send the reminders. Try again.

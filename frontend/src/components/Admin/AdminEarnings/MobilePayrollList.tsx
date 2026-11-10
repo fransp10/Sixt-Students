@@ -6,11 +6,13 @@ import type { PayrollRow } from "../../../types/payroll";
 type MobilePayrollListProps = {
   rows: PayrollRow[];
   month: string;
-  totalAmount: number;
+  payableAmount: number; // only students with a contract, nothing is owed to the others
 };
 
 // amount on the right, the contract only shows up when it's missing
-function MobilePayrollList({ rows, month, totalAmount }: MobilePayrollListProps) {
+function MobilePayrollList({ rows, month, payableAmount }: MobilePayrollListProps) {
+  const missingCount = rows.filter((row) => !row.has_contract).length;
+
   return (
     <ul className="border-t border-borderDividers md:hidden">
       {rows.map((row) => (
@@ -26,8 +28,9 @@ function MobilePayrollList({ rows, month, totalAmount }: MobilePayrollListProps)
               {row.first_name} {row.last_name}
             </Link>
             <p className="text-sm text-secondaryText tabular-nums">
-              {formatStat(row.hours, "h")} ×{" "}
-              {formatStat(row.amount / row.hours, "€")}/h
+              {row.amount === null
+                ? formatStat(row.hours, "h")
+                : `${formatStat(row.hours, "h")} × ${formatStat(row.amount / row.hours, "€")}/h`}
             </p>
             {!row.has_contract && (
               <div className="mt-2">
@@ -36,13 +39,17 @@ function MobilePayrollList({ rows, month, totalAmount }: MobilePayrollListProps)
             )}
           </div>
           <p className="font-semibold tabular-nums">
-            {formatStat(row.amount, "€")}
+            {row.amount === null ? (
+              <span className="font-normal text-secondaryText">—</span>
+            ) : (
+              formatStat(row.amount, "€")
+            )}
           </p>
         </li>
       ))}
       <li className="flex justify-between px-5 py-4 font-semibold">
-        <span>Total</span>
-        <span className="tabular-nums">{formatStat(totalAmount, "€")}</span>
+        <span>{missingCount > 0 ? "Total with contract" : "Total"}</span>
+        <span className="tabular-nums">{formatStat(payableAmount, "€")}</span>
       </li>
     </ul>
   );

@@ -2,19 +2,21 @@ import type { PayrollRow } from "../types/payroll";
 
 // builds the CSV in the browser, so it always matches what the table shows
 export function exportPayrollCsv(month: string, rows: PayrollRow[]) {
-  const totalHours = rows.reduce((sum, row) => sum + row.hours, 0);
-  const totalAmount = rows.reduce((sum, row) => sum + row.amount, 0);
+  // students without a contract are listed but not paid, so they stay out of the totals
+  const payable = rows.filter((row) => row.has_contract);
+  const totalHours = payable.reduce((sum, row) => sum + row.hours, 0);
+  const totalAmount = payable.reduce((sum, row) => sum + (row.amount ?? 0), 0);
 
   const lines = [
     ["Student", "Hours", "Hourly rate (EUR)", "Amount (EUR)", "Contract"],
     ...rows.map((row) => [
       `${row.first_name} ${row.last_name}`,
       row.hours,
-      (row.amount / row.hours).toFixed(2),
-      row.amount.toFixed(2),
+      row.amount === null ? "" : (row.amount / row.hours).toFixed(2),
+      row.amount === null ? "" : row.amount.toFixed(2),
       row.has_contract ? "Uploaded" : "Missing",
     ]),
-    ["Total", totalHours, "", totalAmount.toFixed(2), ""],
+    ["Total with contract", totalHours, "", totalAmount.toFixed(2), ""],
   ];
 
   const csv = lines

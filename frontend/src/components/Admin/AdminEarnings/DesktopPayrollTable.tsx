@@ -7,15 +7,16 @@ import type { PayrollRow } from "../../../types/payroll";
 type DesktopPayrollTableProps = {
   rows: PayrollRow[];
   month: string;
-  totalHours: number;
-  totalAmount: number;
+  // totals only cover students with a contract, nothing is owed to the others
+  payableHours: number;
+  payableAmount: number;
 };
 
 function DesktopPayrollTable({
   rows,
   month,
-  totalHours,
-  totalAmount,
+  payableHours,
+  payableAmount,
 }: DesktopPayrollTableProps) {
   const uploadedCount = rows.filter((row) => row.has_contract).length;
 
@@ -58,10 +59,16 @@ function DesktopPayrollTable({
               {formatStat(row.hours, "h")}
             </td>
             <td className="py-3.5 pr-4 text-right tabular-nums text-secondaryText">
-              {formatStat(row.amount / row.hours, "€")}/h
+              {row.amount === null
+                ? "—"
+                : `${formatStat(row.amount / row.hours, "€")}/h`}
             </td>
             <td className="py-3.5 pr-4 text-right font-semibold tabular-nums">
-              {formatStat(row.amount, "€")}
+              {row.amount === null ? (
+                <span className="font-normal text-secondaryText">—</span>
+              ) : (
+                formatStat(row.amount, "€")
+              )}
             </td>
             <td className="py-3.5 pl-8 pr-5">
               <PayrollContractCell row={row} month={month} />
@@ -71,13 +78,15 @@ function DesktopPayrollTable({
       </tbody>
       <tfoot>
         <tr className="font-semibold">
-          <th className="py-4 pl-5 pr-4 text-left">Total</th>
+          <th className="py-4 pl-5 pr-4 text-left">
+            {uploadedCount < rows.length ? "Total with contract" : "Total"}
+          </th>
           <td className="py-4 pr-4 text-right tabular-nums">
-            {formatStat(totalHours, "h")}
+            {formatStat(payableHours, "h")}
           </td>
           <td />
           <td className="py-4 pr-4 text-right tabular-nums">
-            {formatStat(totalAmount, "€")}
+            {formatStat(payableAmount, "€")}
           </td>
           <td className="py-4 pl-8 pr-5 text-sm font-normal text-secondaryText">
             {uploadedCount} of {rows.length} uploaded
