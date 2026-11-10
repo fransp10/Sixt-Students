@@ -102,3 +102,15 @@ export async function getPayroll(
 
   res.status(200).json(payrollData);
 }
+
+export async function setPayrollBudget(
+  req: Request<{ month: string }, unknown, { amount: number }>,
+  res: Response,
+): Promise<void> {
+  const { month } = req.params;
+  const { amount } = req.body;
+
+  await adminService.setPayrollBudget(month, amount);
+
+  res.status(204).send();
+}

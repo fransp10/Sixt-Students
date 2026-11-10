@@ -18,3 +18,4 @@ adminRouter.post(
 );
 
 adminRouter.get("/payroll", adminController.getPayroll);
+adminRouter.put("/payroll/:month/budget", adminController.setPayrollBudget);

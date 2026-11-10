@@ -216,3 +216,23 @@ export async function getPayroll(month?: string): Promise<Payroll> {
 
   return payroll;
 }
+
+export async function setPayrollBudget(
+  month: string,
+  amount: number,
+): Promise<void> {
+  if (!isValidMonth(month)) {
+    throw new AppError(
+      "Invalid month format. Expected format is YYYY-MM.",
+      400,
+    );
+  }
+  if (typeof amount !== "number" || !Number.isFinite(amount)) {
+    throw new AppError("Budget must be a number", 400);
+  }
+  if (amount <= 0) {
+    throw new AppError("Amount must be larger than zero", 400);
+  }
+
+  await adminModel.setPayrollBudget(month, amount);
+}

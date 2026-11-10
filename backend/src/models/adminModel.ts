@@ -255,3 +255,15 @@ export async function getPayrollBudget(month: string): Promise<number | null> {
     )
     .then((result) => result.rows[0]?.amount ?? null);
 }
+
+export async function setPayrollBudget(
+  month: string,
+  amount: number,
+): Promise<void> {
+  await pool.query(
+    `INSERT INTO payroll_budgets (month, amount)
+     VALUES ($1::date, $2)
+     ON CONFLICT (month) DO UPDATE SET amount = EXCLUDED.amount`,
+    [`${month}-01`, amount],
+  );
+}
