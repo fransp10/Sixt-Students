@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { useGetPayroll } from "../../../hooks/useGetPayroll";
 import { formatStat } from "../../../helpers/formatStat";
@@ -7,6 +8,7 @@ import PayrollBudgetBar from "./PayrollBudgetBar";
 import MissingContractsNotice from "./MissingContractsNotice";
 import DesktopPayrollTable from "./DesktopPayrollTable";
 import MobilePayrollList from "./MobilePayrollList";
+import IncludeNoContractToggle from "./IncludeNoContractToggle";
 import type { PayrollStatus } from "../../../types/payroll";
 
 const TOTAL_LABELS: Record<PayrollStatus, string> = {
@@ -28,6 +30,8 @@ function PanelMessage({ children }: { children: string }) {
 function PayrollPanel({ month }: { month: string }) {
   const { data: payroll, isLoading, isError, isPlaceholderData } =
     useGetPayroll(month);
+  // only changes the headline numbers, it never makes anyone payable
+  const [includeNoContract, setIncludeNoContract] = useState(false);
 
   if (isLoading) return <PanelMessage>Loading payroll...</PanelMessage>;
   if (isError || !payroll) return <PanelMessage>Error loading payroll</PanelMessage>;
@@ -56,12 +60,22 @@ function PayrollPanel({ month }: { month: string }) {
     null,
   );
 
-  const headlineAmount =
+  const missingHours = missing.reduce((sum, row) => sum + row.hours, 0);
+  const missingAmount = missing.reduce((sum, row) => sum + row.amount, 0);
+
+  // once everything payable is paid there is no "to pay" total left to adjust
+  const canIncludeMissing = missing.length > 0 && status !== "paid";
+  const includeMissing = canIncludeMissing && includeNoContract;
+
+  const baseAmount =
     status === "paid"
       ? paidAmount
       : status === "partly_paid"
         ? unpaidAmount
         : payableAmount;
+  const headlineAmount = baseAmount + (includeMissing ? missingAmount : 0);
+  const headlineHours = payableHours + (includeMissing ? missingHours : 0);
+  const headlineStudents = payable.length + (includeMissing ? missing.length : 0);
   // hours can still be edited after a month is paid
   const changedSincePaid =
     status === "paid" && Math.abs(paidAmount - payableAmount) >= 0.01;
@@ -85,10 +99,18 @@ function PayrollPanel({ month }: { month: string }) {
               {formatStat(headlineAmount, "€")}
             </p>
             <p className="mt-1 text-sm text-secondaryText tabular-nums">
-              {formatStat(payableHours, " hours")} · {payable.length}{" "}
-              {payable.length === 1 ? "student" : "students"} with a contract
-              {missing.length > 0 && ` · ${missing.length} without`}
+              {formatStat(headlineHours, " hours")} · {headlineStudents}{" "}
+              {headlineStudents === 1 ? "student" : "students"}
+              {includeMissing
+                ? `, incl. ${missing.length} without a contract`
+                : ` with a contract${missing.length > 0 ? ` · ${missing.length} without` : ""}`}
             </p>
+            {canIncludeMissing && (
+              <IncludeNoContractToggle
+                checked={includeNoContract}
+                onChange={setIncludeNoContract}
+              />
+            )}
             {status === "in_progress" && (
               <p className="mt-1 text-sm text-secondaryText">
                 You can mark {monthName} as paid once the month ends.
