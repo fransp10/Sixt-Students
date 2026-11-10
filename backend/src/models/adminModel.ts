@@ -210,7 +210,7 @@ export async function getPayrollRows(month: string): Promise<PayrollRow[]> {
             u.first_name,
             u.last_name,
             t.hours::float AS hours,
-            CASE WHEN c.id IS NOT NULL THEN ROUND(t.amount, 2)::float END AS amount,
+            ROUND(t.amount, 2)::float AS amount,
             c.id IS NOT NULL AS has_contract,
             p.paid_at,
             p.paid_amount::float AS paid_amount
@@ -268,9 +268,11 @@ export async function setPayrollBudget(
   );
 }
 
+// pays everyone with a contract for the month, or only userId when it's given
 export async function markPayrollPaid(
   month: string,
   paidByAdminId: string,
+  userId: number | null = null,
 ): Promise<number> {
   const result = await pool.query(
     `INSERT INTO payroll_payments (month, user_id, paid_amount, paid_by_admin_id)
@@ -284,10 +286,11 @@ export async function markPayrollPaid(
      WHERE ws.date >= $1::date
        AND ws.date < $1::date + interval '1 month'
        AND ws.date < CURRENT_DATE
+       AND ($3::int IS NULL OR ws.user_id = $3::int)
      GROUP BY ws.user_id
      HAVING SUM(ws.hours) > 0
      ON CONFLICT (month, user_id) DO NOTHING`,
-    [`${month}-01`, paidByAdminId],
+    [`${month}-01`, paidByAdminId, userId],
   );
 
   // number of workers newly marked as paid

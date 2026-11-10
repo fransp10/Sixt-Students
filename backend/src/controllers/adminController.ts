@@ -126,3 +126,14 @@ export async function markPayrollPaid(
 
   res.status(204).send();
 }
+
+export async function markStudentPaid(
+  req: Request<{ month: string; userId: string }>,
+  res: Response,
+): Promise<void> {
+  const { month, userId } = req.params;
+  const paidByAdminId = req.user?.id!;
+  await adminService.markStudentPaid(month, Number(userId), paidByAdminId);
+
+  res.status(204).send();
+}

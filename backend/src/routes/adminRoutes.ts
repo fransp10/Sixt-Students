@@ -20,4 +20,8 @@ adminRouter.post(
 adminRouter.get("/payroll", adminController.getPayroll);
 adminRouter.put("/payroll/:month/budget", adminController.setPayrollBudget);
 adminRouter.post("/payroll/:month/paid", adminController.markPayrollPaid);
+adminRouter.post(
+  "/payroll/:month/students/:userId/paid",
+  adminController.markStudentPaid,
+);
 // adminRouter.post("/payroll/:month/unpaid", adminController.unmarkPayrollPaid);

@@ -237,10 +237,7 @@ export async function setPayrollBudget(
   await adminModel.setPayrollBudget(month, amount);
 }
 
-export async function markPayrollPaid(
-  month: string,
-  paidByAdminId: string,
-): Promise<void> {
+function assertMonthCanBePaid(month: string, paidByAdminId: string): void {
   if (!isValidMonth(month)) {
     throw new AppError("Invalid month format, use YYYY-mm", 400);
   }
@@ -254,6 +251,13 @@ export async function markPayrollPaid(
   if (month >= format(new Date(), "yyyy-MM")) {
     throw new AppError("This month hasn't ended yet", 409);
   }
+}
+
+export async function markPayrollPaid(
+  month: string,
+  paidByAdminId: string,
+): Promise<void> {
+  assertMonthCanBePaid(month, paidByAdminId);
 
   const markedCount = await adminModel.markPayrollPaid(month, paidByAdminId);
 
@@ -262,6 +266,32 @@ export async function markPayrollPaid(
   if (markedCount === 0) {
     throw new AppError(
       "No unpaid workers with a contract for this month",
+      409,
+    );
+  }
+}
+
+export async function markStudentPaid(
+  month: string,
+  userId: number,
+  paidByAdminId: string,
+): Promise<void> {
+  if (!Number.isInteger(userId) || userId <= 0) {
+    throw new AppError("Invalid student id", 400);
+  }
+
+  assertMonthCanBePaid(month, paidByAdminId);
+
+  const markedCount = await adminModel.markPayrollPaid(
+    month,
+    paidByAdminId,
+    userId,
+  );
+
+  // nothing inserted: no hours, no contract for the month or already paid
+  if (markedCount === 0) {
+    throw new AppError(
+      "This student has no contract for this month or is already paid",
       409,
     );
   }

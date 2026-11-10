@@ -12,7 +12,7 @@ export type PayrollRow = {
   first_name: string;
   last_name: string;
   hours: number;
-  amount: number | null; // null without a contract, nothing is owed then
+  amount: number; // earned, but only paid when has_contract is true
   has_contract: boolean;
   paid_at: string | null; // null if not paid yet
   paid_amount: number | null; // null if not paid yet
