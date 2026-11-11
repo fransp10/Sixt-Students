@@ -9,12 +9,11 @@ export type UserStats = {
   attendance: AttendanceStats;
   byShiftTypes: StatsByShiftType[];
   byWeekday: StatsByWeekDay[];
-  byMonth: Record<string, MonthStats[]>;
+  byMonth: MonthStats[]; // oldest month first
 };
 
 export type MonthStats = {
-  month: string;
-  monthNumber: number; // 1-12
+  month: string; // "yyyy-MM", e.g. "2026-05"
   count: number;
   hours: number;
   earnings: number;

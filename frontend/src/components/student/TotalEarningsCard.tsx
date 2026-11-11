@@ -1,18 +1,28 @@
 import { WalletIcon } from "@heroicons/react/24/outline";
-import type { UserStats } from "../../types/stats";
+import { format, parseISO } from "date-fns";
+import type { MonthStats, UserStats } from "../../types/stats";
+
+// "€454.75 (May)", or a dash when there are no months this year
+function formatMonthEarnings(month: MonthStats | undefined) {
+  if (!month) return "–";
+  return `€${month.earnings} (${format(parseISO(month.month), "MMM")})`;
+}
 
 function TotalEarningsCard({ stats }: { stats: UserStats }) {
   const currentYear = new Date().getFullYear();
   const totalEarnings = stats.totalEarnings;
   const averageEarnings = stats.averageMonth.earnings;
-  const highestEarningMonth = stats.byMonth[currentYear].reduce(
-    (max, month) => (month.earnings > max.earnings ? month : max),
-    stats.byMonth[currentYear][0],
+  const currentYearMonths = stats.byMonth.filter((m) =>
+    m.month.startsWith(`${currentYear}-`),
+  );
+  const highestEarningMonth = currentYearMonths.reduce<MonthStats | undefined>(
+    (max, month) => (!max || month.earnings > max.earnings ? month : max),
+    undefined,
   );
 
-  const lowestEarningMonth = stats.byMonth[currentYear].reduce(
-    (min, month) => (month.earnings < min.earnings ? month : min),
-    stats.byMonth[currentYear][0],
+  const lowestEarningMonth = currentYearMonths.reduce<MonthStats | undefined>(
+    (min, month) => (!min || month.earnings < min.earnings ? month : min),
+    undefined,
   );
 
   return (
@@ -32,16 +42,13 @@ function TotalEarningsCard({ stats }: { stats: UserStats }) {
         <div className="pt-2 flex flex-row justify-between border-t border-t-borderDividers">
           <p className="text-secondaryText">Highest month</p>
           <p className="text-primaryText">
-            €{highestEarningMonth.earnings}{" "}
-            {`(${highestEarningMonth.month.slice(0, 3)})`}
+            {formatMonthEarnings(highestEarningMonth)}
           </p>
         </div>
         <div className="pt-2 flex flex-row justify-between border-t border-t-borderDividers">
           <p className="text-secondaryText">Lowest month</p>
           <p className="text-primaryText">
-            {" "}
-            €{lowestEarningMonth.earnings}{" "}
-            {`(${lowestEarningMonth.month.slice(0, 3)})`}
+            {formatMonthEarnings(lowestEarningMonth)}
           </p>
         </div>
       </div>

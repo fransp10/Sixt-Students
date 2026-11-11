@@ -14,15 +14,13 @@ function getBoost(rate: number) {
 
 function Turbo({
   stats,
-  chosenMonthNumber,
-  chosenYear,
+  chosenMonth,
 }: {
   stats: UserStats;
-  chosenMonthNumber: number;
-  chosenYear: number;
+  chosenMonth: string; // "yyyy-MM"
 }) {
-  const chosenMonthData = stats.byMonth[chosenYear]?.find(
-    (monthData) => monthData.monthNumber === chosenMonthNumber,
+  const chosenMonthData = stats.byMonth.find(
+    (monthData) => monthData.month === chosenMonth,
   );
 
   const rate = chosenMonthData?.attendanceRate ?? 0;
