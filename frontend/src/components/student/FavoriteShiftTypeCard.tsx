@@ -6,6 +6,24 @@ import { capitalize } from "../../helpers/capitalize";
 function FavoriteShiftTypeCard() {
   const stats = useGetMyStats();
 
+  if (!stats.data?.byShiftTypes.length || stats.isLoading || stats.isError) {
+    return (
+      <div className=" h-full flex flex-col  text-primaryText p-4 border border-borderDividers rounded-xl">
+        <div className="flex flex-row items-center gap-2">
+          <StarIcon className="size-10 text-primary fill-primary" />
+          <p className="text-xl  ">Favorite shift type</p>
+        </div>
+        <div className="flex flex-col items-center justify-center  gap-1 flex-1 text-xs min-h-32">
+          <p className="text-secondaryText">No shift data yet.</p>
+          <p className="text-secondaryText text-center">
+            Start working to see your favorite shift type and other stats!
+          </p>
+        </div>
+      </div>
+    );
+  }
+  console.log(stats.data?.byShiftTypes);
+
   const favoriteShiftType = stats.data?.byShiftTypes.reduce((prev, current) =>
     prev.hours > current.hours ? prev : current,
   )?.shift_name;
