@@ -371,29 +371,22 @@ SELECT json_build_object(
   ),
   'byMonth', (
     SELECT COALESCE(
-      json_object_agg(year::int::text, months ORDER BY year),
-      '{}'
+      json_agg(
+        json_build_object(
+          'month', TO_CHAR(make_date(year::int, month_number::int, 1), 'YYYY-MM'),
+          'count', COALESCE(p.count, 0),
+          'hours', COALESCE(p.hours, 0),
+          'earnings', COALESCE(p.earnings, 0),
+          'attendanceRate', a.rate,
+          'assigned', a.total::int,
+          'noShows', a.no_shows::int
+        ) ORDER BY year, month_number
+      ),
+      '[]'
     )
-    FROM (
-      SELECT
-        year,
-        json_agg(
-          json_build_object(
-            'month', TO_CHAR(make_date(year::int, month_number::int, 1), 'FMMonth'),
-            'monthNumber', month_number::int,
-            'count', COALESCE(p.count, 0),
-            'hours', COALESCE(p.hours, 0),
-            'earnings', COALESCE(p.earnings, 0),
-            'attendanceRate', a.rate,
-            'assigned', a.total::int,
-            'noShows', a.no_shows::int
-          ) ORDER BY month_number
-        ) AS months
-      -- start from attendance so months with only no-shows still appear
-      FROM attendance_per_month a
-      LEFT JOIN per_month p USING (year, month_number)
-      GROUP BY year
-    ) y
+    -- start from attendance so months with only no-shows still appear
+    FROM attendance_per_month a
+    LEFT JOIN per_month p USING (year, month_number)
   )
 ) AS stats
 FROM per_type`;

@@ -1294,21 +1294,18 @@ components:
               hours: { type: number }
               earnings: { type: number }
         byMonth:
-          type: object
-          description: Keyed by year, e.g. `"2026"`
-          additionalProperties:
-            type: array
-            items:
-              type: object
-              properties:
-                month: { type: string, example: October }
-                monthNumber: { type: integer, minimum: 1, maximum: 12 }
-                count: { type: number }
-                hours: { type: number }
-                earnings: { type: number }
-                attendanceRate: { type: number }
-                assigned: { type: integer }
-                noShows: { type: integer }
+          type: array
+          description: One entry per month the user has stats for, oldest first
+          items:
+            type: object
+            properties:
+              month: { type: string, example: "2026-10", description: "yyyy-MM" }
+              count: { type: number }
+              hours: { type: number }
+              earnings: { type: number }
+              attendanceRate: { type: number }
+              assigned: { type: integer }
+              noShows: { type: integer }
     RaceStanding:
       type: object
       properties:
