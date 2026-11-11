@@ -1,8 +1,8 @@
 import {
   BanknotesIcon,
   CalendarIcon,
+  CheckCircleIcon,
   ClockIcon,
-  PlusCircleIcon,
 } from "@heroicons/react/24/outline";
 import StatsCard from "./StatsCard";
 import NextShiftCard from "./NextShiftCard";
@@ -35,7 +35,7 @@ function StudentStatList({ chosenMonth }: { chosenMonth: Date }) {
         <>
           <StatsCard
             icon={BanknotesIcon}
-            title="Earnings this month"
+            title="Earnings"
             value={currentMonthStats?.earnings ?? 0}
             format={(n) => formatStat(n, "€")}
             previous={averageMonth.earnings}
@@ -43,22 +43,22 @@ function StudentStatList({ chosenMonth }: { chosenMonth: Date }) {
           />
           <StatsCard
             icon={CalendarIcon}
-            title="Shifts worked this month"
+            title="Shifts"
             value={currentMonthStats?.count ?? 0}
             previous={averageMonth.count}
             comparisonLabel="average month"
           />
           <StatsCard
             icon={ClockIcon}
-            title="Total hours this month"
+            title="Hours"
             value={currentMonthStats?.hours ?? 0}
             format={(n) => formatStat(n, "h")}
             previous={averageMonth.hours}
             comparisonLabel="average month"
           />
           <StatsCard
-            icon={PlusCircleIcon}
-            title="Attendance rate"
+            icon={CheckCircleIcon}
+            title="Attendance"
             value={currentMonthStats?.attendanceRate ?? 0}
             format={(n) => formatStat(n, "%")}
             previous={averageMonth.attendanceRate}
@@ -67,14 +67,7 @@ function StudentStatList({ chosenMonth }: { chosenMonth: Date }) {
         </>
       )}
 
-      {!areThereStatsForChosenMonth && (
-        <>
-          <EmptyStatsCard />
-          <EmptyStatsCard />
-          <EmptyStatsCard />
-          <EmptyStatsCard />
-        </>
-      )}
+      {!areThereStatsForChosenMonth && <EmptyStatsCard />}
     </>
   );
 }

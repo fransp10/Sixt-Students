@@ -24,37 +24,39 @@ function StatsCard({
   comparisonLabel,
 }: StatsCardProps) {
   return (
-    <div className="rounded-xl border h-32 flex items-center border-borderDividers bg-cardLighterBG p-5">
-      <div className="flex items-start gap-4  ">
-        <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10">
-          <Icon className="size-6 text-primary" />
+    <div className="flex h-full flex-col rounded-xl border border-borderDividers bg-cardBG p-5">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+          <Icon className="size-5 text-primary" />
         </div>
-        <div className="min-w-0">
-          <p className="text-sm text-secondaryText">{title}</p>
+        <p className="truncate text-sm font-medium text-secondaryText">
+          {title}
+        </p>
+      </div>
 
-          <p className=" text-2xl font-semibold text-primaryText">
-            {format(value)}
-            {detail && (
-              <span className="ml-1 text-sm font-normal text-secondaryText">
-                {detail}
-              </span>
-            )}
-          </p>
-          {comparisonLabel !== undefined &&
-            (previous !== undefined ? (
-              <StatTrend
-                value={value}
-                previous={previous}
-                format={format}
-                higherIsBetter={higherIsBetter}
-                comparisonLabel={comparisonLabel}
-              />
-            ) : (
-              <div className="mt-2 text-sm text-secondaryText">
-                No data for {comparisonLabel}
-              </div>
-            ))}
-        </div>
+      <div className="mt-5">
+        <p className="text-2xl font-semibold tabular-nums text-primaryText">
+          {format(value)}
+          {detail && (
+            <span className="ml-1 text-sm font-normal text-secondaryText">
+              {detail}
+            </span>
+          )}
+        </p>
+        {comparisonLabel !== undefined &&
+          (previous !== undefined ? (
+            <StatTrend
+              value={value}
+              previous={previous}
+              format={format}
+              higherIsBetter={higherIsBetter}
+              comparisonLabel={comparisonLabel}
+            />
+          ) : (
+            <p className="mt-2 flex min-h-6 items-center text-xs text-secondaryText">
+              No data for {comparisonLabel}
+            </p>
+          ))}
       </div>
     </div>
   );
