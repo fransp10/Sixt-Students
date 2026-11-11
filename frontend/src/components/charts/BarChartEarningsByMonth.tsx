@@ -7,7 +7,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { format, parseISO } from "date-fns";
 import { useGetMyStats } from "../../hooks/useGetMyStats";
+
+// "2026-05" -> "May"
+const formatMonthName = (month: string) => format(parseISO(month), "MMMM");
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomTooltip({ active, payload, label }: any) {
@@ -17,7 +21,9 @@ function CustomTooltip({ active, payload, label }: any) {
 
   return (
     <div className="rounded-lg border border-borderDividers bg-cardBG px-4 py-3 shadow-lg">
-      <p className="mb-1 text-sm text-secondaryText">{label}</p>
+      <p className="mb-1 text-sm text-secondaryText">
+        {formatMonthName(label)}
+      </p>
       <p className=" font-semibold text-primaryText">
         <span className="text-primary">{payload[0].value}€</span>
         <span> earned </span>
@@ -29,9 +35,11 @@ function CustomTooltip({ active, payload, label }: any) {
 function BarChartEarningsByMonth() {
   const { data: stats } = useGetMyStats();
 
-  const isEmptyData = Object.keys(stats?.byMonth ?? {}).length === 0;
+  const currentYear = new Date().getFullYear();
+  const currentYearData =
+    stats?.byMonth.filter((m) => m.month.startsWith(`${currentYear}-`)) ?? [];
 
-  if (isEmptyData) {
+  if (currentYearData.length === 0) {
     return (
       <div className="flex flex-2 h-82 flex-col items-center justify-center rounded-xl border border-borderDividers bg-cardBG p-4">
         <p className="text-sm text-secondaryText">
@@ -40,9 +48,6 @@ function BarChartEarningsByMonth() {
       </div>
     );
   }
-
-  const currentYear = new Date().getFullYear();
-  const currentYearData = stats?.byMonth?.[currentYear] ?? [];
 
   return (
     <div className="flex flex-2 h-82 flex-col rounded-xl border border-borderDividers bg-cardBG p-4">
@@ -66,6 +71,7 @@ function BarChartEarningsByMonth() {
 
             <XAxis
               dataKey="month"
+              tickFormatter={formatMonthName}
               tick={{ fill: "#6b7075" }}
               axisLine={false}
               tickLine={false}

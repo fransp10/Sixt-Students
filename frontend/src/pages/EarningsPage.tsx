@@ -23,8 +23,6 @@ function EarningsPage() {
     isError: isErrorRaceStats,
   } = useGetRaceStats(chosenMonth);
 
-  const [chosenYear, chosenMonthNumber] = chosenMonth.split("-").map(Number);
-
   if (isLoading || isLoadingRaceStats) {
     return <div>Loading...</div>;
   }
@@ -32,8 +30,8 @@ function EarningsPage() {
     return <div>Error loading stats.</div>;
   }
 
-  const currentMonthEarnings = myStats?.byMonth[chosenYear]?.find(
-    (monthData) => monthData.monthNumber === chosenMonthNumber,
+  const currentMonthEarnings = myStats.byMonth.find(
+    (monthData) => monthData.month === chosenMonth,
   )?.earnings;
 
   const top3 = raceStats.slice(0, 3);
@@ -62,11 +60,7 @@ function EarningsPage() {
         </div>
         <Race raceStats={raceStats} />
         <Podium top3={top3} currentMonth={chosenMonth} />
-        <Turbo
-          stats={myStats}
-          chosenYear={chosenYear}
-          chosenMonthNumber={chosenMonthNumber}
-        />
+        <Turbo stats={myStats} chosenMonth={chosenMonth} />
 
         <Overtake raceStats={raceStats} />
       </div>

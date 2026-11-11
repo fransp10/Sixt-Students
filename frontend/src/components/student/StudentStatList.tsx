@@ -9,6 +9,7 @@ import NextShiftCard from "./NextShiftCard";
 import { useGetMyStats } from "../../hooks/useGetMyStats";
 import EmptyStatsCard from "./Dashboard/EmptyStatsCard";
 import { formatStat } from "../../helpers/formatStat";
+import { format } from "date-fns";
 
 function StudentStatList({ chosenMonth }: { chosenMonth: Date }) {
   const stats = useGetMyStats();
@@ -21,13 +22,10 @@ function StudentStatList({ chosenMonth }: { chosenMonth: Date }) {
     return <div>No stats available</div>;
   }
 
-  const areThereStatsForChosenMonth = stats.data.byMonth[
-    chosenMonth.getFullYear()
-  ]?.some((m) => m.monthNumber === chosenMonth.getMonth() + 1);
-
-  const currentMonthStats = stats.data.byMonth[chosenMonth.getFullYear()]?.find(
-    (m) => m.monthNumber === chosenMonth.getMonth() + 1,
+  const currentMonthStats = stats.data.byMonth.find(
+    (m) => m.month === format(chosenMonth, "yyyy-MM"),
   );
+  const areThereStatsForChosenMonth = currentMonthStats !== undefined;
 
   const { averageMonth } = stats.data;
   return (

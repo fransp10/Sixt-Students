@@ -9,9 +9,12 @@ import {
   YAxis,
 } from "recharts";
 import { useGetStatsForShiftsUserHasWorked } from "../../hooks/useGetStatsForShiftsUserHasWorked";
-import { getYear } from "date-fns";
+import { format, getYear, parseISO } from "date-fns";
 import LoadingSpinner from "../LoadingSpinner";
 import NoDataYet from "../NoDataYet";
+
+// "2026-05" -> "May"
+const formatMonthName = (month: string) => format(parseISO(month), "MMMM");
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomTooltip({ active, payload, label }: any) {
@@ -21,7 +24,9 @@ function CustomTooltip({ active, payload, label }: any) {
 
   return (
     <div className="rounded-lg border border-borderDividers bg-cardBG px-4 py-3 shadow-lg">
-      <p className="mb-1 text-sm text-secondaryText">{label}</p>
+      <p className="mb-1 text-sm text-secondaryText">
+        {formatMonthName(label)}
+      </p>
       <p className=" font-semibold text-primaryText">
         <span className="text-primary">{payload[0].value}</span>
         <span> hours worked</span>
@@ -52,7 +57,9 @@ function HoursWorkedOverTimeChart() {
   }
 
   const currentYear = getYear(new Date());
-  const graphData = stats.data.byMonth[currentYear];
+  const graphData = stats.data.byMonth.filter((m) =>
+    m.month.startsWith(`${currentYear}-`),
+  );
 
   return (
     <div className="md:col-span-2 flex h-72 flex-col rounded-lg border border-borderDividers bg-cardBG p-4">
@@ -67,7 +74,7 @@ function HoursWorkedOverTimeChart() {
         </p>
       </div>
 
-      {Object.keys(stats.data.byMonth).length === 0 ? (
+      {graphData.length === 0 ? (
         <NoDataYet />
       ) : (
         <div className="min-h-0 flex-1">
@@ -86,6 +93,7 @@ function HoursWorkedOverTimeChart() {
 
               <XAxis
                 dataKey="month"
+                tickFormatter={formatMonthName}
                 tick={{ fill: "#6b7075", fontSize: 12 }}
                 tickLine={false}
                 axisLine={false}
