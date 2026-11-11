@@ -34,6 +34,11 @@ function RaceDatePicker({
         id="month"
         className="h-10 w-full sm:w-52 cursor-pointer rounded-lg border border-borderDividers bg-cardBG px-3 text-sm text-primaryText outline-none scheme-dark  transition-colors hover:border-secondaryText focus:border-pending "
       >
+        {raceMonths.includes(currentMonth) ? null : (
+          <option key={currentMonth} value={currentMonth}>
+            Current month
+          </option>
+        )}
         {raceMonths.map((month) => (
           <option key={month} value={month}>
             {currentMonth === month

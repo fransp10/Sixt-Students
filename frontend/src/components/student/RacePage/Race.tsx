@@ -35,7 +35,9 @@ function Race({
   );
 
   return (
-    <div className={` md:col-span-2 md:row-span-2 flex flex-col p-6 text-primaryText ${surface}`}>
+    <div
+      className={`md:col-span-2 md:row-span-2 flex flex-col p-6 text-primaryText ${surface}`}
+    >
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
         <RaceHeader />
         <RaceModePicker handleChangeMode={setMode} mode={mode} />
