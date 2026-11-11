@@ -1,0 +1,37 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "intro-page",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "5610",
+        "--bind",
+        "127.0.0.1",
+        "--directory",
+        "C:\\Users\\Fran\\AppData\\Local\\Temp\\claude\\C--Users-Fran--claude-spares-spare-lkHNNF\\2871c60b-8478-4bf0-bf4a-7629c3bc7705\\scratchpad"
+      ],
+      "port": 5610
+    },
+    {
+      "name": "design-mocks",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "5620",
+        "--bind",
+        "127.0.0.1",
+        "--directory",
+        "C:\\Users\\Fran\\Desktop\\studentsApp"
+      ],
+      "port": 5620
+    },
+    {
+      "name": "frontend-running",
+      "url": "http://localhost:5173"
+    }
+  ]
+}

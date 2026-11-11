@@ -1,11 +1,11 @@
 function EmptyStatsCard() {
   return (
-    <div className="rounded-xl border h-32 border-borderDividers bg-cardLighterBG p-5 flex flex-col items-center justify-center">
-      <p className="text-sm text-primaryText">
-        You have no stats for this month.
+    <div className="flex h-full flex-col items-center justify-center rounded-xl border border-dashed border-borderDividers bg-cardBG p-5 text-center sm:col-span-2 xl:col-span-4">
+      <p className="text-sm font-medium text-primaryText">
+        No stats for this month
       </p>
-      <p className="text-xs text-secondaryText">
-        Start working to see your stats here!
+      <p className="mt-1 text-sm text-secondaryText">
+        Work a shift and your numbers will show up here.
       </p>
     </div>
   );

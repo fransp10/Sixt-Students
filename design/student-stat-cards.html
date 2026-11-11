@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Student Dashboard Cards</title>
+<!-- Same Tailwind version as frontend/package.json, so the classes below can be copied into JSX as they are -->
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3"></script>
+<style type="text/tailwindcss">
+  /* Copied from frontend/src/index.css */
+  @theme {
+    --color-primary: #ff5f00;
+
+    --color-pageBackground: #08090b;
+    --color-surfaceSideBar: #0e1116;
+    --color-cardBG: #14171c;
+    --color-headersCalendar: #14181d;
+    --color-studentCard: #1a1e24;
+    --color-cardLighterBG: #1c2027;
+    --color-darkBackground: #242830;
+    --color-surfaceCards: #2a2e34;
+    --color-borderDividers: #22262d;
+    --color-secondaryText: #8b9096;
+    --color-icons: #6b7075;
+    --color-primaryText: #e5e7ea;
+    --color-success: #4acb6f;
+    --color-warning: #f59e0b;
+    --color-pending: #60a5fa;
+    --color-danger: #ef4444;
+  }
+
+  /* heroicons outline */
+  svg.i { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+</head>
+<body class="bg-pageBackground text-primaryText">
+<!--
+  Things to try in this mock:
+  - "Now" is the current NextShiftCard + StatsCard, "New" is the redesign. Both use the dashboard's real grid
+    (grid-cols-1 sm:grid-cols-2 xl:grid-cols-5) and the real AppLayout offsets (w-64 sidebar, p-6 main), so the cards
+    get the width they get in the app. Resize the window: xl (1280px+) is five across, sm is two across, below that one.
+  - The two toggles under the title switch the state of the next-shift card and of the four stat cards.
+  - Hover the new next-shift card: the whole card links to the schedule.
+-->
+
+<div class="lg:flex min-h-screen bg-pageBackground">
+
+  <!-- AppNav stand-in, only here so the main column is as wide as it is in the app -->
+  <aside class="hidden w-64 shrink-0 border-r border-borderDividers bg-surfaceSideBar lg:block"></aside>
+
+  <main class="min-w-0 flex-1 p-4 lg:p-6">
+
+    <!-- Mock controls, not part of the app -->
+    <div class="mb-8 flex flex-wrap items-center gap-x-8 gap-y-3 rounded-xl border border-dashed border-borderDividers p-4 text-sm">
+      <div class="flex items-center gap-2">
+        <span class="text-secondaryText">Next shift</span>
+        <div id="ctl-shift" class="flex flex-wrap gap-1"></div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-secondaryText">Stats</span>
+        <div id="ctl-stats" class="flex flex-wrap gap-1"></div>
+      </div>
+    </div>
+
+    <section class="mb-10" aria-labelledby="now-h">
+      <h2 id="now-h" class="mb-3 text-sm font-medium text-secondaryText">Now</h2>
+      <div id="now" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5"></div>
+    </section>
+
+    <section aria-labelledby="new-h">
+      <div class="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h2 id="new-h" class="text-sm font-medium text-primaryText">New</h2>
+        <p class="text-xs text-secondaryText">The page's month picker already says which month this is, so the titles drop "this month".</p>
+      </div>
+      <div id="new" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5"></div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  /* ---------- heroicons outline paths ---------- */
+  const PATHS = {
+    bell: "M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5",
+    calendar: "M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5",
+    banknotes: "M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z",
+    clock: "M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+    check: "M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+    plus: "M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+    up: "M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941",
+    down: "M2.25 6 9 12.75l4.286-4.286a11.948 11.948 0 0 1 4.306 6.43l.776 2.898m0 0 3.182-5.511m-3.182 5.51-5.511-3.181",
+  };
+  const icon = (name, cls) =>
+    `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${PATHS[name]}"/></svg>`;
+
+  /* ---------- data ---------- */
+  const SHIFT_COLOR = { morning: "#ff5f00", middle: "#ff7a2f", afternoon: "#ff945c" }; // getColorForShiftType
+  const SHIFTS = {
+    tomorrow: { hero: "Tomorrow", date: "Thursday, 12 Nov", oldDate: "Thursday, November 12", type: "middle", start: "10:00", end: "18:00" },
+    today: { hero: "Today", date: "Wednesday, 11 Nov", oldDate: "Wednesday, November 11", type: "afternoon", start: "14:00", end: "22:00", isToday: true },
+    later: { hero: "In 4 days", date: "Sunday, 15 Nov", oldDate: "Sunday, November 15", type: "morning", start: "07:00", end: "15:00" },
+  };
+
+  const plain = (n) => n.toLocaleString("en-US", { maximumFractionDigits: 1 }); // formatStat
+  const fmt = {
+    plain,
+    eur: (n) => "€" + plain(n),
+    hours: (n) => plain(n) + "h",
+    pct: (n) => plain(n) + "%",
+  };
+  const STATS = [
+    { icon: "banknotes", oldTitle: "Earnings this month", title: "Earnings", value: 480, avg: 432, f: fmt.eur },
+    { icon: "calendar", oldTitle: "Shifts worked this month", title: "Shifts", value: 5, avg: 6, f: fmt.plain },
+    { icon: "clock", oldTitle: "Total hours this month", title: "Hours", value: 40, avg: 40, f: fmt.hours },
+    { icon: "check", oldIcon: "plus", oldTitle: "Attendance rate", title: "Attendance", value: 100, avg: 97, f: fmt.pct },
+  ];
+  const LABEL = "average month";
+
+  /* ---------- Now: the cards as they are in the repo ---------- */
+  function oldNextShift(shift) {
+    if (shift === "loading") {
+      return `<div class="flex items-center justify-center"><div class="size-14 animate-spin rounded-full border-4 border-borderDividers border-t-primary"></div></div>`;
+    }
+    const s = SHIFTS[shift];
+    const body = s
+      ? `<p class="text-sm text-secondaryText">Next shift</p>
+         <p class="text-xl font-semibold text-primaryText">${s.oldDate}</p>
+         <p class="text-secondaryText text-xs">${s.type[0].toUpperCase() + s.type.slice(1)} shift</p>
+         <p class="mt-1 text-xs font-semibold text-primaryText">${s.start} - ${s.end}</p>`
+      : `<p class="text-sm text-secondaryText">Next shift</p>
+         <p class="text-xl font-semibold text-primaryText">No upcoming shifts</p>`;
+    return `<div class="rounded-xl border border-borderDividers bg-cardLighterBG p-5">
+      <div class="flex items-start gap-4">
+        <div class="flex size-11 items-center justify-center rounded-lg bg-primary/10">${icon("bell", "size-6 text-primary")}</div>
+        <div class="min-w-0">${body}</div>
+      </div>
+    </div>`;
+  }
+
+  function oldTrend(value, prev, f) {
+    const change = value - prev;
+    const shown = f(Math.abs(change));
+    if (shown === f(0)) {
+      return `<div class="mt-2 flex items-center gap-1.5"><span class="text-xs text-pending">Same as ${LABEL}</span></div>`;
+    }
+    const up = change > 0;
+    const color = up ? "text-green-500" : "text-red-500";
+    return `<div class="mt-2 flex items-center gap-1.5">
+      ${icon(up ? "up" : "down", "size-4 " + color)}
+      <span class="text-xs font-medium ${color}">${up ? "+" : "-"}${shown}</span>
+      <span class="text-xs text-secondaryText">vs ${LABEL}</span>
+    </div>`;
+  }
+
+  function oldStat(s, noAverage) {
+    const prev = noAverage ? undefined : s.avg;
+    return `<div class="rounded-xl border h-32 flex items-center border-borderDividers bg-cardLighterBG p-5">
+      <div class="flex items-start gap-4">
+        <div class="flex size-11 items-center justify-center rounded-lg bg-primary/10">${icon(s.oldIcon || s.icon, "size-6 text-primary")}</div>
+        <div class="min-w-0">
+          <p class="text-sm text-secondaryText">${s.oldTitle}</p>
+          <p class="text-2xl font-semibold text-primaryText">${s.f(s.value)}</p>
+          ${prev !== undefined ? oldTrend(s.value, prev, s.f) : `<div class="mt-2 text-sm text-secondaryText">No data for ${LABEL}</div>`}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  const oldEmpty = `<div class="rounded-xl border h-32 border-borderDividers bg-cardLighterBG p-5 flex flex-col items-center justify-center">
+    <p class="text-sm text-primaryText">You have no stats for this month.</p>
+    <p class="text-xs text-secondaryText">Start working to see your stats here!</p>
+  </div>`;
+
+  /* ---------- New ---------- */
+  const cardHeader = (iconName, title) => `
+    <div class="flex min-w-0 items-center gap-3">
+      <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">${icon(iconName, "size-5 text-primary")}</div>
+      <p class="truncate text-sm font-medium text-secondaryText">${title}</p>
+    </div>`;
+
+  function newNextShift(shift) {
+    if (shift === "loading") {
+      return `<div class="flex h-full animate-pulse flex-col rounded-xl border border-borderDividers bg-cardBG p-5 sm:col-span-2 xl:col-span-1" aria-busy="true">
+        <div class="flex items-center gap-3">
+          <div class="size-9 rounded-lg bg-darkBackground"></div>
+          <div class="h-3 w-20 rounded bg-darkBackground"></div>
+        </div>
+        <div class="mt-5">
+          <div class="h-7 w-28 rounded bg-darkBackground"></div>
+          <div class="mt-2 h-4 w-32 rounded bg-darkBackground"></div>
+          <div class="mt-3 h-4 w-24 rounded bg-darkBackground"></div>
+        </div>
+      </div>`;
+    }
+
+    const s = SHIFTS[shift];
+    const frame = `group flex h-full flex-col rounded-xl border border-borderDividers bg-cardBG p-5 transition-colors hover:border-primary/40 sm:col-span-2 xl:col-span-1`;
+
+    if (!s) {
+      return `<a href="#schedule" class="${frame}">
+        ${cardHeader("bell", "Next shift")}
+        <div class="mt-5">
+          <p class="text-lg font-semibold text-primaryText">No upcoming shifts</p>
+          <p class="mt-1 text-sm text-secondaryText">Request shifts on your schedule</p>
+        </div>
+      </a>`;
+    }
+
+    return `<a href="#schedule" class="${frame}">
+      ${cardHeader("bell", "Next shift")}
+      <div class="mt-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+        <div>
+          <p class="text-2xl font-semibold ${s.isToday ? "text-primary" : "text-primaryText"}">${s.hero}</p>
+          <p class="mt-0.5 text-sm text-secondaryText">${s.date}</p>
+        </div>
+        <p class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+          <span class="size-2 shrink-0 rounded-full" style="background-color:${SHIFT_COLOR[s.type]}"></span>
+          <span class="font-semibold tabular-nums text-primaryText">${s.start} – ${s.end}</span>
+          <span class="text-secondaryText">${s.type[0].toUpperCase() + s.type.slice(1)}</span>
+        </p>
+      </div>
+    </a>`;
+  }
+
+  function newTrend(value, prev, f) {
+    const wrap = "mt-2 flex min-h-6 flex-wrap items-center gap-x-2 gap-y-1";
+    if (prev === undefined) {
+      return `<p class="${wrap} text-xs text-secondaryText">No data for ${LABEL}</p>`;
+    }
+    const change = value - prev;
+    const shown = f(Math.abs(change));
+    if (shown === f(0)) {
+      return `<p class="${wrap} text-xs text-secondaryText">Same as ${LABEL}</p>`;
+    }
+    const up = change > 0;
+    const tone = up ? "bg-success/10 text-success" : "bg-danger/10 text-danger";
+    return `<div class="${wrap}">
+      <span class="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium ${tone}">${icon(up ? "up" : "down", "size-3.5")}${shown}</span>
+      <span class="text-xs text-secondaryText">vs ${LABEL}</span>
+    </div>`;
+  }
+
+  function newStat(s, noAverage) {
+    const prev = noAverage ? undefined : s.avg;
+    return `<div class="flex h-full flex-col rounded-xl border border-borderDividers bg-cardBG p-5">
+      ${cardHeader(s.icon, s.title)}
+      <div class="mt-5">
+        <p class="text-2xl font-semibold tabular-nums text-primaryText">${s.f(s.value)}</p>
+        ${newTrend(s.value, prev, s.f)}
+      </div>
+    </div>`;
+  }
+
+  const newEmpty = `<div class="flex h-full flex-col items-center justify-center rounded-xl border border-dashed border-borderDividers bg-cardBG p-5 text-center sm:col-span-2 xl:col-span-4">
+    <p class="text-sm font-medium text-primaryText">No stats for this month</p>
+    <p class="mt-1 text-sm text-secondaryText">Work a shift and your numbers will show up here.</p>
+  </div>`;
+
+  /* ---------- state + controls ---------- */
+  const state = { shift: "tomorrow", stats: "normal" };
+  const SHIFT_OPTIONS = [["tomorrow", "Tomorrow"], ["today", "Today"], ["later", "In 4 days"], ["none", "None"], ["loading", "Loading"]];
+  const STATS_OPTIONS = [["normal", "With data"], ["noAverage", "No average yet"], ["empty", "Empty month"]];
+
+  function controls(el, options, key) {
+    el.innerHTML = options.map(([v, label]) => `
+      <button type="button" data-v="${v}" aria-pressed="${state[key] === v}"
+        class="cursor-pointer rounded-md px-2.5 py-1 text-xs transition-colors ${state[key] === v ? "bg-darkBackground text-primaryText" : "text-secondaryText hover:text-primaryText"}">${label}</button>`).join("");
+    el.onclick = (e) => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      state[key] = b.dataset.v;
+      render();
+    };
+  }
+
+  function render() {
+    controls(document.getElementById("ctl-shift"), SHIFT_OPTIONS, "shift");
+    controls(document.getElementById("ctl-stats"), STATS_OPTIONS, "stats");
+
+    const empty = state.stats === "empty";
+    const noAverage = state.stats === "noAverage";
+
+    document.getElementById("now").innerHTML =
+      oldNextShift(state.shift) +
+      (empty ? oldEmpty.repeat(4) : STATS.map((s) => oldStat(s, noAverage)).join(""));
+
+    document.getElementById("new").innerHTML =
+      newNextShift(state.shift) +
+      (empty ? newEmpty : STATS.map((s) => newStat(s, noAverage)).join(""));
+  }
+
+  render();
+</script>
+</body>
+</html>
