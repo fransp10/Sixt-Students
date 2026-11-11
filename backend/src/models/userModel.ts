@@ -108,7 +108,7 @@ export async function getUserById(
   userId: string,
 ): Promise<UserWithoutPassword | null> {
   const result = await pool.query(
-    "SELECT id,username,email,phone,user_role,default_hourly_rate,is_active,date_of_birth,first_name,last_name FROM USERS WHERE id=$1",
+    "SELECT id,username,email,phone,user_role,default_hourly_rate,is_active,date_of_birth,first_name,last_name,created_at FROM USERS WHERE id=$1",
     [userId],
   );
 
