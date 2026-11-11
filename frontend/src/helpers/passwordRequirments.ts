@@ -11,15 +11,15 @@ export function isPasswordRequirementsMet(
     { label: "At least 8 characters", met: password.length >= 8 },
     { label: "Contains a number", met: /\d/.test(password) },
     {
-      label: "Confirm password same as new password",
+      label: "Both passwords match",
       met: password === confirmPassword && password !== "",
     },
   ];
 
-  if (mode === "change" && currentPassword) {
+  if (mode === "change") {
     requirements.push({
       label: "Different from your current password",
-      met: password !== "" && password !== currentPassword,
+      met: password !== "" && !!currentPassword && password !== currentPassword,
     });
   }
   return {

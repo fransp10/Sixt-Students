@@ -8,15 +8,15 @@ function StudentSettingsPage() {
     <div>
       <PageHeading
         heading="Settings"
-        subheading="Manage your account information and preferences."
+        subheading="Update your contact details and password."
       />
-      <div className="mt-12 flex flex-col gap-6">
+      {/* what the student can change on the left, what only the admin can change on the right */}
+      <div className="mt-8 grid gap-4 lg:grid-cols-3 lg:items-start">
+        <div className="flex flex-col gap-4 lg:col-span-2">
+          <ContactInfoCard />
+          <SecurityCard />
+        </div>
         <AccountInfoCard />
-        {/* 2nd card */}
-        <ContactInfoCard />
-        {/* 3rd card */}
-        {/*  */}
-        <SecurityCard />
       </div>
     </div>
   );

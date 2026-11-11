@@ -1,52 +1,72 @@
-import { LockClosedIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { KeyIcon, LockClosedIcon } from "@heroicons/react/24/outline";
+import { useRef, useState } from "react";
+import { useAuthContext } from "../../hooks/auth/useAuthContext";
 import StudentChangePasswordModal from "./ChangePassword/StudentChangePasswordModal";
+import SettingsCardHeader from "./SettingsCardHeader";
+import SettingsRow from "./SettingsRow";
 
 function SecurityCard() {
+  const { currentUser } = useAuthContext();
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
     useState(false);
+  const changePasswordButtonRef = useRef<HTMLButtonElement>(null);
 
   function handleCloseModal() {
     setIsChangePasswordModalOpen(false);
+    changePasswordButtonRef.current?.focus();
   }
 
   return (
-    <div className="p-6 bg-cardBg border-borderDividers border rounded-xl text-primaryText">
-      <div className="flex items-center justify-between ">
-        <div className="flex items-center gap-4">
-          <div>
-            <LockClosedIcon className="size-8 sm:size-10 text-primary" />
-          </div>
-          <div>
-            <p className="text-lg sm:text-2xl font-semibold text-primary">
-              Account information
+    <section className="rounded-xl border border-borderDividers bg-cardBG p-5">
+      <SettingsCardHeader
+        id="signin-heading"
+        icon={KeyIcon}
+        title="Signing in"
+        subtitle="What you use to log in to the app."
+      />
+      <div className="mt-2 divide-y divide-borderDividers">
+        <SettingsRow
+          label="Username"
+          description="Type this, not your email, when you sign in."
+          value={
+            <p className="truncate text-sm text-primaryText">
+              {currentUser?.username}
             </p>
-            <p className="text-xs sm:text-md text-secondaryText">
-              This information is managed by your administrator.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-col gap-6 p-6 border border-borderDividers bg-cardLighterBG rounded-xl mt-4">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 ">
-          <div className="flex flex-col">
-            <span className="font-semibold">Password</span>
-            <span className="text-sm text-secondaryText">
-              Update your password regularly to keep your account safe.
+          }
+          action={
+            <span className="flex shrink-0 items-center gap-1.5 text-xs text-secondaryText">
+              <LockClosedIcon className="size-4 text-icons" />
+              Set by your admin
             </span>
-          </div>
-          <button
-            onClick={() => setIsChangePasswordModalOpen(true)}
-            className="p-2 px-6 w-full sm:w-auto bg-primary cursor-pointer hover:bg-primary/80 rounded-xl text-nowrap"
-          >
-            Change password
-          </button>
-        </div>
+          }
+        />
+        <SettingsRow
+          label="Password"
+          description="Change it if you think someone else knows it."
+          value={
+            <p
+              aria-hidden="true"
+              className="text-sm tracking-widest text-secondaryText"
+            >
+              ••••••••••
+            </p>
+          }
+          action={
+            <button
+              ref={changePasswordButtonRef}
+              type="button"
+              onClick={() => setIsChangePasswordModalOpen(true)}
+              className="flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-borderDividers px-3 text-sm font-semibold text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary"
+            >
+              Change password
+            </button>
+          }
+        />
       </div>
       {isChangePasswordModalOpen && (
         <StudentChangePasswordModal handleCloseModal={handleCloseModal} />
       )}
-    </div>
+    </section>
   );
 }
 
