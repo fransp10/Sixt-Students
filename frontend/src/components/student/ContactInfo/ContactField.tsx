@@ -1,133 +1,232 @@
-import { useEffect, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  PencilSquareIcon,
+  PlusIcon,
+} from "@heroicons/react/24/outline";
 import { useUpdateMyInfo } from "../../../hooks/useUpdateMyInfo";
 import { getErrorMessage } from "../../../helpers/getErrorMessage";
-import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
+import { isValidEmail } from "../../../helpers/isValidEmail";
+import { isValidPhone } from "../../../helpers/isValidPhone";
 import LoadingSpinner from "../../LoadingSpinner";
+import SettingsRow from "../SettingsRow";
+
+export type ContactFieldName = "email" | "phone";
+
+type ContactFieldProps = {
+  field: ContactFieldName;
+  label: string;
+  description: string;
+  type: "email" | "tel";
+  placeholder: string;
+  emptyText: string;
+  value: string | null;
+  isEditing: boolean;
+  onEdit: () => void;
+  onClose: () => void;
+};
+
+function getValidationError(field: ContactFieldName, value: string) {
+  if (field === "email" && !isValidEmail(value)) {
+    return "Enter a full email address, like name@example.com.";
+  }
+  if (field === "phone" && !isValidPhone(value)) {
+    return "Enter 6 to 15 digits, with an optional + for the country code.";
+  }
+  return null;
+}
 
 function ContactField({
   field,
   label,
+  description,
   type,
+  placeholder,
+  emptyText,
   value,
-}: {
-  field: "email" | "phone";
-  label: string;
-  type: string;
-  value: string;
-}) {
-  const [draftValue, setDraftValue] = useState<string | null>(null);
+  isEditing,
+  onEdit,
+  onClose,
+}: ContactFieldProps) {
+  const [draftValue, setDraftValue] = useState("");
+  const [validationError, setValidationError] = useState<string | null>(null);
   const updateMyInfo = useUpdateMyInfo();
+  // set on Cancel/Save so focus goes back to the Edit button once it's rendered again
+  const shouldFocusEditButton = useRef(false);
 
-  const isEditing = draftValue !== null;
+  const { isSuccess, reset } = updateMyInfo;
   const isSaving = updateMyInfo.isPending;
-  const isError = updateMyInfo.isError;
-  const { isSuccess } = updateMyInfo;
+  const trimmedDraft = draftValue.trim();
+  const canSave =
+    trimmedDraft !== "" && trimmedDraft !== (value ?? "") && !isSaving;
 
-  function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") {
-      handleUpdate();
-    }
-    if (e.key === "Escape") {
-      handleCancel();
-    }
+  let errorMessage = validationError;
+  if (!errorMessage && updateMyInfo.isError) {
+    errorMessage = getErrorMessage(
+      updateMyInfo.error,
+      "Couldn't save. Please try again.",
+    );
   }
 
-  function handleUpdate() {
+  useEffect(() => {
+    if (!isSuccess) return;
+    const timer = setTimeout(reset, 3000);
+    return () => clearTimeout(timer);
+  }, [isSuccess, reset]);
+
+  function handleEdit() {
+    reset();
+    setDraftValue(value ?? "");
+    setValidationError(null);
+    onEdit();
+  }
+
+  function handleCancel() {
+    reset();
+    shouldFocusEditButton.current = true;
+    onClose();
+  }
+
+  function handleSave() {
+    if (!canSave) return;
+
+    const error = getValidationError(field, trimmedDraft);
+    if (error) {
+      setValidationError(error);
+      return;
+    }
+
     updateMyInfo.mutate(
-      { [field]: draftValue },
+      { [field]: trimmedDraft },
       {
         onSuccess: () => {
-          handleSuccess();
+          shouldFocusEditButton.current = true;
+          onClose();
         },
       },
     );
   }
 
-  function handleCancel() {
-    setDraftValue(null);
-    if (isError) {
-      updateMyInfo.reset();
-    }
+  function handleChange(newValue: string) {
+    setDraftValue(newValue);
+    setValidationError(null);
+    if (updateMyInfo.isError) reset();
   }
 
-  function handleSuccess() {
-    setDraftValue(null);
+  function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") handleSave();
+    if (e.key === "Escape") handleCancel();
   }
 
-  useEffect(() => {
-    if (!isSuccess) return;
-    const timer = setTimeout(() => updateMyInfo.reset(), 3000);
-    return () => clearTimeout(timer);
-  }, [isSuccess, updateMyInfo]);
+  if (!isEditing) {
+    return (
+      <SettingsRow
+        label={label}
+        description={description}
+        value={
+          <>
+            <p
+              className={`truncate text-sm ${value ? "text-primaryText" : "text-secondaryText"}`}
+            >
+              {value || emptyText}
+            </p>
+            {isSuccess && (
+              <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-success">
+                <CheckCircleIcon className="size-4" />
+                Saved
+              </span>
+            )}
+          </>
+        }
+        action={
+          <button
+            ref={(button) => {
+              if (button && shouldFocusEditButton.current) {
+                shouldFocusEditButton.current = false;
+                button.focus();
+              }
+            }}
+            type="button"
+            onClick={handleEdit}
+            aria-label={`${value ? "Edit" : "Add"} ${label.toLowerCase()}`}
+            className="flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-borderDividers px-3 text-sm font-semibold text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary"
+          >
+            {value ? (
+              <PencilSquareIcon className="size-4" />
+            ) : (
+              <PlusIcon className="size-4" />
+            )}
+            {value ? "Edit" : "Add"}
+          </button>
+        }
+      />
+    );
+  }
 
   return (
-    <div
-      className={`flex flex-row gap-4 p-4 rounded-lg  justify-between ${isEditing ? "bg-headersCalendar border border-borderDividers" : ""}`}
-    >
-      <div>
-        <p className="font-semibold">{label}</p>
-        <p className="text-sm text-secondaryText">
-          Used for important notifications about your work.
-        </p>
-      </div>
-      {!isEditing && (
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <span className="font-semibold">{value}</span>
-          {updateMyInfo.isSuccess && (
-            <p className="text-sm text-success">Saved</p>
-          )}
-          <button
-            onClick={() => setDraftValue(value ?? "")}
-            className="text-sm text-primaryText font-semibold cursor-pointer bg-cardBG p-3 rounded-lg"
+    <div className="py-4 last:pb-0">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-6">
+        <div className="sm:w-52 sm:shrink-0 sm:pt-1">
+          <label
+            htmlFor={`contact-${field}`}
+            className="text-sm font-semibold text-primaryText"
           >
-            Change
-          </button>
+            {label}
+          </label>
+          <p className="text-xs text-secondaryText">{description}</p>
         </div>
-      )}
 
-      {isEditing && (
-        <div className="flex gap-2 md:flex-col">
-          <div className=" w-92 bg-cardBG border p-2 border-borderDividers focus-within:border-pending   rounded-lg group">
-            <input
-              autoFocus
-              className="ml-2 w-full font-semibold text-lg outline-none  "
-              value={draftValue}
-              onKeyDown={(e) => handleKeyDown(e)}
-              placeholder={value}
-              type={type}
-              onChange={(e) => setDraftValue(e.target.value)}
-            />
-          </div>
+        <div className="min-w-0 flex-1">
+          {/* readOnly instead of disabled while saving, so the input keeps focus if the save fails */}
+          <input
+            id={`contact-${field}`}
+            autoFocus
+            type={type}
+            autoComplete={type}
+            placeholder={placeholder}
+            value={draftValue}
+            readOnly={isSaving}
+            onChange={(e) => handleChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            aria-invalid={!!errorMessage}
+            aria-describedby={`contact-${field}-hint`}
+            className={`w-full rounded-lg border bg-cardLighterBG px-3 py-2 text-sm text-primaryText outline-none transition-colors placeholder:text-icons read-only:opacity-50 ${errorMessage ? "border-danger" : "border-borderDividers focus:border-primary"}`}
+          />
+          <p
+            id={`contact-${field}-hint`}
+            className={`mt-1.5 flex items-center gap-1 text-xs ${errorMessage ? "text-danger" : "text-secondaryText"}`}
+          >
+            {errorMessage ? (
+              <>
+                <ExclamationCircleIcon className="size-4 shrink-0" />
+                {errorMessage}
+              </>
+            ) : (
+              "Press Enter to save or Esc to cancel"
+            )}
+          </p>
 
-          {isError ? (
-            <p className="text-xs text-danger flex items-center gap-1">
-              <ExclamationCircleIcon className="inline size-4" />
-              {getErrorMessage(updateMyInfo.error)}
-            </p>
-          ) : (
-            <p className="text-sm text-secondaryText">
-              Enter to save · Esc to cancel
-            </p>
-          )}
-
-          <div className="flex flex-row gap-2 justify-end">
+          <div className="mt-3 flex gap-2 sm:justify-end">
             <button
-              onClick={() => handleCancel()}
-              className="text-sm h-12 w-20 text-primaryText font-semibold cursor-pointer border border-borderDividers p-3 rounded-lg"
+              type="button"
+              onClick={handleCancel}
+              disabled={isSaving}
+              className="flex min-h-9 flex-1 items-center justify-center rounded-lg border border-borderDividers px-4 text-sm font-semibold text-primaryText cursor-pointer transition-colors hover:bg-cardLighterBG disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
             >
               Cancel
             </button>
-
             <button
-              onClick={() => handleUpdate()}
-              disabled={draftValue.trim() === value || isSaving}
-              className="text-sm h-12 w-20 text-primaryText font-semibold cursor-pointer bg-primary p-3 rounded-lg disabled:bg-primary/50 disabled:text-primaryText/50 disabled:cursor-not-allowed"
+              type="button"
+              onClick={handleSave}
+              disabled={!canSave}
+              className="flex min-h-9 flex-1 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primaryText cursor-pointer transition-colors hover:bg-primary/80 disabled:cursor-not-allowed disabled:bg-primary/50 disabled:text-primaryText/50 sm:w-20 sm:flex-none"
             >
-              <span>{isSaving ? <LoadingSpinner size={24} /> : "Save"}</span>
+              {isSaving ? <LoadingSpinner size={16} /> : "Save"}
             </button>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

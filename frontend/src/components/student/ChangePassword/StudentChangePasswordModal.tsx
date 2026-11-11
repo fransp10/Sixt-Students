@@ -7,6 +7,7 @@ import LoadingSpinner from "../../LoadingSpinner";
 import { isPasswordRequirementsMet } from "../../../helpers/passwordRequirments";
 import PasswordRequirements from "../../PasswordRequirements";
 import SuccessView from "../../SuccessView";
+import SettingsCardHeader from "../SettingsCardHeader";
 
 function StudentChangePasswordModal({
   handleCloseModal,
@@ -25,150 +26,131 @@ function StudentChangePasswordModal({
     reset,
   } = useChangeMyPassword();
 
-  const isPasswordMatch =
-    newPassword === "" ||
-    confirmNewPassword === "" ||
-    newPassword === confirmNewPassword;
-
   const { isRequirementsMet, requirements } = isPasswordRequirementsMet(
     newPassword,
     "change",
+    confirmNewPassword,
     currentPassword,
   );
+  const canSubmit = isRequirementsMet && currentPassword !== "" && !isPending;
 
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    changePassword(
-      { currentPassword, newPassword },
-      {
-        onSuccess: () => {},
-      },
-    );
+    if (!canSubmit) return;
+    changePassword({ currentPassword, newPassword });
+  }
+
+  function handleCurrentPasswordChange(value: string) {
+    setCurrentPassword(value);
+    if (isError) reset();
   }
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") handleCloseModal();
+      if (event.key === "Escape" && !isPending) handleCloseModal();
     }
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handleCloseModal]);
+  }, [handleCloseModal, isPending]);
 
-  let erorrMessage: string | null = null;
+  let errorMessage: string | null = null;
   if (isError) {
-    erorrMessage = getErrorMessage(error, "Failed to change password");
+    errorMessage = getErrorMessage(error, "Failed to change password");
   }
+
   return (
     <div
-      onClick={handleCloseModal}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      // mousedown, so dragging a text selection out of an input doesn't close the modal
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget && !isPending) handleCloseModal();
+      }}
+      // m-auto on the child centers it, but still lets it scroll on short screens
+      className="fixed inset-0 z-50 flex overflow-y-auto bg-black/50 p-4"
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className=" w-160 bg-cardBG relative rounded-xl  flex flex-col gap-4"
-      >
-        {isPending && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 rounded-xl">
-            <LoadingSpinner />
-          </div>
-        )}
-        {isSuccess ? (
+      {isSuccess ? (
+        <div className="m-auto flex w-full max-w-md">
           <SuccessView
             heading="Password updated"
             message="Use your new password the next time you sign in."
             handleCloseModal={handleCloseModal}
           />
-        ) : (
-          <div className="flex flex-col gap-4 p-6">
-            {/* HEADER */}
-            <div className="flex items-center gap-4">
-              <div className="bg-primary/10 p-2 rounded-xl">
-                <LockClosedIcon className="size-6 sm:size-8 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold ">Change your password</h2>
-                <p className="text-base font-semibold text-secondaryText">
-                  Enter your current password, then choose a new one.
-                </p>
-              </div>
-            </div>
-            {/* INPUTS */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <PasswordInput
-                label="Current password"
-                placeholder="Your current password"
-                setValue={setCurrentPassword}
-                onFocus={reset}
-              />
-              {erorrMessage && (
-                <p className="text-xs font-semibold text-danger">
-                  {erorrMessage}
-                </p>
-              )}
-
-              <div className="h-1 w-full bg-cardLighterBG" />
-              <div>
-                <PasswordInput
-                  label="New password"
-                  placeholder="Your new password"
-                  setValue={setNewPassword}
-                />
-                <PasswordRequirements requirements={requirements} />
-              </div>
-              <div>
-                <PasswordInput
-                  label="Confirm new password"
-                  placeholder="Confirm your new password"
-                  setValue={setConfirmNewPassword}
-                />
-
-                <div
-                  className={`${isPasswordMatch ? "opacity-0" : "opacity-100"}`}
-                >
-                  <p className="mt-1 text-xs font-semibold text-danger">
-                    Passwords don't match
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row ml-auto gap-4 mt-2 w-1/2">
-                <button
-                  disabled={
-                    !isPasswordMatch ||
-                    !isRequirementsMet ||
-                    currentPassword === "" ||
-                    isPending
-                  }
-                  type="submit"
-                  onClick={() => handleSubmit}
-                  className="p-2  flex-1 sm:w-auto bg-primary cursor-pointer hover:bg-primary/80 rounded-xl text-nowrap disabled:bg-primary/50 disabled:cursor-not-allowed"
-                >
-                  Confirm
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleCloseModal();
-                  }}
-                  className="flex-1 border border-borderDividers p-2 sm:w-auto cursor-pointer hover:bg-pageBackground rounded-xl text-nowrap"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        <button
-          onClick={() => handleCloseModal()}
-          className="p-2 w-full sm:w-auto  cursor-pointer bg-studentCard hover:bg-danger rounded-xl text-nowrap absolute top-4 right-4 text-icons"
+        </div>
+      ) : (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="change-password-heading"
+          className="relative m-auto w-full max-w-lg rounded-xl border border-borderDividers bg-cardBG text-primaryText"
         >
-          <XMarkIcon className="size-3 sm:size-4 " />
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={handleCloseModal}
+            disabled={isPending}
+            aria-label="Close"
+            className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-lg text-icons cursor-pointer transition-colors hover:bg-cardLighterBG hover:text-primaryText disabled:cursor-not-allowed"
+          >
+            <XMarkIcon className="size-5" />
+          </button>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5 p-6">
+            <div className="pr-8">
+              <SettingsCardHeader
+                id="change-password-heading"
+                icon={LockClosedIcon}
+                title="Change your password"
+                subtitle="Enter your current password, then choose a new one."
+              />
+            </div>
+
+            <PasswordInput
+              label="Current password"
+              placeholder="Your current password"
+              autoComplete="current-password"
+              autoFocus
+              setValue={handleCurrentPasswordChange}
+              error={errorMessage}
+            />
+
+            <hr className="border-borderDividers" />
+
+            <PasswordInput
+              label="New password"
+              placeholder="At least 8 characters"
+              setValue={setNewPassword}
+            />
+            <PasswordInput
+              label="Confirm new password"
+              placeholder="Type the new password again"
+              setValue={setConfirmNewPassword}
+            />
+
+            <div className="rounded-lg bg-cardLighterBG p-3">
+              <PasswordRequirements requirements={requirements} />
+            </div>
+
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                disabled={isPending}
+                className="flex min-h-9 items-center justify-center rounded-lg border border-borderDividers px-4 text-sm font-semibold text-primaryText cursor-pointer transition-colors hover:bg-cardLighterBG disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={!canSubmit}
+                className="flex min-h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primaryText cursor-pointer transition-colors hover:bg-primary/80 disabled:cursor-not-allowed disabled:bg-primary/50 disabled:text-primaryText/50 sm:w-40"
+              >
+                {isPending ? <LoadingSpinner size={16} /> : "Change password"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
