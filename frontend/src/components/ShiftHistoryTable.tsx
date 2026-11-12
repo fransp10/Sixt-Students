@@ -2,12 +2,17 @@ import { parseISO } from "date-fns";
 import ShiftBadge from "./ShiftBadge";
 import { format } from "date-fns";
 import type { ShiftsWorkedHistoryData } from "../types/Shift";
+import type { TimeFrame } from "../types/timeFrame";
+import { getTimeFrameRange } from "../helpers/getTimeFrameRange";
 
 function ShiftHistoryTable({
   shiftsWorkedHistoryData,
+  timeFrame,
 }: {
   shiftsWorkedHistoryData: ShiftsWorkedHistoryData[];
+  timeFrame: TimeFrame;
 }) {
+  const { startDate, endDate } = getTimeFrameRange(timeFrame);
   return (
     <div
       className="min-h-0  w-full h-full hidden md:flex flex-1 overflow-auto scrollbar-thin 
@@ -46,6 +51,18 @@ function ShiftHistoryTable({
               </td>
             </tr>
           ))}
+          {shiftsWorkedHistoryData.length === 0 && (
+            <tr>
+              <td
+                colSpan={4}
+                className="px-4 py-3 text-center text-sm text-secondaryText"
+              >
+                No shifts worked {format(startDate!, "MM/dd/yyyy")}
+                {" - "}
+                {format(endDate!, "MM/dd/yyyy")}.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>

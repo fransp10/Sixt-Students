@@ -1,12 +1,17 @@
 import { format, parseISO } from "date-fns";
 import ShiftBadge from "./ShiftBadge";
 import type { ShiftsWorkedHistoryData } from "../types/Shift";
+import type { TimeFrame } from "../types/timeFrame";
+import { getTimeFrameRange } from "../helpers/getTimeFrameRange";
 
 function ShiftHistoryMobileCard({
   shiftsWorkedHistoryData,
+  timeFrame,
 }: {
   shiftsWorkedHistoryData: ShiftsWorkedHistoryData[];
+  timeFrame: TimeFrame;
 }) {
+  const { startDate, endDate } = getTimeFrameRange(timeFrame);
   return (
     <div className="flex w-full flex-col gap-2 mt-4 md:hidden">
       {shiftsWorkedHistoryData.map((shift) => {
@@ -36,6 +41,15 @@ function ShiftHistoryMobileCard({
           </div>
         );
       })}
+      {shiftsWorkedHistoryData.length === 0 && (
+        <div className="mt-3 flex items-center justify-between">
+          <span className="px-4 py-3 text-center text-sm text-secondaryText">
+            No shifts worked {format(startDate!, "MM/dd/yyyy")}
+            {" - "}
+            {format(endDate!, "MM/dd/yyyy")}.
+          </span>
+        </div>
+      )}
     </div>
   );
 }

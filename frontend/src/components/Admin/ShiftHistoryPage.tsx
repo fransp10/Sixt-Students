@@ -81,9 +81,13 @@ function ShiftHistoryPage() {
           </div>
 
           <ShiftHistoryMobileCard
+            timeFrame={timeFrame}
             shiftsWorkedHistoryData={shiftsWorkedtoDisplay}
           />
-          <ShiftHistoryTable shiftsWorkedHistoryData={shiftsWorkedtoDisplay} />
+          <ShiftHistoryTable
+            timeFrame={timeFrame}
+            shiftsWorkedHistoryData={shiftsWorkedtoDisplay}
+          />
         </>
       )}
       <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2">
