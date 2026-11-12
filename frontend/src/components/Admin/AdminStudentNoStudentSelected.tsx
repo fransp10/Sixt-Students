@@ -35,7 +35,7 @@ function AdminStudentNoStudentSelected() {
         </div>
         <button
           onClick={openStudentSearch}
-          className="flex flex-row items-center gap-2 rounded-lg bg-primary px-4 py-2 text-primaryText "
+          className="flex flex-row items-center gap-2 rounded-lg bg-primary px-4 py-2 text-primaryText cursor-pointer hover:bg-primary/90 transition-all duration-200"
         >
           <UserIcon className="size-5 text-primaryText" />
           <span>Select student</span>
