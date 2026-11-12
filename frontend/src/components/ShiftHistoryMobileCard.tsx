@@ -1,11 +1,15 @@
 import { format, parseISO } from "date-fns";
 import ShiftBadge from "./ShiftBadge";
 import type { ShiftsWorkedHistoryData } from "../types/Shift";
+import type { TimeFrame } from "../types/timeFrame";
+import { getNoShiftsMessage } from "../helpers/getNoShiftsMessage";
 
 function ShiftHistoryMobileCard({
   shiftsWorkedHistoryData,
+  timeFrame,
 }: {
   shiftsWorkedHistoryData: ShiftsWorkedHistoryData[];
+  timeFrame: TimeFrame;
 }) {
   return (
     <div className="flex w-full flex-col gap-2 mt-4 md:hidden">
@@ -36,6 +40,13 @@ function ShiftHistoryMobileCard({
           </div>
         );
       })}
+      {shiftsWorkedHistoryData.length === 0 && (
+        <div className="mt-3 flex items-center justify-between">
+          <span className="px-4 py-3 text-center text-sm text-secondaryText">
+            {getNoShiftsMessage(timeFrame)}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

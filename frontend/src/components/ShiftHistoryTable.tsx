@@ -2,11 +2,15 @@ import { parseISO } from "date-fns";
 import ShiftBadge from "./ShiftBadge";
 import { format } from "date-fns";
 import type { ShiftsWorkedHistoryData } from "../types/Shift";
+import type { TimeFrame } from "../types/timeFrame";
+import { getNoShiftsMessage } from "../helpers/getNoShiftsMessage";
 
 function ShiftHistoryTable({
   shiftsWorkedHistoryData,
+  timeFrame,
 }: {
   shiftsWorkedHistoryData: ShiftsWorkedHistoryData[];
+  timeFrame: TimeFrame;
 }) {
   return (
     <div
@@ -46,6 +50,16 @@ function ShiftHistoryTable({
               </td>
             </tr>
           ))}
+          {shiftsWorkedHistoryData.length === 0 && (
+            <tr>
+              <td
+                colSpan={4}
+                className="px-4 py-3 text-center text-sm text-secondaryText"
+              >
+                {getNoShiftsMessage(timeFrame)}
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
