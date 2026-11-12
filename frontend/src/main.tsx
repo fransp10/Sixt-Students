@@ -24,7 +24,7 @@ import { adminNavItems, studentNavItems } from "./config/navigation.ts";
 import StudentDashboardPage from "./pages/Students/StudentDashboardPage.tsx";
 import StudentSchedulePage from "./pages/Students/StudentSchedulePage.tsx";
 import StudentContractsPage from "./pages/Students/StudentContractsPage.tsx";
-import StudentSettingsPage from "./pages/Students/StudentSettingsPage,.tsx";
+import StudentSettingsPage from "./pages/Students/StudentSettingsPage.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import RequireRole from "./pages/RequireRole.tsx";
 import Unauthorized from "./pages/Error/Unauthorized.tsx";

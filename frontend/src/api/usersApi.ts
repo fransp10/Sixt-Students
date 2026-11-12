@@ -7,7 +7,10 @@ import type {
 } from "../types/user";
 import type { UserStats } from "../types/stats";
 import { format } from "date-fns";
-import type { Contract, ContractsWithoutSignedUrl } from "../types/contracts";
+import type {
+  ContractsWithoutSignedUrl,
+  ContractWithUrl,
+} from "../types/contracts";
 
 export async function getUsers(role?: UserRoles) {
   if (role) {
@@ -210,7 +213,7 @@ export async function getContract(month: string, download?: boolean) {
   const res = await axiosClient.get(
     `/me/contract?month=${month}&download=${download}`,
   );
-  return res.data as Contract;
+  return res.data as ContractWithUrl;
 }
 
 export async function getContracts() {

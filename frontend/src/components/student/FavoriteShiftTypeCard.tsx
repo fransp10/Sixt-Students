@@ -22,7 +22,6 @@ function FavoriteShiftTypeCard() {
       </div>
     );
   }
-  console.log(stats.data?.byShiftTypes);
 
   const favoriteShiftType = stats.data?.byShiftTypes.reduce((prev, current) =>
     prev.hours > current.hours ? prev : current,

@@ -6,6 +6,7 @@ export type Contract = {
   uploaded_at: string;
   user_first_name: string;
   user_last_name: string;
+  user_email: string | null;
   file_name: string;
   file_size: number;
 };

@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { fakeStudents, getFullName } from "../../helpers/helpers";
+import { useGetAllUsers } from "../../hooks/useGetAllUsers";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -12,7 +12,8 @@ import ContractsTable from "./ContractsTable";
 
 function AdminChosenStudentContractsPage() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const studentId = useParams().studentId;
+  const { userId } = useParams<{ userId: string }>();
+  const { data: students } = useGetAllUsers("student");
   const startYear = 2024;
   const currentYear = new Date().getFullYear();
 
@@ -20,7 +21,10 @@ function AdminChosenStudentContractsPage() {
     { length: currentYear - startYear + 1 },
     (_, index) => startYear + index,
   );
-  const student = fakeStudents.find((student) => student.id === studentId);
+  const student = students?.find((user) => user.id === Number(userId));
+  const fullName = student
+    ? `${student.first_name} ${student.last_name}`
+    : "this student";
 
   const tableRowMonths = eachMonthOfInterval({
     start: new Date(selectedYear, 0, 1),
@@ -39,7 +43,7 @@ function AdminChosenStudentContractsPage() {
           <div className="flex flex-col items-start">
             <p className="text-xl font-bold">Contracts</p>
             <p className="text-base text-secondaryText">
-              View and manage {getFullName(student)}'s contracts
+              View and manage {fullName}'s contracts
             </p>
           </div>
         </div>

@@ -8,12 +8,10 @@ export function useUpdateMyInfo() {
     mutationFn: (vars: { email?: string; phone?: string }) =>
       updateMyInfo(vars.email, vars.phone),
     onSuccess: () => {
-      console.log("User info updated successfully");
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
     },
     onError: (error) => {
       console.error("Error updating user info:", error);
-      console.log(error.name);
     },
   });
   return updatedInfo;
