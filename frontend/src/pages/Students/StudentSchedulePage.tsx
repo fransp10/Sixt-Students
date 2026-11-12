@@ -1,15 +1,13 @@
 import { useState } from "react";
 import PageHeading from "../../components/PageHeading";
 import SchedulePageCalendar from "../../components/scheduleCalendar/SchedulePageCalendar";
-import { startOfWeek } from "date-fns";
+import MobileCalendar from "../../components/scheduleCalendar/MobileCalendar";
 import StudentScheduleCalendarModal from "../../components/student/StudentScheduleCalendarModal";
 import type { ShiftWithStudentsAndRequesters } from "../../types/Shift";
 import { useWeekSchedule } from "../../hooks/auth/useWeekSchedule";
 
 function StudentSchedulePage() {
-  const [selectedDate, setSelectedDate] = useState(
-    startOfWeek(new Date(), { weekStartsOn: 1 }),
-  );
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedShiftId, setSelectedShiftId] = useState<number | null>(null);
 
   const handleShiftClick = (shiftId: number | null) => {
@@ -29,11 +27,20 @@ function StudentSchedulePage() {
           subheading="Choose the shift you want to work"
         />
 
-        <SchedulePageCalendar
-          onSwitchDate={onSwitchDate}
-          selectedDate={selectedDate}
-          handleShiftClick={handleShiftClick}
-        />
+        <div className="hidden xl:block">
+          <SchedulePageCalendar
+            onSwitchDate={onSwitchDate}
+            selectedDate={selectedDate}
+            handleShiftClick={handleShiftClick}
+          />
+        </div>
+        <div className="xl:hidden">
+          <MobileCalendar
+            onSwitchDate={onSwitchDate}
+            selectedDate={selectedDate}
+            handleShiftClick={handleShiftClick}
+          />
+        </div>
       </div>
       {selectedShiftId && (
         <StudentScheduleCalendarModal
