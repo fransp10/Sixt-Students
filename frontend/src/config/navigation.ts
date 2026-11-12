@@ -31,6 +31,11 @@ export const adminNavItems: NavItemType[] = [
     icon: BanknotesIcon,
   },
   {
+    label: "Settings",
+    to: "/admin/settings",
+    icon: Cog6ToothIcon,
+  },
+  {
     label: "Contracts",
     to: "/admin/contracts",
     icon: DocumentTextIcon,

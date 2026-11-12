@@ -13,10 +13,12 @@ import AdminDashboardPage from "./pages/Admin/AdminDashboardPage.tsx";
 import SchedulePage from "./pages/Admin/AdminSchedulePage.tsx";
 import StudentsPage from "./pages/Admin/AdminStudentsPage.tsx";
 import EarningsPage from "./pages/EarningsPage.tsx";
+import SettingsPage from "./pages/SettingsPage.tsx";
 import AdminChosenStudentPage from "./components/Admin/AdminChosenStudentPage.tsx";
 import AdminStudentNoStudentSelected from "./components/Admin/AdminStudentNoStudentSelected.tsx";
 import AdminChosenStudentManagePage from "./pages/Admin/AdminChosenStudentManagePage.tsx";
 import OverviewPage from "./pages/OverviewPage.tsx";
+import AdminChosenStudentContractsPage from "./components/Admin/AdminChosenStudentContractsPage.tsx";
 import AppLayout from "./layouts/AppLayout.tsx";
 import { adminNavItems, studentNavItems } from "./config/navigation.ts";
 import StudentDashboardPage from "./pages/Students/StudentDashboardPage.tsx";
@@ -80,6 +82,11 @@ const router = createBrowserRouter([
                         index: true,
                         element: <AdminChosenStudentManagePage />,
                       },
+                      {
+                        path: "contracts",
+                        index: true,
+                        element: <AdminChosenStudentContractsPage />,
+                      },
                     ],
                   },
                 ],
@@ -93,6 +100,10 @@ const router = createBrowserRouter([
                 path: "contracts",
                 index: true,
                 element: <AdminContractsPage />,
+              },
+              {
+                path: "settings",
+                element: <SettingsPage />,
               },
             ],
           },

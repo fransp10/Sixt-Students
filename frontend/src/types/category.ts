@@ -1,1 +1,1 @@
-export type Category = "Overview" | "Shifts" | "Manage";
+export type Category = "Overview" | "Shifts" | "Manage" | "Contracts";
