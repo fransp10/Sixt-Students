@@ -1,10 +1,10 @@
 import { KeyIcon } from "@heroicons/react/24/outline";
-import type { Student } from "../types/students";
+import type { UserWithoutPassword } from "../types/user";
 import { getFullName } from "../helpers/helpers";
 import { useState } from "react";
 import ResetPasswordModal from "./Admin/ResetPasswordModal";
 
-function AccountAccesSettingsCard({ student }: { student: Student }) {
+function AccountAccesSettingsCard({ student }: { student: UserWithoutPassword }) {
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] =
     useState(false);
 

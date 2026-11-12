@@ -3,13 +3,13 @@ import {
   UserMinusIcon,
 } from "@heroicons/react/24/outline";
 import { getFullName } from "../../helpers/helpers";
-import type { Student } from "../../types/students";
+import type { UserWithoutPassword } from "../../types/user";
 
 function DeactivateStudentCard({
   student,
   handleDeactivateStudent,
 }: {
-  student: Student;
+  student: UserWithoutPassword;
   handleDeactivateStudent: () => void;
 }) {
   return (

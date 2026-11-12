@@ -1,10 +1,10 @@
-import type { Student } from "../../types/students";
+import type { UserWithoutPassword } from "../../types/user";
 import DangerZoneModal from "./DangerZoneModal";
 import { useState } from "react";
 import DeactivateStudentCard from "./DeactivateStudentCard";
 import ActivateStudentCard from "./ActivateStudentCard";
 
-function DangerZoneCard({ student }: { student: Student }) {
+function DangerZoneCard({ student }: { student: UserWithoutPassword }) {
   const [dangerZoneModalMode, setDangerZoneModalMode] = useState<
     null | "activate" | "deactivate"
   >(null);

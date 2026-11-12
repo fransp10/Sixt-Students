@@ -12,7 +12,7 @@ function AdminChosenStudentManagePage() {
   if (isLoading) {
     return <div>Loading...</div>;
   }
-  if (isError) {
+  if (isError || !student) {
     return <div>Error loading student data</div>;
   }
 

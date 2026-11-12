@@ -1,85 +1,101 @@
-import { useParams } from "react-router-dom";
-import { useGetAllUsers } from "../../hooks/useGetAllUsers";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ClipboardDocumentIcon,
-} from "@heroicons/react/24/outline";
 import { useState } from "react";
-import { eachMonthOfInterval } from "date-fns";
+import { useParams } from "react-router-dom";
+import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
-import ContractsTable from "./ContractsTable";
+import { useGetUserById } from "../../hooks/useGetUserById";import { useGetContractsOfStudent } from "../../hooks/useGetContractsOfStudent";
+import { getContractMonths } from "../../helpers/studentContractMonths";
+import LoadingSpinner from "../LoadingSpinner";
+import StudentContractRow from "./StudentContracts/StudentContractRow";
+import StudentContractsToolbar from "./StudentContracts/StudentContractsToolbar";
+import { GLOBAL_APP_FIRST_YEAR } from "../../helpers/constants";
 
 function AdminChosenStudentContractsPage() {
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const { userId } = useParams<{ userId: string }>();
-  const { data: students } = useGetAllUsers("student");
-  const startYear = 2024;
   const currentYear = new Date().getFullYear();
-
-  const years = Array.from(
-    { length: currentYear - startYear + 1 },
-    (_, index) => startYear + index,
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const { userId } = useParams<{ userId: string }>();
+  const studentId = Number(userId);
+  const { data: student, isLoading: isStudentLoading } = useGetUserById(
+    userId!,
   );
-  const student = students?.find((user) => user.id === Number(userId));
+  const {
+    data: contracts,
+    isLoading: isContractsLoading,
+    isError,
+  } = useGetContractsOfStudent(studentId);
+
   const fullName = student
     ? `${student.first_name} ${student.last_name}`
-    : "this student";
+    : "This student";
+  const firstName = student?.first_name ?? "This student";
 
-  const tableRowMonths = eachMonthOfInterval({
-    start: new Date(selectedYear, 0, 1),
-    end: new Date(selectedYear, 11, 31),
-  }).map((month) => format(month, "MMMM yyyy"));
-  tableRowMonths.reverse(); // Reverse the array to display months in descending order
+  if (isStudentLoading || isContractsLoading) {
+    return (
+      <div className="flex justify-center p-10">
+        <LoadingSpinner size={32} />
+      </div>
+    );
+  }
+
+  if (isError || !contracts) {
+    return (
+      <p className="p-6 text-sm text-danger">
+        Couldn't load the contracts. Refresh the page to try again.
+      </p>
+    );
+  }
+
+  const months = getContractMonths(
+    selectedYear,
+    contracts,
+    student?.created_at,
+  );
 
   return (
-    <div className="p-4 flex flex-col gap-4">
-      <div className="flex flex-row items-center justify-between bg-cardLighterBG p-4 rounded-lg border border-borderDividers">
-        {/* HEADER */}
-        <div className="flex flex-row items-center gap-4 h-full">
-          <div className=" shrink-0 flex items-center justify-center size-16 rounded-full bg-borderDividers">
-            <ClipboardDocumentIcon className="size-8 text-icons" />
-          </div>
-          <div className="flex flex-col items-start">
-            <p className="text-xl font-bold">Contracts</p>
-            <p className="text-base text-secondaryText">
-              View and manage {fullName}'s contracts
-            </p>
-          </div>
-        </div>
-        {/* Year picker */}
-        <div className="flex flex-row items-center gap-2 ">
-          <button
-            disabled={selectedYear === years[0]}
-            className="size-10 p-4 border border-borderDividers rounded-lg flex items-center justify-center hover:bg-borderDividers transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-            onClick={() => setSelectedYear(selectedYear - 1)}
-          >
-            <ChevronLeftIcon className="size-5 shrink-0 text-icons" />
-          </button>
+    <div className="flex flex-col gap-4 p-4 sm:p-6">
+      <StudentContractsToolbar
+        year={selectedYear}
+        firstYear={GLOBAL_APP_FIRST_YEAR}
+        lastYear={currentYear}
+        months={months}
+        onYearChange={setSelectedYear}
+      />
 
-          <select
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-            value={selectedYear}
-            className="h-10 rounded-lg border border-borderDividers bg-cardBG px-4 text-sm text-primaryText outline-none focus:border-secondaryText"
-          >
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-
-          <button
-            className="size-10 p-4 border border-borderDividers rounded-lg flex items-center justify-center hover:bg-borderDividers transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-            onClick={() => setSelectedYear(selectedYear + 1)}
-            disabled={selectedYear === years[years.length - 1]}
-          >
-            <ChevronRightIcon className=" shrink-0 size-5 text-icons" />
-          </button>
+      {months.length > 0 ? (
+        <ul
+          className="divide-y divide-borderDividers overflow-hidden rounded-xl border border-borderDividers bg-cardBG"
+        >
+          {months.map((item) => (
+            <StudentContractRow
+              key={item.month.toISOString()}
+              item={item}
+              studentId={studentId}
+              studentName={fullName}
+            />
+          ))}
+        </ul>
+      ) : (
+        <div className="flex flex-col items-center rounded-xl border border-dashed border-borderDividers px-6 py-14 text-center">
+          <ClipboardDocumentIcon className="size-8 text-icons" />
+          <p className="mt-3 text-base font-semibold text-primaryText">
+            No contracts in {selectedYear}
+          </p>
+          <p className="mt-1 max-w-sm text-sm text-secondaryText">
+            {student?.created_at &&
+            new Date(student.created_at).getFullYear() > selectedYear
+              ? `${firstName} started in ${format(new Date(student.created_at), "MMMM yyyy")}, so there is nothing to upload for ${selectedYear}.`
+              : "Nothing here yet."}
+          </p>
+          {selectedYear !== currentYear && (
+            <button
+              type="button"
+              onClick={() => setSelectedYear(currentYear)}
+              className="mt-5 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primaryText cursor-pointer transition-opacity hover:opacity-90"
+            >
+              Go to {currentYear}
+            </button>
+          )}
         </div>
-      </div>
-      {/* TABLE */}
-      <ContractsTable tableRowMonths={tableRowMonths} />
+      )}
     </div>
   );
 }

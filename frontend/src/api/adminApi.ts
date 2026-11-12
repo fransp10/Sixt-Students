@@ -1,7 +1,11 @@
 import type { RecentStudent } from "../types/recentSudent";
 import type { DeletableStudent } from "../types/deletableStudent";
 import { axiosClient } from "./axios";
-import type { Contract, ContractWithUrl } from "../types/contracts";
+import type {
+  Contract,
+  ContractsWithoutSignedUrl,
+  ContractWithUrl,
+} from "../types/contracts";
 import type { Payroll } from "../types/payroll";
 
 export async function getAdminStats() {
@@ -56,6 +60,17 @@ export async function getStudentContracts(month?: string): Promise<Contract[]> {
   const studentContracts = await axiosClient.get(`/admin/contracts`);
 
   return studentContracts.data as Contract[];
+}
+
+// every contract one student has uploaded, any month
+export async function getContractsOfStudent(
+  userId: number,
+): Promise<ContractsWithoutSignedUrl[]> {
+  const contracts = await axiosClient.get(
+    `/admin/students/${userId}/contracts`,
+  );
+
+  return contracts.data as ContractsWithoutSignedUrl[];
 }
 
 export async function getStudentContractWithSignedUrl(

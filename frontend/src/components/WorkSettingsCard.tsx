@@ -1,10 +1,10 @@
 import { BriefcaseIcon } from "@heroicons/react/24/outline";
-import type { Student } from "../types/students";
+import type { UserWithoutPassword } from "../types/user";
 import { useEffect, useState } from "react";
 import { useUpdateUserHourlyRate } from "../hooks/useUpdateUserHourlyRate";
 import LoadingSpinner from "./LoadingSpinner";
 
-function WorkSettingsCard({ student }: { student: Student }) {
+function WorkSettingsCard({ student }: { student: UserWithoutPassword }) {
   const [editing, setEditing] = useState(false);
   const [hourlyRate, setHourlyRate] = useState<string>(
     String(student.default_hourly_rate),
@@ -31,7 +31,7 @@ function WorkSettingsCard({ student }: { student: Student }) {
   function handleConfirm() {
     setEditing(false);
     changeHourlyRate({
-      userId: student.id,
+      userId: String(student.id),
       hourlyRate: parseFloat(hourlyRate),
     });
   }

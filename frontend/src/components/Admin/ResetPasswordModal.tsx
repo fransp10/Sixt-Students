@@ -1,6 +1,6 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { createPortal } from "react-dom";
-import type { Student } from "../../types/students";
+import type { UserWithoutPassword } from "../../types/user";
 import { useState } from "react";
 import { isValidEmail } from "../../helpers/isValidEmail";
 import { useSendPasswordResetEmail } from "../../hooks/useSendPasswordResetEmail";
@@ -12,10 +12,10 @@ function ResetPasswordModal({
   handleClose,
   student,
 }: {
-  student: Student;
+  student: UserWithoutPassword;
   handleClose: () => void;
 }) {
-  const [email, setEmail] = useState(student.email);
+  const [email, setEmail] = useState(student.email ?? "");
   const [isChangingMail, setIsChangingMail] = useState(true);
   const validEmail = isValidEmail(email);
   const {
@@ -98,7 +98,7 @@ function ResetPasswordModal({
           <button
             disabled={!validEmail || !isChangingMail}
             onClick={() => {
-              sendPasswordResetEmail({ userId: student.id, email });
+              sendPasswordResetEmail({ userId: String(student.id), email });
             }}
             type="button"
             className="bg-primary text-primaryText w-full h-12 rounded-lg text-sm font-medium hover:bg-primary/80 transition-colors cursor-pointer disabled:bg-surfaceCards/50 disabled:text-secondaryText disabled:cursor-not-allowed"
