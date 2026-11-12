@@ -36,6 +36,7 @@ function SchedulePageCalendar({
             <div role="columnheader" className="sr-only">
               Shift
             </div>
+            <div />
             {days.map((day) => (
               <CalendarHeaderColumn
                 key={day.toISOString()}
@@ -44,10 +45,10 @@ function SchedulePageCalendar({
               />
             ))}
           </div>
+
           {SHIFT_TYPES.map((shiftType) => (
             <div role="row" className="contents" key={shiftType}>
               <CalendarHeaderRow shiftType={shiftType} />
-
               {days.map((day) => {
                 const shift = getShift(day, shiftType);
                 return (

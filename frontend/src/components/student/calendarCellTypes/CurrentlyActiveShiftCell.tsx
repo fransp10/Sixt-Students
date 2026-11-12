@@ -5,19 +5,17 @@ import CellFrame from "./CellFrame";
 function CurrentlyActiveShiftCell({
   onClick,
   shift,
-  ariaLabel,
 }: {
   onClick: () => void;
   shift: ShiftWithStudentsAndRequesters;
-  ariaLabel?: string;
 }) {
   return (
-    <CellFrame kind="active" onClick={onClick} ariaLabel={ariaLabel}>
+    <CellFrame kind="active" onClick={onClick}>
       <span className="-mt-1 text-xs text-secondaryText">
         Working students: {shift.students_assigned.length}
       </span>
       <div className="mt-auto">
-        <AvatarStack students={shift.students_assigned} neutral />
+        <AvatarStack kind="active" students={shift.students_assigned} neutral />
       </div>
     </CellFrame>
   );

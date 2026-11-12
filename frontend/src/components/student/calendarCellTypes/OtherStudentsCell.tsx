@@ -25,7 +25,7 @@ function OtherStudentsCell({
       ariaLabel={ariaLabel}
     >
       <div className="mt-auto">
-        <AvatarStack students={students} />
+        <AvatarStack kind="others" students={students} />
       </div>
     </CellFrame>
   );

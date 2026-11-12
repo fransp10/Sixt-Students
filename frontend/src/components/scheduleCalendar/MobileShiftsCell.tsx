@@ -77,7 +77,7 @@ function MobileShiftsCell({
       type="button"
       onClick={() => handleShiftClick(shift)}
       aria-label={`${format(new Date(shift.date), "EEEE d MMMM")}, ${capitalize(shiftType)} shift, ${statusLabel}`}
-      className={`${theme.frame} flex w-full cursor-pointer flex-col gap-4 rounded-xl border bg-(--cell-bg) p-4 text-left transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`}
+      className={`${theme.frame} flex w-full cursor-pointer flex-col gap-4 rounded-xl border p-4 text-left transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`}
     >
       <div className="flex items-start justify-between gap-3">
         <ShiftHeading shiftType={shiftType} />

@@ -19,6 +19,19 @@
   --color-warning: #f59e0b;
   --color-pending: #60a5fa;
   --color-danger: #ef4444;
+
+  /* Calendar cells: opaque tints on top of cardBG, plus their hover shade */
+  --color-cellAssigned: #192924;
+  --color-cellAssignedHover: #1d362a;
+  --color-cellRequested: #1c2532;
+  --color-cellRequestedHover: #212f42;
+  --color-cellActive: #302019;
+  --color-cellActiveHover: #412517;
+  --color-cellOthers: #1c2027;
+  --color-cellOthersHover: #242830;
+  --color-cellEmptyHover: #221b1a;
+  --color-cellPassed: #0f1114;
+  --color-cellPassedHover: #1c2027;
 }
 
 /* Styling autocomplete */

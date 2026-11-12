@@ -17,7 +17,7 @@ function RequestingStudentsCell({
         Waiting for approval
       </span>
       <div className="mt-auto">
-        <AvatarStack students={students} />
+        <AvatarStack kind="requested" students={students} />
       </div>
     </CellFrame>
   );

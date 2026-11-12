@@ -14,7 +14,7 @@ function AssignedStudentsCell({
   return (
     <CellFrame kind="assigned" onClick={onClick} ariaLabel={ariaLabel}>
       <div className="mt-auto">
-        <AvatarStack students={students} />
+        <AvatarStack kind="assigned" students={students} />
       </div>
     </CellFrame>
   );

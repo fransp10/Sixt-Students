@@ -13,53 +13,59 @@ type CellTheme = {
   Icon: ComponentType<SVGProps<SVGSVGElement>>;
   // colour of the status label and icon
   text: string;
-  // border, background and the --cell-bg variable the avatar rings borrow
+  // group, border and background (with hover) of the cell itself
   frame: string;
+  // avatar ring, matching the cell background so overlapping avatars look cut out
+  ring: string;
 };
 
-// Every cell sits on the calendar surface (cardBG). --cell-bg is the opaque
-// colour a tinted cell ends up as, so overlapping avatars can ring against it.
 export const CELL_THEME: Record<CalendarCellKind, CellTheme> = {
   assigned: {
     label: "You are assigned",
     Icon: CheckCircleIcon,
     text: "text-success",
     frame:
-      "border-success/30 border-l-[3px] border-l-success [--cell-bg:color-mix(in_srgb,var(--color-success)_10%,var(--color-cardBG))] hover:[--cell-bg:color-mix(in_srgb,var(--color-success)_17%,var(--color-cardBG))]",
+      "group border-success/30 border-l-[3px] border-l-success bg-cellAssigned hover:bg-cellAssignedHover",
+    ring: "ring-cellAssigned group-hover:ring-cellAssignedHover",
   },
   requested: {
     label: "You requested",
     Icon: ClockIcon,
     text: "text-pending",
     frame:
-      "border-pending/30 border-l-[3px] border-l-pending [--cell-bg:color-mix(in_srgb,var(--color-pending)_10%,var(--color-cardBG))] hover:[--cell-bg:color-mix(in_srgb,var(--color-pending)_17%,var(--color-cardBG))]",
+      "group border-pending/30 border-l-[3px] border-l-pending bg-cellRequested hover:bg-cellRequestedHover",
+    ring: "ring-cellRequested group-hover:ring-cellRequestedHover",
   },
   active: {
     label: "Current shift",
     Icon: PlayCircleIcon,
     text: "text-primary",
     frame:
-      "border-primary/40 border-l-[3px] border-l-primary [--cell-bg:color-mix(in_srgb,var(--color-primary)_12%,var(--color-cardBG))] hover:[--cell-bg:color-mix(in_srgb,var(--color-primary)_19%,var(--color-cardBG))]",
+      "group border-primary/40 border-l-3 rounded-none border-l-primary bg-cellActive hover:bg-cellActiveHover",
+    ring: "ring-cellActive group-hover:ring-cellActiveHover",
   },
   others: {
     label: "Upcoming",
     Icon: UserGroupIcon,
     text: "text-secondaryText",
     frame:
-      "border-borderDividers border-l-[3px] border-l-surfaceCards [--cell-bg:var(--color-cardLighterBG)] hover:[--cell-bg:var(--color-darkBackground)]",
+      "group border-borderDividers border-l-[3px] border-l-surfaceCards bg-cellOthers hover:bg-cellOthersHover",
+    ring: "ring-cellOthers group-hover:ring-cellOthersHover",
   },
   empty: {
     label: "No requests or assignments",
     Icon: UsersIcon,
     text: "text-secondaryText",
     frame:
-      "border-dashed border-surfaceCards [--cell-bg:transparent] hover:border-primary/60 hover:[--cell-bg:color-mix(in_srgb,var(--color-primary)_6%,var(--color-cardBG))]",
+      "group border-dashed border-surfaceCards bg-transparent hover:border-primary/60 hover:bg-cellEmptyHover",
+    ring: "ring-transparent group-hover:ring-cellEmptyHover",
   },
   passed: {
     label: "Shift passed",
     Icon: CheckCircleIcon,
     text: "text-secondaryText",
     frame:
-      "border-borderDividers/70 [--cell-bg:color-mix(in_srgb,var(--color-pageBackground)_45%,var(--color-cardBG))] hover:[--cell-bg:var(--color-cardLighterBG)]",
+      "group border-borderDividers/70 bg-cellPassed hover:bg-cellPassedHover",
+    ring: "ring-cellPassed group-hover:ring-cellPassedHover",
   },
 };

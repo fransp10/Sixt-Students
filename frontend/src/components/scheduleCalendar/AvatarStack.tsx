@@ -1,9 +1,13 @@
+import { CELL_THEME } from "../../config/calendarCellTheme";
 import { MAX_VISIBLE_STUDENTS } from "../../config/maxStudents";
+import type { CalendarCellKind } from "../../helpers/getCalendarCellState";
 import { getAvatarColor, getInitials } from "../../helpers/helpers";
 import type { StudentAssigned, StudentRequesting } from "../../types/students";
 
 type AvatarStackProps = {
   students: StudentAssigned[] | StudentRequesting[];
+  // the kind of cell the stack sits in, so the rings match its background
+  kind: CalendarCellKind;
   size?: "sm" | "md";
   // grey avatars, for cells that already carry a strong colour
   neutral?: boolean;
@@ -17,13 +21,14 @@ const SIZES = {
 
 function AvatarStack({
   students,
+  kind,
   size = "sm",
   neutral = false,
   max = MAX_VISIBLE_STUDENTS,
 }: AvatarStackProps) {
   const studentsToShow = students.slice(0, max);
   const leftOverStudents = students.length - studentsToShow.length;
-  const ring = "ring-2 ring-(--cell-bg)";
+  const ring = `ring-2 ${CELL_THEME[kind].ring}`;
 
   return (
     <div className="flex items-center">

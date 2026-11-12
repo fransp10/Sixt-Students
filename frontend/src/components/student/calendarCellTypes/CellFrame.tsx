@@ -5,10 +5,7 @@ import type { CalendarCellKind } from "../../../helpers/getCalendarCellState";
 type CellFrameProps = {
   kind: CalendarCellKind;
   onClick: () => void;
-  ariaLabel?: string;
-  // replaces the default status label
   label?: string;
-  // empty cells draw their own content without a status header
   hideHeader?: boolean;
   children?: ReactNode;
 };
@@ -16,7 +13,6 @@ type CellFrameProps = {
 function CellFrame({
   kind,
   onClick,
-  ariaLabel,
   label,
   hideHeader = false,
   children,
@@ -28,8 +24,7 @@ function CellFrame({
     <button
       type="button"
       onClick={onClick}
-      aria-label={ariaLabel ? `${ariaLabel}, ${statusLabel}` : undefined}
-      className={`${frame} flex w-full cursor-pointer flex-col gap-2 rounded-lg border bg-(--cell-bg) p-3 text-left transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`}
+      className={`${frame} flex w-full cursor-pointer flex-col gap-2 rounded-lg p-3 text-left transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`}
     >
       {!hideHeader && (
         <span className={`flex items-center gap-1.5 ${text}`}>
