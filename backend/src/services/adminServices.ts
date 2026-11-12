@@ -77,6 +77,16 @@ export async function getContracts(month?: string) {
   return contracts;
 }
 
+export async function getStudentContracts(userId: string) {
+  const [student] = await adminModel.getStudentsByIds([userId]);
+
+  if (!student) {
+    throw new AppError("Student not found", 404);
+  }
+
+  return userModel.getMyContracts(userId);
+}
+
 export async function getContract(
   contractId: string,
   download: boolean = false,
@@ -264,10 +274,7 @@ export async function markPayrollPaid(
   // only workers with worked hours and a contract for the month get paid,
   // so nothing inserted means there was nobody left to pay
   if (markedCount === 0) {
-    throw new AppError(
-      "No unpaid workers with a contract for this month",
-      409,
-    );
+    throw new AppError("No unpaid workers with a contract for this month", 409);
   }
 }
 

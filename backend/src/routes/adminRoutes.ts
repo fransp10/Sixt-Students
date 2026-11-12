@@ -12,6 +12,10 @@ adminRouter.get("/deletable-students", adminController.getDeletableStudents);
 adminRouter.delete("/students/:id", adminController.deleteStudent);
 adminRouter.get("/contracts", adminController.getContracts);
 adminRouter.get("/contracts/:contractId", adminController.getContract);
+adminRouter.get(
+  "/students/:userId/contracts",
+  adminController.getStudentContracts,
+);
 adminRouter.post(
   "/students/contracts/remind",
   adminController.sendContractReminder,
