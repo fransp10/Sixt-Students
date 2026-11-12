@@ -34,7 +34,9 @@ function ScheduleCalendarCell({
 
   switch (state.kind) {
     case "passed":
-      return <ShiftPassedCell onClick={onClick} ariaLabel={ariaLabel} />;
+      return (
+        <ShiftPassedCell onClick={onClick} shift={shift} ariaLabel={ariaLabel} />
+      );
     case "active":
       return (
         <CurrentlyActiveShiftCell
