@@ -1,10 +1,10 @@
 import { UserPlusIcon } from "@heroicons/react/24/outline";
 import { getFullName } from "../../helpers/helpers";
-import type { Student } from "../../types/students";
+import type { UserWithoutPassword } from "../../types/user";
 import { ShieldExclamationIcon } from "@heroicons/react/16/solid";
 
 type ActivateStudentCardProps = {
-  student: Student;
+  student: UserWithoutPassword;
   handleActivateStudent: () => void;
 };
 function ActivateStudentCard({

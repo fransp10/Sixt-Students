@@ -1,5 +1,5 @@
 import { createPortal } from "react-dom";
-import type { Student } from "../../types/students";
+import type { UserWithoutPassword } from "../../types/user";
 import { getFullName } from "../../helpers/helpers";
 import { UserMinusIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
@@ -8,7 +8,7 @@ import { useActivateUser } from "../../hooks/useActivateUser";
 import ErrorView from "../ErrorView";
 import SuccessView from "../SuccessView";
 type DangerZoneModalProps = {
-  student: Student;
+  student: UserWithoutPassword;
   handleCloseDangerZoneModal: () => void;
   mode: "activate" | "deactivate";
 };
@@ -96,7 +96,7 @@ function DangerZoneModal({
             <button
               type="button"
               disabled={status === "pending"}
-              onClick={() => mutate(student.id)}
+              onClick={() => mutate(String(student.id))}
               className={`py-3 px-8 flex-1 border rounded-lg hover:cursor-pointer transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-50 ${
                 isDeactivate
                   ? "border-red-500/20 text-red-500 hover:bg-red-500"

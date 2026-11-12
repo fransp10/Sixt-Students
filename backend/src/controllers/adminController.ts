@@ -66,6 +66,16 @@ export async function getContracts(
   res.status(200).json(contracts);
 }
 
+export async function getStudentContracts(
+  req: Request<{ userId: string }>,
+  res: Response,
+): Promise<void> {
+  const { userId } = req.params;
+  const contracts = await adminService.getStudentContracts(userId);
+
+  res.status(200).json(contracts);
+}
+
 export async function getContract(
   req: Request<{ contractId: string }, unknown, unknown, { download?: string }>,
   res: Response,

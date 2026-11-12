@@ -1,4 +1,4 @@
-import type { Student } from "../types/students";
+import type { UserWithoutPassword } from "../types/user";
 
 export function getInitials(name: string) {
   return name.split(" ")[0][0] + name.split(" ")[0][1].toUpperCase();
@@ -17,6 +17,6 @@ export function getAvatarColor(userId: number) {
   return AVATAR_COLORS[userId % AVATAR_COLORS.length];
 }
 
-export function getFullName(student: Student | undefined) {
+export function getFullName(student: UserWithoutPassword | undefined) {
   return student ? `${student.first_name} ${student.last_name}` : "";
 }
