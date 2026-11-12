@@ -13,18 +13,16 @@ import AdminDashboardPage from "./pages/Admin/AdminDashboardPage.tsx";
 import SchedulePage from "./pages/Admin/AdminSchedulePage.tsx";
 import StudentsPage from "./pages/Admin/AdminStudentsPage.tsx";
 import EarningsPage from "./pages/EarningsPage.tsx";
-import SettingsPage from "./pages/SettingsPage.tsx";
 import AdminChosenStudentPage from "./components/Admin/AdminChosenStudentPage.tsx";
 import AdminStudentNoStudentSelected from "./components/Admin/AdminStudentNoStudentSelected.tsx";
 import AdminChosenStudentManagePage from "./pages/Admin/AdminChosenStudentManagePage.tsx";
 import OverviewPage from "./pages/OverviewPage.tsx";
-import AdminChosenStudentContractsPage from "./components/Admin/AdminChosenStudentContractsPage.tsx";
 import AppLayout from "./layouts/AppLayout.tsx";
 import { adminNavItems, studentNavItems } from "./config/navigation.ts";
 import StudentDashboardPage from "./pages/Students/StudentDashboardPage.tsx";
 import StudentSchedulePage from "./pages/Students/StudentSchedulePage.tsx";
 import StudentContractsPage from "./pages/Students/StudentContractsPage.tsx";
-import StudentSettingsPage from "./pages/Students/StudentSettingsPage,.tsx";
+import StudentSettingsPage from "./pages/Students/StudentSettingsPage.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import RequireRole from "./pages/RequireRole.tsx";
 import Unauthorized from "./pages/Error/Unauthorized.tsx";
@@ -82,11 +80,6 @@ const router = createBrowserRouter([
                         index: true,
                         element: <AdminChosenStudentManagePage />,
                       },
-                      {
-                        path: "contracts",
-                        index: true,
-                        element: <AdminChosenStudentContractsPage />,
-                      },
                     ],
                   },
                 ],
@@ -100,10 +93,6 @@ const router = createBrowserRouter([
                 path: "contracts",
                 index: true,
                 element: <AdminContractsPage />,
-              },
-              {
-                path: "settings",
-                element: <SettingsPage />,
               },
             ],
           },

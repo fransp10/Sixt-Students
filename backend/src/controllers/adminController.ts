@@ -121,7 +121,6 @@ export async function markPayrollPaid(
 ): Promise<void> {
   const { month } = req.params;
   const paidByAdminId = req.user?.id!;
-  console.log(paidByAdminId);
   await adminService.markPayrollPaid(month, paidByAdminId);
 
   res.status(204).send();
