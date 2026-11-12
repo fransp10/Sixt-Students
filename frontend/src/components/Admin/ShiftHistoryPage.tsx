@@ -24,8 +24,9 @@ function ShiftHistoryPage() {
     isError,
   } = useGetUsersShiftsWorked(
     userId!,
-    format(startDate!, "yyyy-MM-dd") ?? null,
-    format(endDate!, "yyyy-MM-dd") ?? null,
+    // "all-time" has no start date, without dates the API returns every shift
+    startDate ? format(startDate, "yyyy-MM-dd") : undefined,
+    endDate ? format(endDate, "yyyy-MM-dd") : undefined,
   );
 
   let shiftsWorkedtoDisplay: ShiftsWorkedHistoryData[] = [];
@@ -42,8 +43,10 @@ function ShiftHistoryPage() {
     );
   }
 
-  const first = (currentPageNumber - 1) * SHIFT_HISTORY_PAGE_SIZE + 1;
-  const last = first + SHIFT_HISTORY_PAGE_SIZE - 1;
+  const total = shiftsWorkedHistoryData?.length ?? 0;
+  const first =
+    total === 0 ? 0 : (currentPageNumber - 1) * SHIFT_HISTORY_PAGE_SIZE + 1;
+  const last = Math.min(currentPageNumber * SHIFT_HISTORY_PAGE_SIZE, total);
 
   return (
     <div className="p-6 flex-col flex-1 min-h-0 gap-4 flex items-center justify-center  rounded-xl border border-borderDividers bg-cardBG">
@@ -98,7 +101,7 @@ function ShiftHistoryPage() {
           totalPages={totalPages}
         />
         <p className="justify-self-end text-sm text-secondaryText">
-          Showing {first}-{last} of {shiftsWorkedHistoryData?.length}
+          {!isLoading && !isError && `Showing ${first}-${last} of ${total}`}
         </p>
       </div>
     </div>
