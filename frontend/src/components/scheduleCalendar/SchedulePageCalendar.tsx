@@ -3,12 +3,10 @@ import CalendarHeaderRow from "./CalendarHeaderRow";
 import { isSameDay, isSameWeek } from "date-fns";
 import DatePickerComponent from "./DatePickerComponent";
 import { useCurrentUser } from "../../hooks/auth/useCurrentUser";
-import type { ShiftType } from "../../types/Shift";
 import type { SchedulePageCalendarProps } from "../../types/calendarProps";
 import { useWeekSchedule } from "../../hooks/auth/useWeekSchedule";
 import ScheduleCalendarCell from "../student/ScheduleCalendarCell";
-
-const shiftTypes: ShiftType[] = ["morning", "middle", "afternoon"];
+import { SHIFT_TYPES } from "../../config/shiftHours";
 
 function SchedulePageCalendar({
   selectedDate,
@@ -20,7 +18,7 @@ function SchedulePageCalendar({
   const currentDate = new Date();
   const { days, getShift } = useWeekSchedule(selectedDate);
   return (
-    <div className="w-full text-primaryText  rounded-2xl grid-rows-4">
+    <section className="w-full overflow-hidden rounded-xl border border-borderDividers bg-cardBG text-primaryText">
       <DatePickerComponent
         onSwitchDate={onSwitchDate}
         selectedDate={selectedDate}
@@ -28,11 +26,16 @@ function SchedulePageCalendar({
           weekStartsOn: 1,
         })}
       />
-      <table className="table-fixed w-full">
-        <thead className="">
-          {/* empty cell */}
-          <tr>
-            <th className="w-40  border border-borderDividers bg-headersCalendar"></th>
+      <div className="overflow-x-auto">
+        <div
+          role="table"
+          aria-label="Weekly shift schedule"
+          className="grid min-w-5xl grid-cols-[9rem_repeat(7,minmax(0,1fr))] gap-2 p-4"
+        >
+          <div role="row" className="contents">
+            <div role="columnheader" className="sr-only">
+              Shift
+            </div>
             {days.map((day) => (
               <CalendarHeaderColumn
                 key={day.toISOString()}
@@ -40,33 +43,36 @@ function SchedulePageCalendar({
                 isCurrentDay={isSameDay(day, currentDate)}
               />
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {shiftTypes.map((shiftType) => (
-            <tr key={shiftType}>
+          </div>
+          {SHIFT_TYPES.map((shiftType) => (
+            <div role="row" className="contents" key={shiftType}>
               <CalendarHeaderRow shiftType={shiftType} />
 
               {days.map((day) => {
                 const shift = getShift(day, shiftType);
                 return (
-                  <ScheduleCalendarCell
+                  <div
+                    role="cell"
+                    className="flex min-h-34"
                     key={shift?.shift_id + day.toISOString()}
-                    currentUserId={currentUser?.id}
-                    shift={shift}
-                    onClick={() => {
-                      if (shift) {
-                        handleShiftClick(shift.shift_id);
-                      }
-                    }}
-                  />
+                  >
+                    <ScheduleCalendarCell
+                      currentUserId={currentUser?.id}
+                      shift={shift}
+                      onClick={() => {
+                        if (shift) {
+                          handleShiftClick(shift.shift_id);
+                        }
+                      }}
+                    />
+                  </div>
                 );
               })}
-            </tr>
+            </div>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </div>
+      </div>
+    </section>
   );
 }
 

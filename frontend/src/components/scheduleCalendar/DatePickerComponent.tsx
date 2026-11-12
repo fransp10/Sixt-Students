@@ -11,6 +11,9 @@ type DatePickerComponentProps = {
   isCurrentWeek: boolean;
 };
 
+const stepButton =
+  "flex size-10 cursor-pointer items-center justify-center text-primary transition-colors duration-200 hover:bg-primary/10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary";
+
 function DatePickerComponent({
   selectedDate,
   onSwitchDate,
@@ -29,42 +32,50 @@ function DatePickerComponent({
   )}`;
 
   return (
-    <div className=" flex items-center col-span-8 border border-borderDividers p-8 ">
-      <div className="flex flex-1 gap-2  text-primaryText  items-center justify-around    ">
-        <button
-          onClick={() => onSwitchDate(subWeeks(selectedDate, 1))}
-          className="hover:cursor-pointer border-borderDividers border size-12 flex items-center justify-center rounded text-primary hover:border-primary transition-all duration-300"
-        >
-          <ArrowLeftIcon className="size-6" />
-        </button>
-        <div className="flex items-center ">
-          <CalendarIcon className="size-12 shrink-0 text-primary" />
-          <div className="flex flex-col items-center justify-center  w-72 text-nowrap ">
-            <span
-              className={`flex items-center justify-center text-2xl font-semibold`}
-            >
-              {formattedDate}
-            </span>
-            <span
-              className={`${isCurrentWeek ? "text-primary " : ""}`}
-            >{`Week ${format(weekStart, "I")}`}</span>
-          </div>
+    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-borderDividers px-5 py-4">
+      <div className="flex items-center gap-3">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <CalendarIcon className="size-6" />
+        </span>
+        <div className="flex flex-col">
+          <h2 className="text-xl font-semibold tabular-nums leading-tight text-primaryText">
+            {formattedDate}
+          </h2>
+          <span
+            className={`text-sm ${isCurrentWeek ? "text-primary" : "text-secondaryText"}`}
+          >
+            {`Week ${format(weekStart, "I")}`}
+          </span>
         </div>
-        <button
-          onClick={() => onSwitchDate(addWeeks(selectedDate, 1))}
-          className="hover:cursor-pointer border-borderDividers border size-12 flex items-center justify-center rounded text-primary hover:border-primary transition-all duration-300"
-        >
-          <ArrowRightIcon className="size-6 " />
-        </button>
       </div>
-      <div className="flex items-center justify-center w-24 ">
+      <div
+        role="group"
+        aria-label="Change week"
+        className="flex items-stretch divide-x divide-borderDividers overflow-hidden rounded-lg border border-borderDividers"
+      >
         <button
+          type="button"
+          aria-label="Previous week"
+          onClick={() => onSwitchDate(subWeeks(selectedDate, 1))}
+          className={stepButton}
+        >
+          <ArrowLeftIcon className="size-5" />
+        </button>
+        <button
+          type="button"
           disabled={isCurrentWeek}
           onClick={() => onSwitchDate(currentWeek)}
-          className=" h-12 w-24   hover:text-primaryText transition-all duration-300 text-primary  rounded-lg border  enabled:cursor-pointer enabled:hover:bg-primary enabled:hover:text-primaryText enabled:hover:border-primary disabled:cursor-default disabled:border-borderDividers disabled:text-secondaryText
-        "
+          className="h-10 px-5 text-sm font-medium text-primary transition-colors duration-200 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary enabled:cursor-pointer enabled:hover:bg-primary enabled:hover:text-white disabled:cursor-default disabled:text-secondaryText"
         >
           Today
+        </button>
+        <button
+          type="button"
+          aria-label="Next week"
+          onClick={() => onSwitchDate(addWeeks(selectedDate, 1))}
+          className={stepButton}
+        >
+          <ArrowRightIcon className="size-5" />
         </button>
       </div>
     </div>
