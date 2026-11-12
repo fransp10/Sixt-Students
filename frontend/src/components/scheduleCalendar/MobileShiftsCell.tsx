@@ -11,6 +11,7 @@ import { capitalize } from "../../helpers/capitalize";
 import { getCalendarCellState } from "../../helpers/getCalendarCellState";
 import { getInitials } from "../../helpers/helpers";
 import { getShiftTiming } from "../../helpers/shiftTiming";
+import { useAuthContext } from "../../hooks/auth/useAuthContext";
 import type {
   ShiftType,
   ShiftWithStudentsAndRequesters,
@@ -50,6 +51,9 @@ function MobileShiftsCell({
   currentUserId: number | undefined;
   handleShiftClick: (shift?: ShiftWithStudentsAndRequesters) => void;
 }) {
+  const { currentUser } = useAuthContext();
+  const isAdmin = currentUser?.user_role === "admin";
+
   if (!shift) {
     return (
       <div className="flex flex-col gap-4 rounded-xl border border-dashed border-surfaceCards p-4">
@@ -108,6 +112,16 @@ function MobileShiftsCell({
             {state.kind === "requested" && (
               <span className="text-sm text-secondaryText">
                 Waiting for approval
+              </span>
+            )}
+            {state.kind === "passed" && isAdmin && (
+              <span className="flex gap-4 text-sm">
+                <span className="text-success/80">
+                  Assigned: {shift.students_assigned.length}
+                </span>
+                <span className="text-pending/80">
+                  Requested: {shift.students_requesting.length}
+                </span>
               </span>
             )}
           </>

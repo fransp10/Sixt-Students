@@ -27,14 +27,14 @@ function SchedulePage() {
         subheading="View and manage all scheduled shifts"
       />
       <main>
-        <div className="hidden lg:block ">
+        <div className="hidden xl:block ">
           <SchedulePageCalendar
             handleShiftClick={handleShiftClick}
             onSwitchDate={onSwitchDate}
             selectedDate={selectedDate}
           />
         </div>
-        <div className="lg:hidden">
+        <div className="xl:hidden">
           <MobileCalendar
             handleShiftClick={handleShiftClick}
             onSwitchDate={onSwitchDate}
