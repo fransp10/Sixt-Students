@@ -8,7 +8,7 @@ import {
   YAxis,
 } from "recharts";
 import { format, parseISO } from "date-fns";
-import { useGetMyStats } from "../../hooks/useGetMyStats";
+import { useGetUserStats } from "../../hooks/useGetUserStats";
 
 // "2026-05" -> "May"
 const formatMonthName = (month: string) => format(parseISO(month), "MMMM");
@@ -32,8 +32,8 @@ function CustomTooltip({ active, payload, label }: any) {
   );
 }
 
-function BarChartEarningsByMonth() {
-  const { data: stats } = useGetMyStats();
+function BarChartEarningsByMonth({ userId }: { userId?: string }) {
+  const { data: stats } = useGetUserStats(userId);
 
   const currentYear = new Date().getFullYear();
   const currentYearData =
@@ -58,7 +58,9 @@ function BarChartEarningsByMonth() {
         </h2>
 
         <p className="mt-1 text-sm text-secondaryText">
-          Your monthly earnings this year
+          {userId
+            ? "Monthly earnings this year"
+            : "Your monthly earnings this year"}
         </p>
       </div>
       <div className="flex-1">

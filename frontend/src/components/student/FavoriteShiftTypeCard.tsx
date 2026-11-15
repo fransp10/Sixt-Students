@@ -1,10 +1,10 @@
 import { StarIcon } from "@heroicons/react/24/outline";
 import { CloudIcon, MoonIcon, SunIcon } from "@heroicons/react/24/solid";
-import { useGetMyStats } from "../../hooks/useGetMyStats";
+import { useGetUserStats } from "../../hooks/useGetUserStats";
 import { capitalize } from "../../helpers/capitalize";
 
-function FavoriteShiftTypeCard() {
-  const stats = useGetMyStats();
+function FavoriteShiftTypeCard({ userId }: { userId?: string }) {
+  const stats = useGetUserStats(userId);
 
   if (!stats.data?.byShiftTypes.length || stats.isLoading || stats.isError) {
     return (
@@ -15,9 +15,11 @@ function FavoriteShiftTypeCard() {
         </div>
         <div className="flex flex-col items-center justify-center  gap-1 flex-1 text-xs min-h-32">
           <p className="text-secondaryText">No shift data yet.</p>
-          <p className="text-secondaryText text-center">
-            Start working to see your favorite shift type and other stats!
-          </p>
+          {!userId && (
+            <p className="text-secondaryText text-center">
+              Start working to see your favorite shift type and other stats!
+            </p>
+          )}
         </div>
       </div>
     );
@@ -53,12 +55,19 @@ function FavoriteShiftTypeCard() {
       <div className="flex flex-col items-center justify-center  gap-1 flex-1 ">
         <Icon className="size-14 text-primary" />
         <p className="text-2xl">{capitalize(favoriteShiftType!)}</p>
-        <p className="text-md text-secondaryText text-center mt-2">
-          You've worked 5 {capitalize(favoriteShiftType!)} shifts.
-        </p>
-        <p className="text-md text-secondaryText text-center">Keep it up!</p>
+        {!userId && (
+          <>
+            <p className="text-md text-secondaryText text-center mt-2">
+              You've worked 5 {capitalize(favoriteShiftType!)} shifts.
+            </p>
+            <p className="text-md text-secondaryText text-center">
+              Keep it up!
+            </p>
+          </>
+        )}
         <p className="text-secondaryText">
-          That is {percantageOfShiftsInFavoriteShiftType}% of your shifts.
+          That is {percantageOfShiftsInFavoriteShiftType}% of{" "}
+          {userId ? "their" : "your"} shifts.
         </p>
       </div>
     </div>

@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { getNextShiftForUser } from "../api/usersApi";
 
-export function useGetNextShift() {
+export function useGetNextShift(userId?: string) {
   const nextShift = useQuery({
-    queryKey: ["nextShift"],
-    queryFn: () => getNextShiftForUser(),
+    queryKey: ["nextShift", userId],
+    queryFn: () => getNextShiftForUser(userId),
   });
 
   return nextShift;

@@ -90,8 +90,10 @@ export async function changeMyPassword(
   });
 }
 
-export async function getNextShiftForUser() {
-  const res = await axiosClient.get("/me/assignments/next");
+export async function getNextShiftForUser(userId?: string) {
+  const res = await axiosClient.get(
+    userId ? `/users/${userId}/assignments/next` : "/me/assignments/next",
+  );
 
   return res.data;
 }

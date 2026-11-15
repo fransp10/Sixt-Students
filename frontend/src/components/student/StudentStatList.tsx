@@ -6,13 +6,18 @@ import {
 } from "@heroicons/react/24/outline";
 import StatsCard from "./StatsCard";
 import NextShiftCard from "./NextShiftCard";
-import { useGetMyStats } from "../../hooks/useGetMyStats";
+import { useGetUserStats } from "../../hooks/useGetUserStats";
 import EmptyStatsCard from "./Dashboard/EmptyStatsCard";
 import { formatStat } from "../../helpers/formatStat";
 import { format } from "date-fns";
 
-function StudentStatList({ chosenMonth }: { chosenMonth: Date }) {
-  const stats = useGetMyStats();
+type StudentStatListProps = {
+  chosenMonth: Date;
+  userId?: string;
+};
+
+function StudentStatList({ chosenMonth, userId }: StudentStatListProps) {
+  const stats = useGetUserStats(userId);
 
   if (stats.isLoading) {
     return <div>Loading...</div>;
@@ -30,7 +35,7 @@ function StudentStatList({ chosenMonth }: { chosenMonth: Date }) {
   const { averageMonth } = stats.data;
   return (
     <>
-      <NextShiftCard />
+      <NextShiftCard userId={userId} />
       {areThereStatsForChosenMonth && (
         <>
           <StatsCard
@@ -67,7 +72,11 @@ function StudentStatList({ chosenMonth }: { chosenMonth: Date }) {
         </>
       )}
 
-      {!areThereStatsForChosenMonth && <EmptyStatsCard />}
+      {!areThereStatsForChosenMonth && (
+        <EmptyStatsCard
+          message={userId ? "No shifts worked in this month." : undefined}
+        />
+      )}
     </>
   );
 }
