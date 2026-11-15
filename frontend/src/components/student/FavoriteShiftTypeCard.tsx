@@ -58,7 +58,8 @@ function FavoriteShiftTypeCard({ userId }: { userId?: string }) {
         {!userId && (
           <>
             <p className="text-md text-secondaryText text-center mt-2">
-              You've worked 5 {capitalize(favoriteShiftType!)} shifts.
+              You've worked {totalHoursWorkedInFavoriteShiftType}h of{" "}
+              {capitalize(favoriteShiftType!)} shifts.
             </p>
             <p className="text-md text-secondaryText text-center">
               Keep it up!
