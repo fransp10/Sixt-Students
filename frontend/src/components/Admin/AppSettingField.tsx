@@ -130,7 +130,6 @@ function AppSettingField({
             }}
             type="button"
             onClick={handleEdit}
-            aria-label={`Edit ${label.toLowerCase()}`}
             className="flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-borderDividers px-3 text-sm font-semibold text-primaryText cursor-pointer transition-colors hover:border-primary hover:text-primary"
           >
             <PencilSquareIcon className="size-4" />
@@ -165,12 +164,9 @@ function AppSettingField({
             readOnly={isSaving}
             onChange={(e) => handleChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            aria-invalid={!!errorMessage}
-            aria-describedby={`setting-${field}-hint`}
             className={`w-full rounded-lg border bg-cardLighterBG px-3 py-2 text-sm text-primaryText outline-none transition-colors placeholder:text-icons read-only:opacity-50 ${errorMessage ? "border-danger" : "border-borderDividers focus:border-primary"}`}
           />
           <p
-            id={`setting-${field}-hint`}
             className={`mt-1.5 flex items-center gap-1 text-xs ${errorMessage ? "text-danger" : "text-secondaryText"}`}
           >
             {errorMessage ? (

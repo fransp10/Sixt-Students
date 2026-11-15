@@ -36,10 +36,7 @@ function NewStudentDefaultsCard() {
   }
 
   return (
-    <section
-      aria-labelledby="new-student-defaults-heading"
-      className="rounded-xl border border-borderDividers bg-cardBG p-5"
-    >
+    <section className="rounded-xl border border-borderDividers bg-cardBG p-5">
       <SettingsCardHeader
         id="new-student-defaults-heading"
         icon={UserPlusIcon}
