@@ -75,7 +75,7 @@ function Overtake({ raceStats }: { raceStats: RaceStats }) {
           </div>
 
           {position > 1 && gapAhead !== null && (
-            <span className="text-sm text-secondaryText text-nowrap">
+            <span className="text-sm text-secondaryText">
               Your average shift is {averageShiftHours}h. {shiftsToOvertake}{" "}
               more {shiftsToOvertake > 1 ? " shifts" : " shift"} and you take P
               {position - 1}.
@@ -93,7 +93,7 @@ function Overtake({ raceStats }: { raceStats: RaceStats }) {
           )}
         </div>
         {/* GAP */}
-        <div className="w-full h-16 bg-headersCalendar justify-center relative rounded-lg  ">
+        <div className="w-full xl:w-2/5 xl:shrink-0 h-16 bg-headersCalendar justify-center relative rounded-lg">
           <div className="absolute left-0 right-0 top-1/2 border-t-2 border-dashed border-icons/50 " />
           {cars.map((car) => (
             <CarIcon
