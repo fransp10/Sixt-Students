@@ -34,6 +34,11 @@ function FavoriteShiftTypeCard({ userId }: { userId?: string }) {
       (shift) => shift.shift_name === favoriteShiftType,
     )?.hours || 0;
 
+  const totalTimesWorkedFavoriteShiftType =
+    stats.data?.byShiftTypes.find(
+      (shift) => shift.shift_name === favoriteShiftType,
+    )?.count || 0;
+
   const percantageOfShiftsInFavoriteShiftType = Math.round(
     (totalHoursWorkedInFavoriteShiftType / (stats.data?.totalHours ?? 0)) * 100,
   );
@@ -55,10 +60,10 @@ function FavoriteShiftTypeCard({ userId }: { userId?: string }) {
       <div className="flex flex-col items-center justify-center  gap-1 flex-1 ">
         <Icon className="size-14 text-primary" />
         <p className="text-2xl">{capitalize(favoriteShiftType!)}</p>
-        {!userId && (
+        {userId && (
           <>
             <p className="text-md text-secondaryText text-center mt-2">
-              You've worked {totalHoursWorkedInFavoriteShiftType}h of{" "}
+              You've worked {totalTimesWorkedFavoriteShiftType} of{" "}
               {capitalize(favoriteShiftType!)} shifts.
             </p>
             <p className="text-md text-secondaryText text-center">
