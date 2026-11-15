@@ -140,13 +140,13 @@ function StudentScheduleCalendarModal({
           )}
         </div>
         {/* divider */}
-        <div className="w-full h-px bg-borderDividers" />
+        <div className="w-full h-px shrink-0 bg-borderDividers" />
 
         {/* Students lists */}
-        <div className="grid grid-cols-1 shrink-0 lg:shrink lg:grid-cols-2 lg:divide-x divide-borderDividers">
+        <div className="grid grid-cols-1 shrink-0 lg:shrink lg:min-h-0 lg:grid-cols-2 lg:grid-rows-[minmax(0,1fr)] lg:divide-x divide-borderDividers">
           {/* Students list heading */}
 
-          <div className="flex flex-col p-0 lg:p-4 lg:pr-6">
+          <div className="flex flex-col p-0 lg:min-h-0 lg:p-4 lg:pr-6">
             <div className="flex flex-row items-center gap-2 p-2">
               <CheckCircleIcon className="size-5 shrink-0 text-success" />
               <span className="text-base lg:text-xl font-semibold text-primaryText">
@@ -160,7 +160,7 @@ function StudentScheduleCalendarModal({
             <StudentsInTheShiftList students={studentsAssignedShift} />
           </div>
           {/* Students requesting this shift */}
-          <div className="flex flex-col p-0 pt-4 lg:p-4 lg:pl-6  ">
+          <div className="flex flex-col p-0 pt-4 lg:min-h-0 lg:p-4 lg:pl-6">
             <div className="flex flex-row items-center gap-2 p-2">
               <ClockIcon className="size-5 shrink-0 text-pending" />
               <span className="text-base lg:text-xl font-semibold text-primaryText">
@@ -176,7 +176,7 @@ function StudentScheduleCalendarModal({
           </div>
         </div>
         {/* Footer */}
-        <div className="flex  flex-col gap-2  lg:flex-row items-center justify-between p-0 mt-auto lg:mt-0">
+        <div className="flex shrink-0 flex-col gap-2 lg:flex-row items-center justify-between p-0 mt-auto lg:mt-0">
           <p className="text-sm text-secondaryText">Want to work this shift?</p>
 
           {shiftStatus === "requested" ? (
