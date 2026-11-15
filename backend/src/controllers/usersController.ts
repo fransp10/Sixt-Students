@@ -124,6 +124,15 @@ export async function getStatsForUser(
   res.status(200).json(user);
 }
 
+export async function getNextShiftForUser(
+  req: Request<{ userId: string }>,
+  res: Response,
+): Promise<void> {
+  const nextShift = await Users.getNextShift(req.params.userId);
+
+  res.status(200).json(nextShift);
+}
+
 export async function sendPasswordResetLink(
   req: Request<{ userId: string }, unknown, { email: string }>,
   res: Response,

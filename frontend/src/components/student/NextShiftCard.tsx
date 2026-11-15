@@ -27,8 +27,9 @@ function NextShiftHeader() {
   );
 }
 
-function NextShiftCard() {
-  const { data: nextShift, isLoading, isError } = useGetNextShift();
+function NextShiftCard({ userId }: { userId?: string }) {
+  const { data: nextShift, isLoading, isError } = useGetNextShift(userId);
+  const schedulePath = userId ? "/admin/schedule" : "/student/schedule";
 
   if (isLoading) {
     return (
@@ -51,14 +52,14 @@ function NextShiftCard() {
 
   if (isError || !nextShift) {
     return (
-      <Link to="/student/schedule" className={cardClasses}>
+      <Link to={schedulePath} className={cardClasses}>
         <NextShiftHeader />
         <div className="mt-5">
           <p className="text-lg font-semibold text-primaryText">
             No upcoming shifts
           </p>
           <p className="mt-1 text-sm text-secondaryText">
-            Request shifts on your schedule
+            {userId ? "Open the schedule" : "Request shifts on your schedule"}
           </p>
         </div>
       </Link>
@@ -69,7 +70,7 @@ function NextShiftCard() {
   const isToday = daysAway <= 0;
 
   return (
-    <Link to="/student/schedule" className={cardClasses}>
+    <Link to={schedulePath} className={cardClasses}>
       <NextShiftHeader />
       <div className="mt-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div>

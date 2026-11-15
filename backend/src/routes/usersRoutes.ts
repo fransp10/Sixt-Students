@@ -16,6 +16,8 @@ userRouter.patch("/:userId/activate", userController.activateUser);
 
 userRouter.get("/:userId/stats", userController.getStatsForUser);
 
+userRouter.get("/:userId/assignments/next", userController.getNextShiftForUser);
+
 userRouter.get(
   "/:userId/shift-assignments",
   userController.getShiftAssignmentsByUserId,
