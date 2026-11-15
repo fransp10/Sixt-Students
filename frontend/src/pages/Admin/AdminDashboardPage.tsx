@@ -12,8 +12,11 @@ import CreateStudentModal from "../../components/student/Dashboard/CreateStudent
 import AdminStudentSearchModal from "../../components/Admin/AdminStudentSearchModal";
 import DeleteStudentModal from "../../components/Admin/DeleteStudentModal";
 import { useStudentsCtx } from "../../hooks/auth/useStudentsContext";
+import { useGetAppSettings } from "../../hooks/useGetAppSettings";
 
 function AdminDashboardPage() {
+  // loads the settings ahead of time so the add-student form opens with the default rate filled in
+  useGetAppSettings();
   const [createStudentModalOpen, setCreateStudentModalOpen] = useState(false);
   const [deleteStudentModalOpen, setDeleteStudentModalOpen] = useState(false);
   const { isSearchOpen, openStudentSearch } = useStudentsCtx();

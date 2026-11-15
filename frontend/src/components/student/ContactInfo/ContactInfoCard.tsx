@@ -4,7 +4,17 @@ import { useAuthContext } from "../../../hooks/auth/useAuthContext";
 import ContactField, { type ContactFieldName } from "./ContactField";
 import SettingsCardHeader from "../SettingsCardHeader";
 
-function ContactInfoCard() {
+type ContactInfoCardProps = {
+  subtitle?: string;
+  emailDescription?: string;
+  phoneDescription?: string;
+};
+
+function ContactInfoCard({
+  subtitle = "Keep these current so your admin can reach you.",
+  emailDescription = "Password reset links and contract reminders are sent here.",
+  phoneDescription = "So your admin can call you about shift changes.",
+}: ContactInfoCardProps) {
   const { currentUser } = useAuthContext();
   // only one field can be edited at a time
   const [editingField, setEditingField] = useState<ContactFieldName | null>(
@@ -26,13 +36,13 @@ function ContactInfoCard() {
         id="contact-heading"
         icon={EnvelopeIcon}
         title="Contact details"
-        subtitle="Keep these current so your admin can reach you."
+        subtitle={subtitle}
       />
       <div className="mt-2 divide-y divide-borderDividers">
         <ContactField
           field="email"
           label="Email address"
-          description="Password reset links and contract reminders are sent here."
+          description={emailDescription}
           type="email"
           placeholder="name@example.com"
           emptyText="No email added"
@@ -44,7 +54,7 @@ function ContactInfoCard() {
         <ContactField
           field="phone"
           label="Phone number"
-          description="So your admin can call you about shift changes."
+          description={phoneDescription}
           type="tel"
           placeholder="+385 91 234 5678"
           emptyText="No phone number added"

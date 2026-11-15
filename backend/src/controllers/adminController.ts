@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as adminService from "../services/adminServices.js";
 import * as adminModel from "../models/adminModel.js";
+import { AppSettings } from "../types/appSettings.js";
 export async function getAdminStats(
   req: Request,
   res: Response,
@@ -123,6 +124,24 @@ export async function setPayrollBudget(
   await adminService.setPayrollBudget(month, amount);
 
   res.status(204).send();
+}
+
+export async function getAppSettings(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const settings = await adminService.getAppSettings();
+
+  res.status(200).json(settings);
+}
+
+export async function updateAppSettings(
+  req: Request<{}, unknown, Partial<AppSettings>>,
+  res: Response,
+): Promise<void> {
+  const settings = await adminService.updateAppSettings(req.body);
+
+  res.status(200).json(settings);
 }
 
 export async function markPayrollPaid(

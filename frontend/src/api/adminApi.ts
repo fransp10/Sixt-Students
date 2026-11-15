@@ -7,6 +7,7 @@ import type {
   ContractWithUrl,
 } from "../types/contracts";
 import type { Payroll } from "../types/payroll";
+import type { AppSettings } from "../types/appSettings";
 
 export async function getAdminStats() {
   const adminStats = await axiosClient.get("/admin/stats");
@@ -98,6 +99,20 @@ export async function updatePayrollBudget(
   amount: number,
 ): Promise<void> {
   await axiosClient.put(`/admin/payroll/${month}/budget`, { amount });
+}
+
+export async function getAppSettings(): Promise<AppSettings> {
+  const settings = await axiosClient.get("/admin/settings");
+
+  return settings.data as AppSettings;
+}
+
+export async function updateAppSettings(
+  updates: Partial<AppSettings>,
+): Promise<AppSettings> {
+  const settings = await axiosClient.patch("/admin/settings", updates);
+
+  return settings.data as AppSettings;
 }
 
 export async function markPayrollPaid(month: string): Promise<void> {

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import CreateStudentDateInput from "./CreateStudentDateInput";
 import CreateStudentInputRadtioButton from "./CreateStudentInputRadtioButton";
 import { useCreateUser } from "../../../hooks/useCreateUser";
+import { useGetAppSettings } from "../../../hooks/useGetAppSettings";
 import SuccessView from "../../SuccessView";
 import {
   hasErrors,
@@ -21,8 +22,13 @@ type CreateStudentModalProps = {
 };
 
 function CreateStudentModal({ handleCloseModal }: CreateStudentModalProps) {
-  const [newUserData, setNewUserData] =
-    useState<CreateUserFormValues>(INITIAL_FORM_VALUES);
+  const { data: appSettings } = useGetAppSettings();
+  const [newUserData, setNewUserData] = useState<CreateUserFormValues>(() => ({
+    ...INITIAL_FORM_VALUES,
+    default_hourly_rate: appSettings
+      ? String(appSettings.new_student_hourly_rate)
+      : "",
+  }));
   const [showError, setShowError] = useState(false);
   const {
     mutate: createUser,

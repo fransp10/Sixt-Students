@@ -6,10 +6,8 @@ import { isValidEmail } from "../helpers/isValidEmail.js";
 import { isValidPhone } from "../helpers/isValidPhone.js";
 import argon2 from "argon2";
 import { isValidMonth } from "../helpers/isValidMonth.js";
-import {
-  DEFAULT_GOAL_AMOUNT,
-  SIGNED_URL_EXPIRES_IN,
-} from "../helpers/constants.js";
+import { SIGNED_URL_EXPIRES_IN } from "../helpers/constants.js";
+import { getAppSettings } from "../models/appSettingsModel.js";
 import { isPasswordRequirementsMet } from "../helpers/isPasswordRequirementsMet.js";
 import { randomUUID } from "crypto";
 import {
@@ -224,7 +222,8 @@ export async function getMyGoal(userId: string, month: string) {
   const goal = await userModel.getMyGoal(userId, month);
 
   if (!goal) {
-    return { amount: DEFAULT_GOAL_AMOUNT };
+    const { new_student_monthly_goal } = await getAppSettings();
+    return { amount: new_student_monthly_goal };
   }
 
   return goal;

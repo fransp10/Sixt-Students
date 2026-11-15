@@ -5,7 +5,13 @@ import StudentChangePasswordModal from "./ChangePassword/StudentChangePasswordMo
 import SettingsCardHeader from "./SettingsCardHeader";
 import SettingsRow from "./SettingsRow";
 
-function SecurityCard() {
+type SecurityCardProps = {
+  usernameNote?: string;
+};
+
+function SecurityCard({
+  usernameNote = "Set by your admin",
+}: SecurityCardProps) {
   const { currentUser } = useAuthContext();
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
     useState(false);
@@ -36,7 +42,7 @@ function SecurityCard() {
           action={
             <span className="flex shrink-0 items-center gap-1.5 text-xs text-secondaryText">
               <LockClosedIcon className="size-4 text-icons" />
-              Set by your admin
+              {usernameNote}
             </span>
           }
         />
