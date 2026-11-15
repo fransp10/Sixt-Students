@@ -60,21 +60,19 @@ function FavoriteShiftTypeCard({ userId }: { userId?: string }) {
       <div className="flex flex-col items-center justify-center  gap-1 flex-1 ">
         <Icon className="size-14 text-primary" />
         <p className="text-2xl">{capitalize(favoriteShiftType!)}</p>
-        {userId && (
-          <>
-            <p className="text-md text-secondaryText text-center mt-2">
-              You've worked {totalTimesWorkedFavoriteShiftType} of{" "}
-              {capitalize(favoriteShiftType!)} shifts.
-            </p>
-            <p className="text-md text-secondaryText text-center">
-              Keep it up!
-            </p>
-          </>
-        )}
+
+        <p className="text-md text-secondaryText text-center mt-2">
+          {!userId ? "You've worked" : "He's worked"}{" "}
+          {totalTimesWorkedFavoriteShiftType} of{" "}
+          {capitalize(favoriteShiftType!)} shifts.
+        </p>
         <p className="text-secondaryText">
           That is {percantageOfShiftsInFavoriteShiftType}% of{" "}
           {userId ? "their" : "your"} shifts.
         </p>
+        {!userId && (
+          <p className="text-md text-secondaryText text-center">Keep it up!</p>
+        )}
       </div>
     </div>
   );
