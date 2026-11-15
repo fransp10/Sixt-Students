@@ -1,5 +1,6 @@
 import PageHeading from "../components/PageHeading";
 import AdminProfileCard from "../components/Admin/AdminProfileCard";
+import NewStudentDefaultsCard from "../components/Admin/NewStudentDefaultsCard";
 import ContactInfoCard from "../components/student/ContactInfo/ContactInfoCard";
 import SecurityCard from "../components/student/SecurityCard";
 
@@ -18,6 +19,7 @@ function SettingsPage() {
             phoneDescription="A number where you can be reached."
           />
           <SecurityCard usernameNote="Can't be changed" />
+          <NewStudentDefaultsCard />
         </div>
         <AdminProfileCard />
       </div>
