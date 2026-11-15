@@ -21,6 +21,9 @@ adminRouter.post(
   adminController.sendContractReminder,
 );
 
+adminRouter.get("/settings", adminController.getAppSettings);
+adminRouter.patch("/settings", adminController.updateAppSettings);
+
 adminRouter.get("/payroll", adminController.getPayroll);
 adminRouter.put("/payroll/:month/budget", adminController.setPayrollBudget);
 adminRouter.post("/payroll/:month/paid", adminController.markPayrollPaid);

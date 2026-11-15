@@ -1,6 +1,7 @@
 import { adminStats } from "../types/adminStats.js";
 import * as adminModel from "../models/adminModel.js";
 import * as userModel from "../models/userModel.js";
+import * as appSettingsModel from "../models/appSettingsModel.js";
 import * as emailService from "./emailServices.js";
 import { monthlyTotals } from "../types/monthlyTotals.js";
 import { recentStudent } from "../types/recentStudent.js";
@@ -8,11 +9,16 @@ import AppError from "../errors/AppError.js";
 import { format } from "date-fns";
 import { isValidMonth } from "../helpers/isValidMonth.js";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { SIGNED_URL_EXPIRES_IN } from "../helpers/constants.js";
+import {
+  MAX_HOURLY_RATE,
+  MAX_MONTHLY_GOAL,
+  SIGNED_URL_EXPIRES_IN,
+} from "../helpers/constants.js";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { s3, S3_BUCKET } from "../config/s3.js";
 import { ContractReminderResult } from "../types/contract.js";
 import { Payroll } from "../types/payroll.js";
+import { AppSettings } from "../types/appSettings.js";
 import { getPayrollStatus } from "../helpers/getPayrollStatys.js";
 export async function getAdminStats(): Promise<adminStats> {
   const activeStudents = await adminModel.getActiveStudentsCount();
@@ -245,6 +251,52 @@ export async function setPayrollBudget(
   }
 
   await adminModel.setPayrollBudget(month, amount);
+}
+
+export async function getAppSettings(): Promise<AppSettings> {
+  return await appSettingsModel.getAppSettings();
+}
+
+export async function updateAppSettings(
+  updates: Partial<AppSettings>,
+): Promise<AppSettings> {
+  const {
+    new_student_hourly_rate: hourlyRate,
+    new_student_monthly_goal: goal,
+  } = updates ?? {};
+
+  if (hourlyRate === undefined && goal === undefined) {
+    throw new AppError("Provide at least one setting to update", 400);
+  }
+
+  if (hourlyRate !== undefined) {
+    if (typeof hourlyRate !== "number" || !Number.isFinite(hourlyRate)) {
+      throw new AppError("Hourly rate must be a number", 400);
+    }
+    if (hourlyRate <= 0 || hourlyRate > MAX_HOURLY_RATE) {
+      throw new AppError(
+        `Hourly rate must be between 0 and ${MAX_HOURLY_RATE}`,
+        400,
+      );
+    }
+  }
+
+  if (goal !== undefined) {
+    if (typeof goal !== "number" || !Number.isFinite(goal)) {
+      throw new AppError("Monthly goal must be a number", 400);
+    }
+    if (goal < 0 || goal > MAX_MONTHLY_GOAL) {
+      throw new AppError(
+        `Monthly goal must be between 0 and ${MAX_MONTHLY_GOAL}`,
+        400,
+      );
+    }
+  }
+
+  return await appSettingsModel.updateAppSettings(
+    hourlyRate ?? null,
+    goal ?? null,
+  );
 }
 
 function assertMonthCanBePaid(month: string, paidByAdminId: string): void {
