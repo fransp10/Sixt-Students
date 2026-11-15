@@ -1,12 +1,15 @@
+import { format } from "date-fns";
 import type { ShiftWithStudentsAndRequesters } from "../../types/Shift";
 import AssignedStudentsCell from "./calendarCellTypes/AssignedStudentsCell";
 import RequestingStudentsCell from "./calendarCellTypes/RequestingStudentsCell";
 import OtherStudentsCell from "./calendarCellTypes/OtherStudentsCell";
 import EmptyCell from "./calendarCellTypes/EmptyCell";
-import { format, isAfter, isBefore, parseISO } from "date-fns";
 import ShiftPassedCell from "./calendarCellTypes/ShiftPassedCell";
 import CurrentlyActiveShiftCell from "./calendarCellTypes/CurrentlyActiveShiftCell";
 import { getShiftTiming } from "../../helpers/shiftTiming";
+import { getCalendarCellState } from "../../helpers/getCalendarCellState";
+import { capitalize } from "../../helpers/capitalize";
+
 type StudentsScheduleCalendarCellProps = {
   onClick: () => void;
   shift: ShiftWithStudentsAndRequesters | undefined;
@@ -20,69 +23,54 @@ function ScheduleCalendarCell({
 }: StudentsScheduleCalendarCellProps) {
   if (!shift) {
     return (
-      <td className="h-36 border border-borderDividers text-center uppercase text-xs text-secondaryText">
-        No Shift data
-      </td>
+      <div className="flex w-full items-center justify-center rounded-lg border border-dashed border-borderDividers p-3 text-center text-xs text-secondaryText">
+        No shift data
+      </div>
     );
   }
 
-  const now = new Date();
+  const state = getCalendarCellState(shift, currentUserId);
+  const ariaLabel = `${format(new Date(shift.date), "EEEE d MMMM")}, ${capitalize(shift.shift_type)} shift`;
 
-  const shiftDate = format(new Date(shift.date), "yyyy-MM-dd");
-
-  const shiftEnd = parseISO(`${shiftDate}T${shift.scheduled_end_time}`);
-  const shiftStart = parseISO(`${shiftDate}T${shift.scheduled_start_time}`);
-
-  if (isBefore(shiftEnd, now)) {
-    return <ShiftPassedCell onClick={onClick} shift={shift} />;
-  }
-  if (isAfter(now, shiftStart) && isBefore(now, shiftEnd)) {
-    return <CurrentlyActiveShiftCell onClick={onClick} shift={shift} />;
-  }
-  if (shift?.students_assigned.length > 0) {
-    const isCurrentUserAssigned = shift.students_assigned.some(
-      (student) => student.id === currentUserId,
-    );
-
-    if (!isCurrentUserAssigned) {
+  switch (state.kind) {
+    case "passed":
       return (
-        <OtherStudentsCell
-          students={shift.students_assigned}
-          label={getShiftTiming(shift)}
+        <ShiftPassedCell
           onClick={onClick}
+          shift={shift}
+          ariaLabel={ariaLabel}
         />
       );
-    }
-
-    return (
-      <AssignedStudentsCell
-        students={shift.students_assigned}
-        onClick={onClick}
-      />
-    );
-  } else if (shift?.students_requesting.length > 0) {
-    const isCurrentUserRequesting = shift.students_requesting.some(
-      (student) => student.id === currentUserId,
-    );
-
-    if (!isCurrentUserRequesting) {
+    case "active":
+      return <CurrentlyActiveShiftCell onClick={onClick} shift={shift} />;
+    case "assigned":
       return (
-        <OtherStudentsCell
-          students={shift.students_requesting}
-          label={getShiftTiming(shift)}
+        <AssignedStudentsCell
+          students={state.students}
           onClick={onClick}
+          ariaLabel={ariaLabel}
         />
       );
-    }
-
-    return (
-      <RequestingStudentsCell
-        students={shift.students_requesting}
-        onClick={onClick}
-      />
-    );
+    case "requested":
+      return (
+        <RequestingStudentsCell
+          students={state.students}
+          onClick={onClick}
+          ariaLabel={ariaLabel}
+        />
+      );
+    case "others":
+      return (
+        <OtherStudentsCell
+          students={state.students}
+          label={getShiftTiming(shift)}
+          onClick={onClick}
+          ariaLabel={ariaLabel}
+        />
+      );
+    case "empty":
+      return <EmptyCell onClick={onClick} ariaLabel={ariaLabel} />;
   }
-  return <EmptyCell onClick={onClick} />;
 }
 
 export default ScheduleCalendarCell;

@@ -1,51 +1,31 @@
-import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import type { ShiftWithStudentsAndRequesters } from "../../../types/Shift";
 import { useAuthContext } from "../../../hooks/auth/useAuthContext";
+import CellFrame from "./CellFrame";
 
 function ShiftPassedCell({
   onClick,
   shift,
+  ariaLabel,
 }: {
   onClick: () => void;
   shift: ShiftWithStudentsAndRequesters;
+  ariaLabel?: string;
 }) {
   const { currentUser } = useAuthContext();
   const isAdmin = currentUser?.user_role === "admin";
   return (
-    <td
-      className="h-24 border border-borderDividers
-             bg-cardBG text-secondaryText
-              transition-colors "
-    >
-      <button
-        className="block h-full w-full hover:bg-cardLighterBG cursor-pointer"
-        onClick={onClick}
-      >
-        <div className="flex flex-col items-center justify-center gap-1">
-          <CheckCircleIcon className="size-5 opacity-40" />
-
-          <span className="text-sm font-semibold uppercase tracking-wide opacity-50">
-            Shift passed
+    <CellFrame kind="passed" onClick={onClick} ariaLabel={ariaLabel}>
+      {isAdmin && (
+        <span className="mt-auto flex flex-col gap-0.5 text-xs">
+          <span className="text-success/80">
+            Assigned: {shift.students_assigned.length}
           </span>
-          {isAdmin && (
-            <>
-              <span
-                className="text-xs font-semibold uppercase tracking-wide opacity-50
-         text-success"
-              >
-                Assigned: {shift.students_assigned.length}{" "}
-              </span>
-              <span
-                className="text-xs font-semibold uppercase tracking-wide opacity-50
-        text-pending"
-              >
-                Requested: {shift.students_requesting.length}{" "}
-              </span>
-            </>
-          )}
-        </div>
-      </button>
-    </td>
+          <span className="text-pending/80">
+            Requested: {shift.students_requesting.length}
+          </span>
+        </span>
+      )}
+    </CellFrame>
   );
 }
 

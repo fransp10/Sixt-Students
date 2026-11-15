@@ -6,25 +6,26 @@ type calendarHeaderColumnType = {
 };
 
 function CalendarHeaderColumn({ day, isCurrentDay }: calendarHeaderColumnType) {
-  const dayName = format(day, "EEE");
-  const dayNumber = format(day, "LLL dd");
   return (
-    <th className="bg-headersCalendar  border border-borderDividers text-primaryText items-center justify-center gap-2">
-      <p
-        className={`text-lg font-semibold uppercase ${isCurrentDay && "text-primary"}`}
+    <div
+      role="columnheader"
+      aria-current={isCurrentDay ? "date" : undefined}
+      className="flex flex-col gap-1 px-1 pb-1 text-primaryText"
+    >
+      <span
+        className={`text-sm font-medium ${isCurrentDay ? "text-primary" : "text-secondaryText"}`}
       >
-        {dayName}
-      </p>
-      <div className="h-8 flex items-center justify-center">
-        {isCurrentDay ? (
-          <p className="text-lg bg-primary rounded-full size-8  flex items-center justify-center text-white ">
-            {format(dayNumber, "d")}
-          </p>
-        ) : (
-          <p className="text-sm ">{dayNumber}</p>
-        )}
+        {format(day, "EEE")}
+      </span>
+      <div className="flex items-center gap-2">
+        <span
+          className={`flex size-9 items-center justify-center rounded-full text-lg font-semibold tabular-nums ${isCurrentDay ? "bg-primary text-white" : ""}`}
+        >
+          {format(day, "d")}
+        </span>
+        <span className="text-sm text-secondaryText">{format(day, "LLL")}</span>
       </div>
-    </th>
+    </div>
   );
 }
 
