@@ -26,7 +26,9 @@ axiosClient.interceptors.response.use(
     }
     originalRequest._retry = true;
 
-    refreshPromise = refreshPromise || axiosClient.post("/auth/refresh-token");
+    refreshPromise = (
+      refreshPromise || axiosClient.post("/auth/refresh-token")
+    ).finally(() => (refreshPromise = null));
     try {
       await refreshPromise;
     } catch {

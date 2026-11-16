@@ -80,6 +80,5 @@ export async function refreshToken(req: Request, res: Response): Promise<void> {
     maxAge: Number(process.env.REFRESH_TOKEN_EXPIRATION) * 24 * 60 * 60 * 1000, // days
     path: "/api/auth", // Only send the refresh token to the refresh token endpoint
   });
-  console.log("Refresh token sent to client:", newRefreshToken);
   res.status(200).json({ message: "Token refreshed successfully" });
 }
