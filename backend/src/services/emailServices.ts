@@ -1,8 +1,12 @@
 import { readFileSync } from "node:fs";
-import { Resend } from "resend";
+import { CreateEmailOptions, Resend } from "resend";
 import AppError from "../errors/AppError.js";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Creates a new Resend client with the API key from the environment variable.
+// Lazy initialization is used to avoid creating the client if email sending is not needed  in demo mode
+function createResendClient() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 const BRAND_COLOR = "#ff5f00";
 
@@ -64,7 +68,7 @@ export async function sendPasswordResetEmail(
   link: string,
   username: string,
 ) {
-  const { error } = await resend.emails.send({
+  const { error } = await deliver({
     from: "Students App <no-reply@fransipekdev.me>",
     to,
     subject: "Reset your password",
@@ -157,7 +161,7 @@ export async function sendContractReminderEmail(
     process.env.FRONTEND_URL,
   ).toString();
 
-  const { error } = await resend.emails.send({
+  const { error } = await deliver({
     from: "Students App <no-reply@fransipekdev.me>",
     to,
     subject: `Reminder: upload your contract for ${monthLabel}`,
@@ -168,4 +172,18 @@ export async function sendContractReminderEmail(
     ],
   });
   if (error) throw new AppError(`Email failed: ${error.message}`, 500);
+}
+
+async function deliver(
+  payload: CreateEmailOptions,
+): Promise<{ error?: { message: string } | null }> {
+  if (process.env.DEMO_MODE === "true") {
+    console.log("Recipient:", payload.to);
+    console.log("Subject:", payload.subject);
+    return { error: null };
+  }
+
+  const { error } = await createResendClient().emails.send(payload);
+
+  return { error };
 }
