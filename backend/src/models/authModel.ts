@@ -1,4 +1,5 @@
 import pool from "../db/db.js";
+import { refreshTokenModel } from "../types/tokens.js";
 import { UserWithHashedPasswordType } from "../types/User.js";
 
 export async function getUserByUsername(
@@ -53,4 +54,41 @@ export async function validateResetToken(tokenHash: string): Promise<boolean> {
   const isValid = tokenResult.rows.length > 0;
 
   return isValid;
+}
+
+export async function insertRefreshToken(
+  userId: number,
+  tokenHash: string,
+): Promise<void> {
+  await pool.query(
+    `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
+     VALUES ($1, $2, NOW() + make_interval(days => $3) )`,
+    [userId, tokenHash, Number(process.env.REFRESH_TOKEN_EXPIRATION)],
+  );
+}
+
+export async function getRefreshTokenByHash(
+  refreshTokenHash: string,
+): Promise<refreshTokenModel | null> {
+  const tokenResult = await pool.query<refreshTokenModel>(
+    `SELECT * FROM refresh_tokens WHERE token_hash = $1 AND expires_at > NOW()`,
+    [refreshTokenHash],
+  );
+  return tokenResult.rows[0] || null;
+}
+
+export async function deleteRefreshToken(
+  refreshTokenHash: string,
+): Promise<boolean> {
+  const result = await pool.query(
+    `DELETE FROM refresh_tokens WHERE token_hash = $1`,
+    [refreshTokenHash],
+  );
+  return (result.rowCount ?? 0) > 0;
+}
+
+export async function deleteAllRefreshTokensForUser(
+  userId: number,
+): Promise<void> {
+  await pool.query(`DELETE FROM refresh_tokens WHERE user_id = $1`, [userId]);
 }

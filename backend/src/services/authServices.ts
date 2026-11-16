@@ -1,13 +1,18 @@
 import argon2 from "argon2";
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import jwt from "jsonwebtoken";
 import AppError from "../errors/AppError.js";
 import * as authModel from "../models/authModel.js";
 import { isPasswordRequirementsMet } from "../helpers/isPasswordRequirementsMet.js";
+import { authUserReturn } from "../types/User.js";
 export async function authenticateUser(
   username: string,
   password: string,
-): Promise<{ user: any; accessToken: string }> {
+): Promise<{
+  user: authUserReturn;
+  accessToken: string;
+  refreshToken: string;
+}> {
   if (!username || !password) {
     throw new AppError("Username and password are required", 400);
   }
@@ -30,6 +35,10 @@ export async function authenticateUser(
     { expiresIn: Number(process.env.ACCESS_TOKEN_EXPIRATION) * 60 },
   );
 
+  const { refreshToken, refreshTokenHash } = generateRefreshToken();
+
+  await authModel.insertRefreshToken(user.id, refreshTokenHash);
+
   const userToReturn = {
     id: user.id,
     username: user.username,
@@ -40,7 +49,7 @@ export async function authenticateUser(
     date_of_birth: user.date_of_birth,
   };
 
-  return { user: userToReturn, accessToken };
+  return { user: userToReturn, accessToken, refreshToken };
 }
 
 export async function resetPassword(
@@ -71,7 +80,7 @@ export async function resetPassword(
   if (!isRequirementsMet) {
     throw new AppError("Password does not meet requirements", 400);
   }
-  const tokenHash = createHash("sha256").update(token).digest("hex");
+  const tokenHash = hashToken(token);
   const passwordHash = await argon2.hash(trimmedNewPassword);
 
   const isOk = await authModel.resetUserPassword(tokenHash, passwordHash);
@@ -94,7 +103,7 @@ export async function validateResetToken(
     throw new AppError("Token must be a string", 400);
   }
 
-  const tokenHash = createHash("sha256").update(token).digest("hex");
+  const tokenHash = hashToken(token);
   const isValid = await authModel.validateResetToken(tokenHash);
 
   if (!isValid) {
@@ -102,4 +111,22 @@ export async function validateResetToken(
   }
 
   return { ok: true, message: "Token is valid" };
+}
+
+export function generateRefreshToken(): {
+  refreshToken: string;
+  refreshTokenHash: string;
+} {
+  const refreshToken = randomBytes(64).toString("hex");
+
+  const refreshTokenHash = hashToken(refreshToken);
+
+  return { refreshToken, refreshTokenHash };
+}
+
+export function hashToken(refreshToken: string): string {
+  const refreshTokenHash = createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
+  return refreshTokenHash;
 }

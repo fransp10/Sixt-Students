@@ -7,16 +7,22 @@ export async function loginUser(
 ) {
   const { username, password } = req.body;
 
-  const { accessToken, user } = await authServices.authenticateUser(
-    username,
-    password,
-  );
+  const { accessToken, user, refreshToken } =
+    await authServices.authenticateUser(username, password);
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: Number(process.env.ACCESS_TOKEN_EXPIRATION) * 60 * 1000, // 15 minute
+    maxAge: Number(process.env.ACCESS_TOKEN_EXPIRATION) * 60 * 1000, // minutes
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: Number(process.env.REFRESH_TOKEN_EXPIRATION) * 24 * 60 * 60 * 1000, // days
+    path: "/api/auth", // Only send the refresh token to the refresh token endpoint
   });
 
   res.status(200).json({ message: "Login successful", user });
