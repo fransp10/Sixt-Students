@@ -16,6 +16,16 @@ export type UserWithPassword = {
   must_change_password?: boolean;
 };
 
+export type authUserReturn = {
+  id: number;
+  username: string;
+  user_role: UserRoles;
+  is_active: boolean;
+  first_name: string;
+  last_name: string;
+  date_of_birth: Date;
+};
+
 export type UserWithoutPassword = Omit<UserWithPassword, "password">;
 
 export type SigninOption = "email" | "tempPassword";
