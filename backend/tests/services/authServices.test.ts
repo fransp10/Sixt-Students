@@ -71,6 +71,7 @@ describe("authenticateUser", () => {
 
     expect(result).toEqual({
       accessToken: fakeAccessToken,
+      refreshToken: expect.any(String),
       user: {
         id: mockUser.id,
         username: mockUser.username,
@@ -81,6 +82,10 @@ describe("authenticateUser", () => {
         date_of_birth: mockUser.date_of_birth,
       },
     });
+    expect(AuthModel.insertRefreshToken).toHaveBeenCalledWith(
+      mockUser.id,
+      expect.any(String),
+    );
     expect(argon2.verify).toHaveBeenCalledWith("hashedpassword", "password");
 
     expect(jwt.sign).toHaveBeenCalledWith({ userId: 1 }, "test-secret", {
