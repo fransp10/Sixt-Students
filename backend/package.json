@@ -14,7 +14,8 @@
     "debug": "tsx --inspect watch src/server.ts",
     "test": "vitest",
     "test:run": "vitest run",
-    "migrate": "node-pg-migrate -j sql"
+    "migrate": "node-pg-migrate -j sql",
+    "demo:reset": "tsx scripts/resetDemo.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1155.0",
