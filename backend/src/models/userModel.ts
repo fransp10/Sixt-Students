@@ -401,6 +401,8 @@ export async function updatePassword(userId: string, newPasswordHash: string) {
     [newPasswordHash, userId],
   );
 
+  await pool.query(`DELETE FROM refresh_tokens WHERE user_id = $1;`, [userId]);
+
   return result.rows[0];
 }
 

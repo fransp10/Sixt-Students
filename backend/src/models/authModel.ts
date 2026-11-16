@@ -34,6 +34,10 @@ export async function resetUserPassword(
       [passwordHash, tokenResult.rows[0].user_id],
     );
 
+    await client.query(`DELETE FROM refresh_tokens WHERE user_id = $1;`, [
+      tokenResult.rows[0].user_id,
+    ]);
+
     await client.query("COMMIT");
   } catch (error) {
     await client.query("ROLLBACK");

@@ -1,10 +1,11 @@
 import argon2 from "argon2";
 import { createHash, randomBytes } from "node:crypto";
-import jwt from "jsonwebtoken";
 import AppError from "../errors/AppError.js";
 import * as authModel from "../models/authModel.js";
 import { isPasswordRequirementsMet } from "../helpers/isPasswordRequirementsMet.js";
 import { authUserReturn } from "../types/User.js";
+import { getUserById } from "../models/userModel.js";
+import { signAccessToken } from "../helpers/signAccessToken.js";
 export async function authenticateUser(
   username: string,
   password: string,
@@ -29,11 +30,7 @@ export async function authenticateUser(
     throw new AppError("Invalid username or password", 401);
   }
 
-  const accessToken = jwt.sign(
-    { userId: user.id },
-    process.env.JWT_ACCESS_SECRET!,
-    { expiresIn: Number(process.env.ACCESS_TOKEN_EXPIRATION) * 60 },
-  );
+  const accessToken = signAccessToken(user.id);
 
   const { refreshToken, refreshTokenHash } = generateRefreshToken();
 
@@ -129,4 +126,55 @@ export function hashToken(refreshToken: string): string {
     .update(refreshToken)
     .digest("hex");
   return refreshTokenHash;
+}
+
+export async function refreshSession(refreshToken: string): Promise<{
+  newAccessToken: string;
+  newRefreshToken: string;
+}> {
+  if (!refreshToken) {
+    throw new AppError("Refresh token is required", 401);
+  }
+
+  const refreshTokenHash = hashToken(refreshToken);
+  const refreshTokenLookupResult =
+    await authModel.getRefreshTokenByHash(refreshTokenHash);
+
+  if (!refreshTokenLookupResult) {
+    throw new AppError("Invalid refresh token", 401);
+  }
+
+  const wasRefreshTokenDeleted =
+    await authModel.deleteRefreshToken(refreshTokenHash);
+
+  if (!wasRefreshTokenDeleted) {
+    throw new AppError("Invalid refresh token", 401);
+  }
+
+  const user = await getUserById(String(refreshTokenLookupResult.user_id));
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  if (!user.is_active) {
+    throw new AppError("User is not active", 401);
+  }
+
+  const newAccessToken = signAccessToken(user.id);
+
+  const {
+    refreshToken: newRefreshToken,
+    refreshTokenHash: newRefreshTokenHash,
+  } = generateRefreshToken();
+
+  await authModel.insertRefreshToken(user.id, newRefreshTokenHash);
+
+  return { newAccessToken, newRefreshToken };
+}
+
+export async function deleteRefreshToken(refreshToken: string): Promise<void> {
+  const refreshTokenHash = hashToken(refreshToken);
+
+  await authModel.deleteRefreshToken(refreshTokenHash);
 }
