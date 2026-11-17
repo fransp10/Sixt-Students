@@ -5,14 +5,12 @@ import CellFrame from "./CellFrame";
 function AssignedStudentsCell({
   onClick,
   students,
-  ariaLabel,
 }: {
   onClick: () => void;
   students: StudentAssigned[];
-  ariaLabel?: string;
 }) {
   return (
-    <CellFrame kind="assigned" onClick={onClick} ariaLabel={ariaLabel}>
+    <CellFrame kind="assigned" onClick={onClick}>
       <div className="mt-auto">
         <AvatarStack kind="assigned" students={students} />
       </div>

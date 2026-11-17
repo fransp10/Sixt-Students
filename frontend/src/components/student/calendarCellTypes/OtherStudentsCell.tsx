@@ -10,20 +10,13 @@ function OtherStudentsCell({
   students,
   label,
   onClick,
-  ariaLabel,
 }: {
   students: StudentAssigned[] | StudentRequesting[];
   label: string;
   onClick: () => void;
-  ariaLabel?: string;
 }) {
   return (
-    <CellFrame
-      kind="others"
-      label={capitalize(label)}
-      onClick={onClick}
-      ariaLabel={ariaLabel}
-    >
+    <CellFrame kind="others" label={capitalize(label)} onClick={onClick}>
       <div className="mt-auto">
         <AvatarStack kind="others" students={students} />
       </div>

@@ -1,15 +1,9 @@
 import { UsersIcon } from "@heroicons/react/24/outline";
 import CellFrame from "./CellFrame";
 
-function EmptyCell({
-  onClick,
-  ariaLabel,
-}: {
-  onClick: () => void;
-  ariaLabel?: string;
-}) {
+function EmptyCell({ onClick }: { onClick: () => void }) {
   return (
-    <CellFrame kind="empty" hideHeader onClick={onClick} ariaLabel={ariaLabel}>
+    <CellFrame kind="empty" hideHeader onClick={onClick}>
       <span className="flex flex-1 flex-col items-center justify-center gap-1 text-center">
         <UsersIcon className="size-6 text-icons" />
         <span className="text-xs text-secondaryText">

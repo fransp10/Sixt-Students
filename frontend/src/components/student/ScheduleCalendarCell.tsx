@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import type { ShiftWithStudentsAndRequesters } from "../../types/Shift";
 import AssignedStudentsCell from "./calendarCellTypes/AssignedStudentsCell";
 import RequestingStudentsCell from "./calendarCellTypes/RequestingStudentsCell";
@@ -8,7 +7,6 @@ import ShiftPassedCell from "./calendarCellTypes/ShiftPassedCell";
 import CurrentlyActiveShiftCell from "./calendarCellTypes/CurrentlyActiveShiftCell";
 import { getShiftTiming } from "../../helpers/shiftTiming";
 import { getCalendarCellState } from "../../helpers/getCalendarCellState";
-import { capitalize } from "../../helpers/capitalize";
 
 type StudentsScheduleCalendarCellProps = {
   onClick: () => void;
@@ -30,34 +28,19 @@ function ScheduleCalendarCell({
   }
 
   const state = getCalendarCellState(shift, currentUserId);
-  const ariaLabel = `${format(new Date(shift.date), "EEEE d MMMM")}, ${capitalize(shift.shift_type)} shift`;
 
   switch (state.kind) {
     case "passed":
-      return (
-        <ShiftPassedCell
-          onClick={onClick}
-          shift={shift}
-          ariaLabel={ariaLabel}
-        />
-      );
+      return <ShiftPassedCell onClick={onClick} shift={shift} />;
     case "active":
       return <CurrentlyActiveShiftCell onClick={onClick} shift={shift} />;
     case "assigned":
       return (
-        <AssignedStudentsCell
-          students={state.students}
-          onClick={onClick}
-          ariaLabel={ariaLabel}
-        />
+        <AssignedStudentsCell students={state.students} onClick={onClick} />
       );
     case "requested":
       return (
-        <RequestingStudentsCell
-          students={state.students}
-          onClick={onClick}
-          ariaLabel={ariaLabel}
-        />
+        <RequestingStudentsCell students={state.students} onClick={onClick} />
       );
     case "others":
       return (
@@ -65,11 +48,10 @@ function ScheduleCalendarCell({
           students={state.students}
           label={getShiftTiming(shift)}
           onClick={onClick}
-          ariaLabel={ariaLabel}
         />
       );
     case "empty":
-      return <EmptyCell onClick={onClick} ariaLabel={ariaLabel} />;
+      return <EmptyCell onClick={onClick} />;
   }
 }
 
