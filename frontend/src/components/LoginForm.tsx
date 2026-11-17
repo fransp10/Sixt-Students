@@ -6,14 +6,12 @@ import {
   UserIcon,
 } from "@heroicons/react/24/outline";
 import { useState, type SubmitEvent } from "react";
-import { useNavigate } from "react-router-dom";
 import { useLogin } from "../hooks/auth/useLogin";
 import { getErrorMessage } from "../helpers/getErrorMessage";
 
 function LoginForm() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const loginMutation = useLogin();
-  const navigate = useNavigate();
 
   function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -26,14 +24,7 @@ function LoginForm() {
       return;
     }
 
-    loginMutation.mutate(
-      { username, password },
-      {
-        onSuccess: (data) => {
-          navigate(data.user?.user_role === "admin" ? "/admin" : "/student");
-        },
-      },
-    );
+    loginMutation.mutate({ username, password });
   }
 
   return (
@@ -111,6 +102,37 @@ function LoginForm() {
         >
           {loginMutation.isPending ? "Logging in…" : "Login"}
         </button>
+        {/* DEMO */}
+        {import.meta.env.VITE_DEMO_MODE === "true" && (
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              type="button"
+              disabled={loginMutation.isPending}
+              onClick={() => {
+                loginMutation.mutate({
+                  username: "demo.admin",
+                  password: "password123",
+                });
+              }}
+              className="mt-2 h-12 w-full rounded-lg bg-cardLighterBG text-sm font-medium text-primaryText hover:bg-surfaceCards hover:cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              Login as demo admin
+            </button>
+            <button
+              type="button"
+              disabled={loginMutation.isPending}
+              onClick={() => {
+                loginMutation.mutate({
+                  username: "demo.student",
+                  password: "password123",
+                });
+              }}
+              className="mt-2 h-12 w-full rounded-lg bg-cardLighterBG text-sm font-medium text-primaryText hover:bg-surfaceCards hover:cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              Login as demo student
+            </button>
+          </div>
+        )}
       </form>
 
       <div className="flex flex-col gap-3">
