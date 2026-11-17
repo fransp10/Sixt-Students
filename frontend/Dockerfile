@@ -5,6 +5,7 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 ENV VITE_API_BASE_URL=/api
+ARG VITE_DEMO_MODE=false
 RUN npm run build
 
 # Stage 2: serve the built files with nginx
