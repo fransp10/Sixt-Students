@@ -34,6 +34,18 @@
   --color-cellPassedHover: #1c2027;
 }
 
+/* Paint the root so iOS overscroll / rubber-banding doesn't reveal white */
+html,
+body {
+  background-color: var(--color-pageBackground);
+  color-scheme: dark;
+}
+
+/* Remove the translucent white flash iOS Safari draws on tapped links/buttons */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Styling autocomplete */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
