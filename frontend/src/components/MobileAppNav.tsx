@@ -23,8 +23,7 @@ function TopBar({ icon, handleToggleNav }: TopBarProps) {
         alt="Sixt Students App"
         className="h-auto w-33"
       />
-      <div className="flex items-center gap-2">
-        <CurrentUserBadge size="small" />
+      <div className=" items-center gap-2 flex">
         <button
           onClick={handleToggleNav}
           className="flex size-11 items-center justify-center rounded-lg border border-borderDividers bg-cardBG text-secondaryText cursor-pointer hover:bg-cardBGHover hover:text-primaryText hover:border-primaryText transition-colors duration-200"
@@ -78,6 +77,7 @@ function MobileAppNav({ navItems }: MobileAppNavProps) {
                   {...item}
                 />
               ))}
+              <CurrentUserBadge size="large" />
             </ul>
           </nav>
           <div className="shrink-0 ">
