@@ -46,10 +46,13 @@ function AdminDashboardPage() {
           </h1>
           <DashboardHeader subheading="Here's an overview of your students and shifts" />
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row flex-1 items-center gap-2 sm:gap-4 lg:justify-end">
           {/* Jump to student input */}
-          <button onClick={openStudentSearch} className="relative flex">
-            <div className="py-2 pl-8 px-4 rounded-lg bg-studentCard outline-none border border-borderDividers text-secondaryText cursor-pointer hover:bg-studentCard/80 flex items-center gap-2">
+          <button
+            onClick={openStudentSearch}
+            className="relative flex sm:w-auto w-full"
+          >
+            <div className="py-2 pl-8 w-full px-4 rounded-lg bg-studentCard outline-none border border-borderDividers  text-secondaryText cursor-pointer hover:bg-studentCard/80 flex items-center gap-2 sm:w-auto">
               <MagnifyingGlassIcon className="size-4 text-secondaryText absolute -translate-y-1/2 top-1/2 left-4 -translate-x-1/2 " />
               <p className="">Jump to student</p>
 
@@ -61,7 +64,7 @@ function AdminDashboardPage() {
           {/* delete student button */}
           <button
             onClick={() => setDeleteStudentModalOpen(true)}
-            className="text-nowrap py-2 px-4 rounded-lg border border-borderDividers bg-studentCard text-primaryText flex items-center gap-2 cursor-pointer hover:border-danger hover:text-danger"
+            className="text-nowrap sm:py-2 px-4 rounded-lg border border-borderDividers bg-studentCard text-primaryText flex items-center gap-2 cursor-pointer hover:border-danger hover:text-danger w-full sm:w-auto py-4"
           >
             <TrashIcon className="size-4" />
             <span>Delete students</span>
@@ -69,7 +72,7 @@ function AdminDashboardPage() {
           {/* add new student button */}
           <button
             onClick={() => setCreateStudentModalOpen(true)}
-            className=" text-nowrap py-2 px-4 rounded-lg bg-primary text-white flex items-center gap-2 cursor-pointer hover:bg-primary/80"
+            className=" text-nowrap sm:py-2 px-4 rounded-lg bg-primary text-white flex items-center gap-2 cursor-pointer hover:bg-primary/80 w-full sm:w-auto py-4"
           >
             <PlusIcon className="size-4" />
             <span>New student</span>
