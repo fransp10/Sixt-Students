@@ -13,6 +13,7 @@ function Login() {
         alt="Sixt Students App"
         className="w-full justify-start max-w-106 h-auto"
       />
+
       <LoginForm />
     </div>
   );

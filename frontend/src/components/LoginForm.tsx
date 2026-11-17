@@ -8,6 +8,8 @@ import {
 import { useState, type SubmitEvent } from "react";
 import { useLogin } from "../hooks/auth/useLogin";
 import { getErrorMessage } from "../helpers/getErrorMessage";
+import { IS_DEMO_MODE } from "../config/demo";
+import DemoBanner from "./DemoBanner";
 
 function LoginForm() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -34,6 +36,7 @@ function LoginForm() {
         <p className="text-secondaryText text-base">
           Welcome back! Please log in to continue.
         </p>
+        <DemoBanner className="max-w-md" />
       </div>
 
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
@@ -103,7 +106,7 @@ function LoginForm() {
           {loginMutation.isPending ? "Logging in…" : "Login"}
         </button>
         {/* DEMO */}
-        {import.meta.env.VITE_DEMO_MODE === "true" && (
+        {IS_DEMO_MODE && (
           <div className="flex flex-col sm:flex-row gap-2">
             <button
               type="button"
