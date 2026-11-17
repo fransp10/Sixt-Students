@@ -77,7 +77,9 @@ function MobileAppNav({ navItems }: MobileAppNavProps) {
                   {...item}
                 />
               ))}
-              <CurrentUserBadge size="large" />
+              <li>
+                <CurrentUserBadge size="large" />
+              </li>
             </ul>
           </nav>
           <div className="shrink-0 ">
