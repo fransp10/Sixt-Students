@@ -2,7 +2,7 @@
 
 Shift management for student workers. Students request shifts and upload their monthly contracts; admins build the schedule, track attendance and run payroll.
 
-A portfolio project. Try it with the one-click logins described in [Demo mode](#demo-mode).
+A portfolio project. **Live demo: [sixtstudentsdemo.fransipekdev.me](https://sixtstudentsdemo.fransipekdev.me)**. Log in with the one-click buttons described in [Demo mode](#demo-mode).
 
 ## Features
 
@@ -105,8 +105,10 @@ npm run dev
 | `S3_FILE_SIZE_LIMIT`                                      | Maximum contract upload size in MB (default 10)                                          |
 | `RESEND_API_KEY`                                          | Sending emails (password reset, account setup, contract reminders)                       |
 | `TRUST_PROXY`                                             | Number of reverse proxies in front of the backend, so rate limiting sees real client IPs |
-| `NODE_ENV`                                                | `production` makes auth cookies `Secure` (HTTPS only). The Docker image sets it          |
+| `NODE_ENV`                                                | `production` makes auth cookies `Secure` (HTTPS only). Set it on a server, see below     |
 | `DEMO_MODE`                                               | `true` only on the demo, see below                                                       |
+
+On a server, set `NODE_ENV=production` in `backend/.env`. Docker Compose lets a value from that file override the `production` that the Docker image sets, and `.env.example` ships with `development`. That value is right without Docker, because the cookies then work over plain http.
 
 **Frontend** (`frontend/.env`): `VITE_API_BASE_URL` is the API URL (the Docker image uses `/api`, which nginx forwards to the backend). `VITE_DEMO_MODE=true` turns on the demo UI. Vite reads both when the app is built or started.
 
@@ -136,6 +138,15 @@ Run everything on one small Linux server (a VPS) with this compose file. Caddy s
 - A domain (or a free subdomain from a service such as DuckDNS) with an `A` record pointing at the server's IP, set up before the first start
 - An S3 bucket used by nothing else. The database is created by compose and the reset wipes it, so it must not hold anything you care about
 
+**On Azure** (how the live demo runs)
+
+- Create an Ubuntu 24.04 VM in the portal, logging in with an SSH key. Pick a size with 4 GB of RAM, for example `Standard_B2als_v2`: the builds run out of memory on 1 GB.
+- In the VM's network rules, allow ports 80 and 443 from anywhere and restrict 22 (SSH) to your own IP.
+- Check that the public IP is **Static** (the default for the Standard SKU), then add an `A` record for a subdomain such as `demo` that points at it. Wait until `nslookup <your-domain> 8.8.8.8` returns that IP before starting.
+- On the VM, install Docker with `curl -fsSL https://get.docker.com | sudo sh`, then run `sudo usermod -aG docker $USER` and log in again.
+- If the repository is private, create a key on the VM (`ssh-keygen -t ed25519`), add its public half as a read-only deploy key in the repository settings, and clone over SSH.
+- A VM only bills for compute while it runs. **Stop** it in the portal between demos. The demo reseeds itself on the next start.
+
 **Steps, on the server**
 
 1. Get the code and go into the folder:
@@ -143,7 +154,7 @@ Run everything on one small Linux server (a VPS) with this compose file. Caddy s
    git clone <repo-url>
    cd <repo-folder>
    ```
-2. Backend config: `cp backend/.env.example backend/.env`, then set `DEMO_MODE=true`, `FRONTEND_URL=https://<your-domain>`, `TRUST_PROXY=1`, a long random `JWT_ACCESS_SECRET` (for example from `openssl rand -hex 32`), and the four S3 values. No Resend key is needed.
+2. Backend config: `cp backend/.env.example backend/.env`, then set `NODE_ENV=production`, `DEMO_MODE=true`, `FRONTEND_URL=https://<your-domain>`, `TRUST_PROXY=1`, a long random `JWT_ACCESS_SECRET` (for example from `openssl rand -hex 32`), and the four S3 values. No Resend key is needed.
 3. Server config: `cp .env.example .env`, then set `VITE_DEMO_MODE=true`, `COMPOSE_PROFILES=prod` and `DOMAIN=<your-domain>`.
 4. Start everything. The first build takes a few minutes. On its own, the backend creates the tables, loads the demo data and uploads the contract PDFs, and Caddy gets the HTTPS certificate.
    ```bash
@@ -158,7 +169,7 @@ To update after a code change, run `git pull` and then `docker compose up -d --b
 
 Good to know:
 
-- If the domain does not point at the server yet, Caddy cannot get a certificate and keeps retrying. Check `docker compose logs caddy`.
+- If the domain does not point at the server yet, or `DOMAIN` is misspelled, Caddy cannot get a certificate and keeps retrying. An error that mentions `NXDOMAIN` means that exact name has no DNS record. Check `docker compose logs caddy`.
 - Port 8080 is only open on the server itself, so Caddy is the only public entry.
 - `TRUST_PROXY=1` is for Caddy. It sets the client IP header, and the bundled nginx passes it on without adding one of its own.
 - Every backend start resets the demo, so a redeploy resets it too.
