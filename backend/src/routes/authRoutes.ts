@@ -6,6 +6,7 @@ import {
   resetPasswordLimiter,
   validationLimiter,
 } from "../middleware/rateLimiters.js";
+import { blockInDemo } from "../middleware/blockInDemo.js";
 
 export const authRouter = express.Router();
 
@@ -15,6 +16,7 @@ authRouter.post("/logout", authController.logoutUser);
 
 authRouter.post(
   "/reset-password",
+  blockInDemo,
   resetPasswordLimiter,
   authController.resetPassword,
 );
