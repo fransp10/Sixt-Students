@@ -13,6 +13,8 @@ import { meRouter } from "./routes/meRoutes.js";
 import cors from "cors";
 import { adminRouter } from "./routes/adminRoutes.js";
 import { generalLimiter } from "./middleware/rateLimiters.js";
+import { startDemoResetJob } from "./jobs/resetDemoJob.js";
+import resetDemo from "./services/demoResetService.js";
 const app = express();
 
 if (process.env.TRUST_PROXY) {
@@ -23,7 +25,16 @@ if (process.env.TRUST_PROXY) {
 await shiftServices.generateShiftsForDateRange();
 // start the cron job to generate upcoming shifts every day at midnight
 startGenerateShiftsJob();
-
+if (process.env.DEMO_MODE === "true") {
+  // A failed reset must not stop the server from starting. The data may be incomplete
+  // until the next nightly reset, but the app stays reachable.
+  try {
+    await resetDemo();
+  } catch (error) {
+    console.error("Demo reset on startup failed, starting anyway:", error);
+  }
+  startDemoResetJob();
+}
 app.use(express.json());
 app.use(cookieParser());
 app.use(

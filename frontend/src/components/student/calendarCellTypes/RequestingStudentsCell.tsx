@@ -5,14 +5,12 @@ import CellFrame from "./CellFrame";
 function RequestingStudentsCell({
   students,
   onClick,
-  ariaLabel,
 }: {
   students: StudentRequesting[];
   onClick: () => void;
-  ariaLabel?: string;
 }) {
   return (
-    <CellFrame kind="requested" onClick={onClick} ariaLabel={ariaLabel}>
+    <CellFrame kind="requested" onClick={onClick}>
       <span className="-mt-1 text-xs text-secondaryText">
         Waiting for approval
       </span>
