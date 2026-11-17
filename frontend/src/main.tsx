@@ -34,6 +34,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage.tsx";
 import { StudentsProvider } from "./context/Providers/StudentsContextProvider.tsx";
 import AdminContractsPage from "./pages/Admin/AdminContractsPage.tsx";
 import AdminEarningsPage from "./pages/Admin/AdminEarningsPage.tsx";
+import IndexPageRouter from "./pages/IndexPageRouter.tsx";
 
 const router = createBrowserRouter([
   {
@@ -147,6 +148,7 @@ const router = createBrowserRouter([
       },
     ],
   },
+  { index: true, path: "/", element: <IndexPageRouter /> },
   {
     path: "/login",
     element: <Login />,
