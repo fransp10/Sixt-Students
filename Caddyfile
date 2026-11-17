@@ -1,0 +1,6 @@
+# Public entry point of the hosted demo (see the "caddy" service in docker-compose.yml).
+# Caddy gets and renews the HTTPS certificate for DOMAIN by itself, redirects http to https,
+# and passes everything on to the frontend container, whose nginx forwards /api to the backend.
+{$DOMAIN} {
+	reverse_proxy frontend:80
+}
