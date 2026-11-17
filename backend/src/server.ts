@@ -26,7 +26,13 @@ await shiftServices.generateShiftsForDateRange();
 // start the cron job to generate upcoming shifts every day at midnight
 startGenerateShiftsJob();
 if (process.env.DEMO_MODE === "true") {
-  await resetDemo();
+  // A failed reset must not stop the server from starting. The data may be incomplete
+  // until the next nightly reset, but the app stays reachable.
+  try {
+    await resetDemo();
+  } catch (error) {
+    console.error("Demo reset on startup failed, starting anyway:", error);
+  }
   startDemoResetJob();
 }
 app.use(express.json());
