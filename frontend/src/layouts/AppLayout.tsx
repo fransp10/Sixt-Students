@@ -18,7 +18,7 @@ function AppLayout({ navItems }: AppLayoutProps) {
         <MobileAppNav navItems={navItems} />
       </aside>
 
-      <main className="min-w-0 flex-1 overflow-y-auto scrollbar-thin p-4  lg:p-6">
+      <main className="min-w-0 flex-1 overflow-y-auto scrollbar-thin  p-4  lg:p-6">
         <DemoBanner className="mb-4" />
         <Outlet />
       </main>
